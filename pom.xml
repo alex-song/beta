@@ -1,0 +1,45 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>alex</groupId>
+	<artifactId>beta</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>beta</name>
+	<modules>
+		<module>async</module>
+	</modules>
+	<properties>
+		<compiler_source>1.8</compiler_source>
+		<compiler_target>1.8</compiler_target>
+		<compiler_encoding>UTF-8</compiler_encoding>
+
+		<junit_version>4.12</junit_version>
+		<maven-compiler-plugin_version>3.7.0</maven-compiler-plugin_version>
+		<maven-resources-plugin_version>3.0.2</maven-resources-plugin_version>
+	</properties>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin_version}</version>
+				<configuration>
+					<source>${compiler_source}</source>
+					<target>${compiler_target}</target>
+					<!-- 指定编码格式，否则在DOS下运行mvn compile命令时会出现莫名的错误，因为系统默认使用GBK编码 -->
+					<encoding>${compiler_encoding}</encoding>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>${maven-resources-plugin_version}</version>
+				<configuration>
+					<!-- 指定编码格式，否则在DOS下运行mvn命令时当发生文件资源copy时将使用系统默认使用GBK编码 -->
+					<encoding>${compiler_encoding}</encoding>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
