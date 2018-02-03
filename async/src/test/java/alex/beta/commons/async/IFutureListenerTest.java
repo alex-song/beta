@@ -63,9 +63,8 @@ public class IFutureListenerTest extends TestCase {
 			@Override
 			public void run() {
 				try {
-					Thread.sleep(1000);
-					initialStr += "b";
-					future.setSuccess(initialStr);
+					Thread.sleep(950);
+					future.setSuccess("b");
 				} catch (InterruptedException e) {
 					future.setFailure(e.getCause());
 				}
@@ -75,6 +74,7 @@ public class IFutureListenerTest extends TestCase {
 		assertNull(future.getNow());
 		assertEquals("ac", initialStr);
 		this.future.await();
+		Thread.sleep(50);
 		assertEquals("acb", initialStr);
 	}
 }
