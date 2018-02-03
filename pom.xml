@@ -8,7 +8,8 @@
 	<name>beta</name>
 	<modules>
 		<module>async</module>
-	</modules>
+        <module>games</module>
+    </modules>
 	<properties>
 		<compiler_source>1.8</compiler_source>
 		<compiler_target>1.8</compiler_target>
@@ -17,6 +18,9 @@
 		<junit_version>4.12</junit_version>
 		<maven-compiler-plugin_version>3.7.0</maven-compiler-plugin_version>
 		<maven-resources-plugin_version>3.0.2</maven-resources-plugin_version>
+
+		<slf4j-api_version>1.7.9</slf4j-api_version>
+		<logback_version>1.2.3</logback_version>
 	</properties>
 	<build>
 		<plugins>

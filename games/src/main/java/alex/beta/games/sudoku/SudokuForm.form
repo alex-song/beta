@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="alex.beta.games.sudoku.SudokuForm">
+  <grid id="27dc6" binding="contentPane" layout-manager="BorderLayout" hgap="5" vgap="5">
+    <constraints>
+      <xy x="20" y="20" width="500" height="400"/>
+    </constraints>
+    <properties/>
+    <border type="none"/>
+    <children>
+      <grid id="66f61" binding="toolbarPanel" layout-manager="GridBagLayout">
+        <constraints border-constraint="North"/>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="7f9ce" class="javax.swing.JButton" binding="quickStartBtn">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag top="10" left="0" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <label value="随机"/>
+              <text value="随机"/>
+              <toolTipText value="随机生成一局数独游戏"/>
+            </properties>
+          </component>
+          <component id="b4c1a" class="javax.swing.JButton" binding="customizedBtn">
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag top="10" left="0" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <label value="定制"/>
+              <text value="定制"/>
+              <toolTipText value="自己定制一局数独游戏"/>
+            </properties>
+          </component>
+          <component id="e2925" class="javax.swing.JButton" binding="restartBtn">
+            <constraints>
+              <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag top="10" left="0" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <label value="重新开始"/>
+              <text value="重新开始"/>
+              <toolTipText value="重新开始这局数独游戏"/>
+            </properties>
+          </component>
+          <component id="8dd56" class="javax.swing.JButton" binding="resetBtn">
+            <constraints>
+              <grid row="0" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag top="10" left="0" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <label value="重置"/>
+              <text value="重置"/>
+              <toolTipText value="放弃并清除当前数独游戏"/>
+            </properties>
+          </component>
+          <component id="9ae6c" class="javax.swing.JButton" binding="startBtn">
+            <constraints>
+              <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag top="10" left="0" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <label value="开始"/>
+              <text value="开始"/>
+              <toolTipText value="开始游戏并计时"/>
+            </properties>
+          </component>
+          <component id="ffb0c" class="javax.swing.JButton" binding="submitBtn">
+            <constraints>
+              <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag top="10" left="0" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <label value="提交"/>
+              <text value="提交"/>
+              <toolTipText value="提交答案，并结束计时"/>
+            </properties>
+          </component>
+          <component id="6e00d" class="javax.swing.JButton" binding="showBtn">
+            <constraints>
+              <grid row="0" column="6" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <gridbag top="10" left="0" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
+            </constraints>
+            <properties>
+              <text value="显示结果"/>
+              <toolTipText value="显示当前游戏结果，并停止计时"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="23429" binding="statusPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+        <constraints border-constraint="South"/>
+        <properties>
+          <minimumSize width="204" height="28"/>
+          <preferredSize width="36" height="28"/>
+        </properties>
+        <border type="bevel-lowered"/>
+        <children>
+          <component id="3dabf" class="javax.swing.JTextField" binding="progressStatusField">
+            <constraints border-constraint="West"/>
+            <properties>
+              <editable value="false"/>
+              <minimumSize width="200" height="28"/>
+              <preferredSize width="200" height="28"/>
+            </properties>
+          </component>
+          <component id="e21d5" class="javax.swing.JTextField" binding="infoStatusField">
+            <constraints border-constraint="East"/>
+            <properties>
+              <editable value="false"/>
+              <minimumSize width="398" height="28"/>
+              <preferredSize width="398" height="28"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="cde85" binding="gridPanel" custom-create="true" layout-manager="BorderLayout" hgap="1" vgap="1">
+        <constraints border-constraint="Center"/>
+        <properties>
+          <background color="-4210753"/>
+        </properties>
+        <border type="none"/>
+        <children/>
+      </grid>
+    </children>
+  </grid>
+</form>
