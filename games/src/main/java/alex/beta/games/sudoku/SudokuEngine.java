@@ -1,6 +1,6 @@
 /**
  * <p>
- * File Name: Sudoku.java
+ * File Name: SudokuEngine.java
  * </p>
  * <p>
  * Project:   beta
@@ -23,7 +23,7 @@ import java.util.Scanner;
  * @author alexsong
  * @version ${project.version}
  */
-public class Sudoku {
+public class SudokuEngine {
 
     private int[][] data = new int[9][9]; //muti_array
     private int lef; //the number of zero in array
@@ -33,7 +33,7 @@ public class Sudoku {
      * 构造函数
      * 初始化变量
      */
-    public Sudoku() {
+    public SudokuEngine() {
         lef = 0;
         for (int i = 0; i < 9; ++i) {
             for (int j = 0; j < 9; ++j) {
@@ -64,7 +64,7 @@ public class Sudoku {
      * @param args
      */
     public static void main(String[] args) {
-        Sudoku su = new Sudoku();
+        SudokuEngine su = new SudokuEngine();
 
         System.out.println("Please input the number of digits provided:");
         Scanner scan = new Scanner(System.in);

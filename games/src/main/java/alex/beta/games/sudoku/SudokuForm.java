@@ -15,12 +15,15 @@
  */
 package alex.beta.games.sudoku;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 /**
  * @author alexsong
@@ -46,12 +49,15 @@ public class SudokuForm {
     //Customized UI code
     private JTextField[][] textFields;
 
-    private Sudoku engine;
+    private SudokuEngine engine;
+    private boolean shownResult;
+    private boolean customized;
+    private boolean countingStopped;
     private int[][] initialData;
     private int[][] resultData;
 
     public SudokuForm() {
-        engine = new Sudoku();
+        engine = new SudokuEngine();
 
         quickStartBtn.addActionListener(new ActionListener() {
             @Override
@@ -60,10 +66,11 @@ public class SudokuForm {
                 do {
                     inputValue = JOptionPane.showInputDialog("请输入显示的数字个数(9 - 45)：", inputValue);
                     logger.debug("Input string is {}", inputValue);
-                } while (!inputValue.matches("\\d+") || Integer.parseInt(inputValue) < 9 || Integer.parseInt(inputValue) > 45);
+                }
+                while (!inputValue.matches("\\d+") || Integer.parseInt(inputValue) < 9 || Integer.parseInt(inputValue) > 45);
 
                 engine.setTip(Integer.parseInt(inputValue));
-                progressStatusField.setText("0.0");
+                progressStatusField.setText("00:00:00 000");
                 boolean canSolve = true;
                 do {
                     engine.setData(new int[9][9]);
@@ -74,6 +81,8 @@ public class SudokuForm {
                     resultData = engine.getData();
                 } while (!canSolve);
                 setInitialData();
+                shownResult = false;
+                customized = false;
             }
         });
 
@@ -81,6 +90,9 @@ public class SudokuForm {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (resultData == null) {
+                    return;
+                }
+                if (shownResult) {
                     return;
                 }
                 for (int k = 0; k < 9; k++) {
@@ -94,6 +106,80 @@ public class SudokuForm {
                         textFields[k][n].setEditable(false);
                     }
                 }
+                shownResult = true;
+                countingStopped = true;
+            }
+        });
+
+        customizedBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                initialData = new int[9][9];
+                resultData = null;
+                shownResult = false;
+                for (int k = 0; k < 9; k++) {
+                    for (int n = 0; n < 9; n++) {
+                        initialData[k][n] = 0;
+                    }
+                }
+                setInitialData();
+                textFields[0][0].requestFocusInWindow();
+                customized = true;
+                progressStatusField.setText("00:00:00 000");
+            }
+        });
+
+        startBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!countingStopped) {
+                    //已有游戏在进行
+                    return;
+                }
+
+                if (customized) {
+                    //TODO: 尝试求解
+                }
+
+                countingStopped = false;
+                progressStatusField.setText("00:00:00 000");
+
+                Thread countingThread = new Thread() {
+                    @Override
+                    public void run() {
+                        long startTime = System.currentTimeMillis();
+                        do {
+                            progressStatusField.setText(formatMilliseconds(System.currentTimeMillis() - startTime));
+
+                            try {
+                                Thread.sleep(1);
+                            } catch (InterruptedException ex) {
+                                logger.error("Counter thread is interrupted", ex);
+                                progressStatusField.setText("计时器出错！");
+                            }
+                        } while (!countingStopped);
+                    }
+                };
+                countingThread.setDaemon(true);
+                countingThread.start();
+            }
+
+            // 将毫秒数格式化
+            private final String formatMilliseconds(long elapsed) {
+                int hour, minute, second, milli;
+
+                milli = (int) (elapsed % 1000);
+                elapsed = elapsed / 1000;
+
+                second = (int) (elapsed % 60);
+                elapsed = elapsed / 60;
+
+                minute = (int) (elapsed % 60);
+                elapsed = elapsed / 60;
+
+                hour = (int) (elapsed % 60);
+
+                return String.format("%02d:%02d:%02d %03d", hour, minute, second, milli);
             }
         });
     }
@@ -111,6 +197,7 @@ public class SudokuForm {
         frame.setVisible(true);
     }
 
+    @SuppressWarnings("deprecation")
     private void createUIComponents() {
         gridPanel = new JPanel(new GridLayout(3, 3, 15, 15));
         JPanel[] subGridPanels = new JPanel[9];
@@ -123,8 +210,37 @@ public class SudokuForm {
         for (int k = 0; k < 9; k++) {
             for (int n = 0; n < 9; n++) {
                 textFields[k][n] = new JTextField("");// + rightans[k][n]);
+                textFields[k][n].setFont(new Font("宋体", Font.BOLD, 20));
                 textFields[k][n].setHorizontalAlignment(JTextField.CENTER);//将数字水平居中
                 textFields[k][n].setEditable(false);         //只可显示不可修改
+                textFields[k][n].addKeyListener(new KeyListener() {
+                    @Override
+                    public void keyTyped(KeyEvent e) {
+                        int temp = e.getKeyChar();
+                        if (temp == KeyEvent.VK_ENTER || temp == KeyEvent.VK_TAB) {//按回车时
+                            e.getComponent().transferFocus();
+                        } else if (((JTextField) e.getComponent()).getText().length() > 0) {
+                            //已有数字
+                            e.consume();
+                        } else if (temp <= KeyEvent.VK_9 && temp > KeyEvent.VK_0) {
+                            //数字键
+                        } else if (temp == KeyEvent.VK_BACK_SPACE || temp == KeyEvent.VK_DELETE) {
+                            //回退或者删除
+                        } else {
+                            e.consume();    //如果不是则消除key事件,也就是按了键盘以后没有反应;
+                        }
+                    }
+
+                    @Override
+                    public void keyReleased(KeyEvent e) {
+                        // TODO Auto-generated method stub
+                    }
+
+                    @Override
+                    public void keyPressed(KeyEvent e) {
+                        // TODO Auto-generated method stub
+                    }
+                });
                 positionTextField(k, n, subGridPanels, textFields[k][n]);      //添加文本框
             }
         }
@@ -132,11 +248,10 @@ public class SudokuForm {
     }
 
     /**
-     *
-     * @param k 行
-     * @param n 列
+     * @param k             行
+     * @param n             列
      * @param subGridPanels 子托盘数组
-     * @param textField 数字框
+     * @param textField     数字框
      */
     private void positionTextField(int k, int n, JPanel[] subGridPanels, JTextField textField) {
         if (k < 3) {
