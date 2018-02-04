@@ -47,7 +47,22 @@ public class SudokuEngine {
     }
 
     public void setData(int[][] data) {
-        this.data = data;
+        this.data = new int[9][9];
+        for (int k = 0; k < 9; k++) {
+            for (int n = 0; n < 9; n++) {
+                this.data[k][n] = data[k][n];
+            }
+        }
+        lef = 81;
+        tip = 0;
+        for (int k = 0; k < 9; k++) {
+            for (int n = 0; n < 9; n++) {
+                if (this.data[k][n] != 0) {
+                    lef--;
+                    tip++;
+                }
+            }
+        }
     }
 
     public int getTip() {
