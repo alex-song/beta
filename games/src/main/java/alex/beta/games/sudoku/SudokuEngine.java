@@ -42,6 +42,25 @@ public class SudokuEngine {
         }
     }
 
+    /**
+     * main函数
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
+        SudokuEngine su = new SudokuEngine();
+
+        System.out.println("Please input the number of digits provided:");
+        Scanner scan = new Scanner(System.in);
+        su.setTip(scan.nextInt());
+        scan.close();
+
+        su.genSudo();
+        su.printSudo();
+        su.solveSudo(false);
+        su.printSudo();
+    }
+
     public int[][] getData() {
         return data;
     }
@@ -71,25 +90,6 @@ public class SudokuEngine {
 
     public void setTip(int tip) {
         this.tip = tip;
-    }
-
-    /**
-     * main函数
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        SudokuEngine su = new SudokuEngine();
-
-        System.out.println("Please input the number of digits provided:");
-        Scanner scan = new Scanner(System.in);
-        su.setTip(scan.nextInt());
-        scan.close();
-
-        su.genSudo();
-        su.printSudo();
-        su.solveSudo(false);
-        su.printSudo();
     }
 
     /**
