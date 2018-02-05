@@ -22,8 +22,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+
+import alex.beta.games.sudoku.SudokuValidator.*;
 
 /**
  * @author alexsong
@@ -41,7 +41,7 @@ public class SudokuForm {
     private JLabel countingField;
 
     //Customized UI code
-    private JTextField[][] textFields;
+    private SudokuField[][] textFields;
     private JMenuBar menuBar;
     private JMenuItem quickStartButton;
     private JMenuItem customizedButton;
@@ -75,7 +75,7 @@ public class SudokuForm {
                 if (customizedGame) {
                     for (int k = 0; k < 9; k++) {
                         for (int n = 0; n < 9; n++) {
-                            initialData[k][n] = ((SudokuField)textFields[k][n]).getInputValue();
+                            initialData[k][n] = textFields[k][n].getInputValue();
                         }
                     }
                     engine.setData(initialData);
@@ -84,11 +84,11 @@ public class SudokuForm {
                         int[][] resultData = engine.getData();
                         for (int k = 0; k < 9; k++) {
                             for (int n = 0; n < 9; n++) {
-                                ((SudokuField)textFields[k][n]).setSuggestedValue(resultData[k][n]);
+                                textFields[k][n].setSuggestedValue(resultData[k][n]);
                                 if (initialData[k][n] != 0) {
-                                    ((SudokuField)textFields[k][n]).showInput(Color.BLACK, Color.GRAY, false);
+                                    textFields[k][n].showInput(Color.BLACK, Color.GRAY, false);
                                 } else {
-                                    ((SudokuField)textFields[k][n]).showInput(Color.BLACK, Color.WHITE, true);
+                                    textFields[k][n].showInput(Color.BLACK, Color.WHITE, true);
                                 }
                             }
                         }
@@ -150,185 +150,38 @@ public class SudokuForm {
         submitBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //TODO
-            }
+                gameStopped = true;
 
-            private final boolean validateRow(int row) {
-                int count = 0;
-                for (int n = 0; n < 9; n++) {
-                    count += Integer.parseInt(textFields[row][n].getText().trim());
-                }
-                if (count != 45) {
-                    JOptionPane.showMessageDialog(contentPane, "第" + row + "行有重复的数字");
-                    return false;
-                }
-                return true;
-            }
-
-            private final boolean validateColumn(int column) {
-                int count = 0;
-                for (int k = 0; k < 9; k++) {
-                    count += Integer.parseInt(textFields[k][column].getText().trim());
-                }
-                if (count != 45) {
-                    JOptionPane.showMessageDialog(contentPane, "第" + column + "列有重复的数字");
-                    return false;
-                }
-                return true;
-            }
-
-            private final boolean validateBlock(int row, int column) {
-                int count = 0;
-                if (row < 3) {
-                    if (column < 3) {
-                        count += Integer.parseInt(textFields[0][0].getText().trim());
-                        count += Integer.parseInt(textFields[0][1].getText().trim());
-                        count += Integer.parseInt(textFields[0][2].getText().trim());
-
-                        count += Integer.parseInt(textFields[1][0].getText().trim());
-                        count += Integer.parseInt(textFields[1][1].getText().trim());
-                        count += Integer.parseInt(textFields[1][2].getText().trim());
-
-                        count += Integer.parseInt(textFields[2][0].getText().trim());
-                        count += Integer.parseInt(textFields[2][1].getText().trim());
-                        count += Integer.parseInt(textFields[2][2].getText().trim());
-                    } else if (column < 6) {
-                        count += Integer.parseInt(textFields[0][3].getText().trim());
-                        count += Integer.parseInt(textFields[0][4].getText().trim());
-                        count += Integer.parseInt(textFields[0][5].getText().trim());
-
-                        count += Integer.parseInt(textFields[1][3].getText().trim());
-                        count += Integer.parseInt(textFields[1][4].getText().trim());
-                        count += Integer.parseInt(textFields[1][5].getText().trim());
-
-                        count += Integer.parseInt(textFields[2][3].getText().trim());
-                        count += Integer.parseInt(textFields[2][4].getText().trim());
-                        count += Integer.parseInt(textFields[2][5].getText().trim());
-                    } else {
-                        count += Integer.parseInt(textFields[0][6].getText().trim());
-                        count += Integer.parseInt(textFields[0][7].getText().trim());
-                        count += Integer.parseInt(textFields[0][8].getText().trim());
-
-                        count += Integer.parseInt(textFields[1][6].getText().trim());
-                        count += Integer.parseInt(textFields[1][7].getText().trim());
-                        count += Integer.parseInt(textFields[1][8].getText().trim());
-
-                        count += Integer.parseInt(textFields[2][6].getText().trim());
-                        count += Integer.parseInt(textFields[2][7].getText().trim());
-                        count += Integer.parseInt(textFields[2][8].getText().trim());
-                    }
-                } else if (row < 6) {
-                    if (column < 3) {
-                        count += Integer.parseInt(textFields[3][0].getText().trim());
-                        count += Integer.parseInt(textFields[4][1].getText().trim());
-                        count += Integer.parseInt(textFields[5][2].getText().trim());
-
-                        count += Integer.parseInt(textFields[3][0].getText().trim());
-                        count += Integer.parseInt(textFields[4][1].getText().trim());
-                        count += Integer.parseInt(textFields[5][2].getText().trim());
-
-                        count += Integer.parseInt(textFields[3][0].getText().trim());
-                        count += Integer.parseInt(textFields[4][1].getText().trim());
-                        count += Integer.parseInt(textFields[5][2].getText().trim());
-                    } else if (column < 6) {
-                        count += Integer.parseInt(textFields[3][3].getText().trim());
-                        count += Integer.parseInt(textFields[4][4].getText().trim());
-                        count += Integer.parseInt(textFields[5][5].getText().trim());
-
-                        count += Integer.parseInt(textFields[3][3].getText().trim());
-                        count += Integer.parseInt(textFields[4][4].getText().trim());
-                        count += Integer.parseInt(textFields[5][5].getText().trim());
-
-                        count += Integer.parseInt(textFields[3][3].getText().trim());
-                        count += Integer.parseInt(textFields[4][4].getText().trim());
-                        count += Integer.parseInt(textFields[5][5].getText().trim());
-                    } else {
-                        count += Integer.parseInt(textFields[3][6].getText().trim());
-                        count += Integer.parseInt(textFields[4][7].getText().trim());
-                        count += Integer.parseInt(textFields[5][8].getText().trim());
-
-                        count += Integer.parseInt(textFields[3][6].getText().trim());
-                        count += Integer.parseInt(textFields[4][7].getText().trim());
-                        count += Integer.parseInt(textFields[5][8].getText().trim());
-
-                        count += Integer.parseInt(textFields[3][6].getText().trim());
-                        count += Integer.parseInt(textFields[4][7].getText().trim());
-                        count += Integer.parseInt(textFields[5][8].getText().trim());
-                    }
+                SudokuValidationMessages messages = SudokuValidator.getInstance().validate(textFields);
+                if (messages.isPassed()) {
+                    JOptionPane.showMessageDialog(contentPane, "恭喜，你在" + countingField.getText() + "完成了本局数独游戏");
                 } else {
-                    if (column < 3) {
-                        count += Integer.parseInt(textFields[6][0].getText().trim());
-                        count += Integer.parseInt(textFields[7][1].getText().trim());
-                        count += Integer.parseInt(textFields[8][2].getText().trim());
-
-                        count += Integer.parseInt(textFields[6][0].getText().trim());
-                        count += Integer.parseInt(textFields[7][1].getText().trim());
-                        count += Integer.parseInt(textFields[8][2].getText().trim());
-
-                        count += Integer.parseInt(textFields[6][0].getText().trim());
-                        count += Integer.parseInt(textFields[7][1].getText().trim());
-                        count += Integer.parseInt(textFields[8][2].getText().trim());
-                    } else if (column < 6) {
-                        count += Integer.parseInt(textFields[6][3].getText().trim());
-                        count += Integer.parseInt(textFields[7][4].getText().trim());
-                        count += Integer.parseInt(textFields[8][5].getText().trim());
-
-                        count += Integer.parseInt(textFields[6][3].getText().trim());
-                        count += Integer.parseInt(textFields[7][4].getText().trim());
-                        count += Integer.parseInt(textFields[8][5].getText().trim());
-
-                        count += Integer.parseInt(textFields[6][3].getText().trim());
-                        count += Integer.parseInt(textFields[7][4].getText().trim());
-                        count += Integer.parseInt(textFields[8][5].getText().trim());
-                    } else {
-                        count += Integer.parseInt(textFields[6][6].getText().trim());
-                        count += Integer.parseInt(textFields[7][7].getText().trim());
-                        count += Integer.parseInt(textFields[8][8].getText().trim());
-
-                        count += Integer.parseInt(textFields[6][6].getText().trim());
-                        count += Integer.parseInt(textFields[7][7].getText().trim());
-                        count += Integer.parseInt(textFields[8][8].getText().trim());
-
-                        count += Integer.parseInt(textFields[6][6].getText().trim());
-                        count += Integer.parseInt(textFields[7][7].getText().trim());
-                        count += Integer.parseInt(textFields[8][8].getText().trim());
+                    StringBuilder sb = new StringBuilder("错误信息:\n");
+                    for (int i = 0; i < messages.getMessages().size() && i < 5; i++) {
+                        sb.append(messages.getMessages().get(i).getMessage());
                     }
-                }
-                if (count != 45) {
-                    JOptionPane.showMessageDialog(contentPane, "9宫格中有重复的数字：\n第" + row + "行，第" + column + "列");
-                    return false;
-                }
-                return true;
-            }
-
-            private final boolean validateNotEmpty() {
-                boolean passed = true;
-                int k = 0, n = 0;
-                for (k = 0; k < 9 && passed; k++) {
-                    for (n = 0; n < 9 && passed; n++) {
-                        if (textFields[k][n].getText() == null || textFields[k][n].getText().trim().isEmpty()) {
-                            passed = false;
-                            break;
-                        } else {
-                            try {
-                                int temp = Integer.parseInt(textFields[k][n].getText().trim());
-                                if (temp < 1 || temp > 9) {
-                                    passed = false;
-                                    break;
-                                }
-                            } catch (Exception ex) {
-                                passed = false;
-                                break;
-                            }
-                        }
+                    if (messages.getMessages().size() > 5) {
+                        sb.append("\n还有" + (messages.getMessages().size() - 5) + "个错误等待修正......");
                     }
+                    JOptionPane.showMessageDialog(contentPane, sb.toString());
                 }
-                if (!passed) {
-                    JOptionPane.showMessageDialog(contentPane, "还有未完成的格子：\n第" + k + "行，第" + n + "列");
-                }
-                return passed;
+
             }
         });
+    }
+
+    public static void main(String[] args) throws Exception {
+        JFrame frame = new JFrame();
+
+        frame.setTitle("数独游戏");
+        frame.setSize(600, 900);
+
+        SudokuForm sudokuForm = new SudokuForm();
+        frame.setContentPane(sudokuForm.contentPane);
+        frame.setJMenuBar(sudokuForm.menuBar);
+        frame.setLocationRelativeTo(null);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
     }
 
     @SuppressWarnings("deprecation")
@@ -384,7 +237,7 @@ public class SudokuForm {
                         int[][] resultData = engine.getData();
                         for (int k = 0; k < 9; k++) {
                             for (int n = 0; n < 9; n++) {
-                                ((SudokuField)textFields[k][n]).setSuggestedValue(resultData[k][n]);
+                                textFields[k][n].setSuggestedValue(resultData[k][n]);
                             }
                         }
                     }
@@ -444,10 +297,10 @@ public class SudokuForm {
                 }
                 for (int k = 0; k < 9; k++) {
                     for (int n = 0; n < 9; n++) {
-                        if (((SudokuField)textFields[k][n]).isSame()) {
-                            ((SudokuField)textFields[k][n]).showSuggestion(Color.BLACK, null, false);
+                        if (textFields[k][n].isSame()) {
+                            textFields[k][n].showSuggestion(Color.BLACK, null, false);
                         } else {
-                            ((SudokuField)textFields[k][n]).showSuggestion(Color.RED, null, false);
+                            textFields[k][n].showSuggestion(Color.RED, null, false);
                         }
                     }
                 }
@@ -525,12 +378,11 @@ public class SudokuForm {
     private void setInitialData() {
         for (int k = 0; k < 9; k++) {
             for (int n = 0; n < 9; n++) {
-                ((SudokuField)textFields[k][n]).setInputValue(this.initialData[k][n]);
-
+                textFields[k][n].setInputValue(this.initialData[k][n]);
                 if (this.initialData[k][n] != 0) {
-                    ((SudokuField)textFields[k][n]).showInput(Color.BLACK, Color.GRAY, false);
+                    textFields[k][n].showInput(Color.BLACK, Color.GRAY, false);
                 } else {
-                    ((SudokuField)textFields[k][n]).showInput(Color.BLACK, Color.WHITE, true);
+                    textFields[k][n].showInput(Color.BLACK, Color.WHITE, true);
                 }
             }
         }
@@ -543,19 +395,5 @@ public class SudokuForm {
                 this.initialData[k][n] = data[k][n];
             }
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        JFrame frame = new JFrame();
-
-        frame.setTitle("数独游戏");
-        frame.setSize(600, 900);
-
-        SudokuForm sudokuForm = new SudokuForm();
-        frame.setContentPane(sudokuForm.contentPane);
-        frame.setJMenuBar(sudokuForm.menuBar);
-        frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
     }
 }

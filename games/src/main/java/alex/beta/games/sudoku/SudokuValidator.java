@@ -1,0 +1,215 @@
+/**
+ * <p>
+ * File Name: SudokuValidator.java
+ * </p>
+ * <p>
+ * Project:   beta
+ * </p>
+ * <p>
+ * Copyright: Copyright (c) 2018, All Rights Reserved
+ * E-mail: song_liping@hotmail.com
+ * </p>
+ * <p>
+ * Created on 2018/2/5 下午3:43
+ * </p>
+ */
+package alex.beta.games.sudoku;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * @author alexsong
+ * @version ${project.version}
+ */
+public class SudokuValidator {
+    private static SudokuValidator ourInstance = new SudokuValidator();
+
+    private SudokuValidator() {
+        //To hide default public constructor
+    }
+
+    public static SudokuValidator getInstance() {
+        return ourInstance;
+    }
+
+    public SudokuValidationMessages validate(JDuoIntValuesField[][] fields) {
+        Objects.requireNonNull(fields, "Cannot validate an empty Sudoku result");
+
+        int[][] data = new int[9][9];
+        for (int k = 0; k < 9; k++) {
+            for (int n = 0; n < 9; n++) {
+                data[k][n] = fields[k][n].getInputValue();
+            }
+        }
+        return validate(data);
+    }
+
+    public SudokuValidationMessages validate(int[][] data) {
+        Objects.requireNonNull(data, "Cannot validate an empty Sudoku result");
+
+        SudokuValidationMessages messages = new SudokuValidationMessages();
+        //validate empty fields
+        for (int k = 0; k < 9; k++) {
+            for (int n = 0; n < 9; n++) {
+                if (data[k][n] <= 0) {
+                    messages.setPassed(false);
+                    messages.addMessage(new SudokuValidationMessage(k, n, String.format("第%d行，第%d列没有填写答案%n", k + 1, n + 1), SudokuValidationError.EMPTY));
+                }
+            }
+        }
+        //validate row
+        for (int k = 0; k < 9; k++) {
+            int[] count = new int[9];
+            for (int i = 0; i < 9; i++) {
+                if (data[k][i] > 0) {
+                    count[data[k][i] - 1]++;
+                }
+            }
+            for (int i = 0; i < 9; i++) {
+                if (count[i] == 0) {
+                    messages.setPassed(false);
+                    messages.addMessage(new SudokuValidationMessage(k, 0, String.format("数字%d在第%d行中没有出现%n", i + 1, k + 1), SudokuValidationError.NOT_IN_USE));
+                } else if (count[i] > 1) {
+                    messages.setPassed(false);
+                    messages.addMessage(new SudokuValidationMessage(k, 0, String.format("数字%d在第%d行中出现了%d次%n", i + 1, k + 1, count[i]), SudokuValidationError.DUPLICATED_IN_ROW));
+                }
+            }
+        }
+        //validate column
+        for (int n = 0; n < 9; n++) {
+            int[] count = new int[9];
+            for (int i = 0; i < 9; i++) {
+                if (data[i][n] > 0) {
+                    count[data[i][n] - 1]++;
+                }
+            }
+            for (int i = 0; i < 9; i++) {
+                if (count[i] == 0) {
+                    messages.setPassed(false);
+                    messages.addMessage(new SudokuValidationMessage(0, n, String.format("数字%d在第%d列中没有出现%n", i + 1, n + 1), SudokuValidationError.NOT_IN_USE));
+                } else if (count[i] > 1) {
+                    messages.setPassed(false);
+                    messages.addMessage(new SudokuValidationMessage(0, n, String.format("数字%d在第%d列中出现了%d次%n", i + 1, n + 1, count[i]), SudokuValidationError.DUPLICATED_IN_COLUMN));
+                }
+            }
+        }
+        //validate block
+        ArrayList<Integer>[][] blocks = new ArrayList[3][3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                blocks[i][j] = new ArrayList<Integer>();
+            }
+        }
+        for (int k = 0; k < 9; k++) {
+            for (int n = 0; n < 9; n++) {
+                blocks[k / 3][n / 3].add(data[k][n]);
+            }
+        }
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                int[] count = new int[9];
+                for (int l = 0; l < 9; l++) {
+                    if (blocks[i][j].get(l) > 0) {
+                        count[blocks[i][j].get(l) - 1]++;
+                    }
+                }
+                for (int m = 0; m < 9; m++) {
+                    if (count[m] == 0) {
+                        messages.setPassed(false);
+                        messages.addMessage(new SudokuValidationMessage(i, j, String.format("数字%d在(%d,%d)宫格中没有出现%n", m + 1, i + 1, j + 1), SudokuValidationError.NOT_IN_USE));
+                    } else if (count[m] > 1) {
+                        messages.setPassed(false);
+                        messages.addMessage(new SudokuValidationMessage(i, j, String.format("数字%d在(%d,%d)宫格中出现了%d次%n", m + 1, i + 1, j + 1, count[m]), SudokuValidationError.DUPLICATED_IN_BLOCK));
+                    }
+                }
+            }
+        }
+
+        return messages;
+    }
+
+    public enum SudokuValidationError {
+        DUPLICATED_IN_ROW,
+        DUPLICATED_IN_COLUMN,
+        DUPLICATED_IN_BLOCK,
+        NOT_IN_USE,
+        EMPTY;
+    }
+
+    public class SudokuValidationMessages {
+        private boolean passed;
+        private List<SudokuValidationMessage> messages;
+
+        public SudokuValidationMessages() {
+            messages = new ArrayList<SudokuValidationMessage>();
+            passed = true;
+        }
+
+        public boolean isPassed() {
+            return passed;
+        }
+
+        public void setPassed(boolean passed) {
+            this.passed = passed;
+        }
+
+        public List<SudokuValidationMessage> getMessages() {
+            return messages;
+        }
+
+        public void setMessages(List<SudokuValidationMessage> messages) {
+            this.messages = messages;
+        }
+
+        public void addMessage(SudokuValidationMessage message) {
+            messages.add(message);
+        }
+    }
+
+    public class SudokuValidationMessage {
+        private SudokuValidationError error;
+        private int row, column;
+        private String message;
+
+        public SudokuValidationMessage(int row, int column, String message, SudokuValidationError error) {
+            this.row = row;
+            this.column = column;
+            this.message = message;
+            this.error = error;
+        }
+
+        public int getRow() {
+            return row;
+        }
+
+        public void setRow(int row) {
+            this.row = row;
+        }
+
+        public int getColumn() {
+            return column;
+        }
+
+        public void setColumn(int column) {
+            this.column = column;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public SudokuValidationError getError() {
+            return error;
+        }
+
+        public void setError(SudokuValidationError error) {
+            this.error = error;
+        }
+    }
+}
