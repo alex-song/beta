@@ -60,12 +60,12 @@ public class SudokuField extends JTextField {
 
             @Override
             public void keyReleased(KeyEvent e) {
-                // TODO Auto-generated method stub
+                // nothing
             }
 
             @Override
             public void keyPressed(KeyEvent e) {
-                // TODO Auto-generated method stub
+                // nothing
             }
         });
     }

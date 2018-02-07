@@ -31,7 +31,7 @@ public class SudokuFrame extends JFrame {
 
     private static final Logger logger = LoggerFactory.getLogger(SudokuFrame.class);
 
-    private JButton restartBtn;
+//    private JButton restartBtn;
     private JButton startBtn;
     private JButton submitBtn;
     private JLabel countingField;
@@ -117,10 +117,10 @@ public class SudokuFrame extends JFrame {
         startBtn.setMargin(new Insets(5, 0, 5, 0));
         toolbarPanel.add(startBtn);
 
-        restartBtn = new JButton("重新开始");
-        restartBtn.setToolTipText("重新开始这局数独游戏");
-        restartBtn.setMargin(new Insets(5, 0, 5, 0));
-        toolbarPanel.add(restartBtn);
+//        restartBtn = new JButton("重新开始");
+//        restartBtn.setToolTipText("重新开始这局数独游戏");
+//        restartBtn.setMargin(new Insets(5, 0, 5, 0));
+//        toolbarPanel.add(restartBtn);
 
         submitBtn = new JButton("提交");
         submitBtn.setToolTipText("提交答案，并结束计时");
@@ -172,7 +172,7 @@ public class SudokuFrame extends JFrame {
                 boolean canSolve = true;
                 do {
                     engine.genSudo();
-                    engine.printSudo();
+                    engine.printSudo();//打印游戏
                     cacheInitialData(engine.getData());
 
                     canSolve = engine.solveSudo(false);
@@ -185,6 +185,7 @@ public class SudokuFrame extends JFrame {
                         }
                     }
                 } while (!canSolve);
+                engine.printSudo();//打印游戏结果
                 //初始化九宫格
                 setInitialData();
                 //初始化系统变量
@@ -229,20 +230,49 @@ public class SudokuFrame extends JFrame {
         showMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (shownResult || engine == null) {
+                if (shownResult || engine == null) {//还未生成游戏或者已经显示了结果
+                    JOptionPane.showMessageDialog(getContentPane(), "游戏还没有开始，或已经结束\n请从菜单中选择游戏方式");
                     return;
                 }
-                for (int k = 0; k < 9; k++) {
-                    for (int n = 0; n < 9; n++) {
-                        if (textFields[k][n].isSame()) {
-                            textFields[k][n].showSuggestion(Color.BLACK, null, false);
-                        } else {
-                            textFields[k][n].showSuggestion(Color.RED, null, false);
+                if (engine != null && !gameStarted && customizedGame) {//还未开始并且已经生成了游戏并且是定制游戏
+                    for (int k = 0; k < 9; k++) {
+                        for (int n = 0; n < 9; n++) {
+                            initialData[k][n] = textFields[k][n].getInputValue();
                         }
                     }
+                    engine.setData(initialData);
+                    engine.printSudo();//打印游戏
+                    if (engine.solveSudo(false)) {
+                        int[][] resultData = engine.getData();
+                        for (int k = 0; k < 9; k++) {
+                            for (int n = 0; n < 9; n++) {
+                                textFields[k][n].setSuggestedValue(resultData[k][n]);
+                                if (initialData[k][n] != 0) {
+                                    textFields[k][n].showInput(Color.BLACK, Color.GRAY, false);
+                                } else {
+                                    textFields[k][n].showInput(Color.BLACK, Color.WHITE, true);
+                                }
+                            }
+                        }
+                        engine.printSudo();//打印游戏结果
+                    } else {
+                        JOptionPane.showMessageDialog(getContentPane(), "无解，请修改游戏");
+                        return;
+                    }
+                } else {
+                    for (int k = 0; k < 9; k++) {
+                        for (int n = 0; n < 9; n++) {
+                            if (textFields[k][n].isSame()) {
+                                textFields[k][n].showSuggestion(Color.BLACK, null, false);
+                            } else {
+                                textFields[k][n].showSuggestion(Color.RED, null, false);
+                            }
+                        }
+                    }
+                    shownResult = true;
                 }
-                shownResult = true;
                 gameStopped = true;
+                engine = null;
                 startBtn.setEnabled(false);
             }
         });
@@ -251,6 +281,7 @@ public class SudokuFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 gameStopped = true;
+                engine = null;
                 System.exit(0);
             }
         });
@@ -282,6 +313,7 @@ public class SudokuFrame extends JFrame {
                         }
                     }
                     engine.setData(initialData);
+                    engine.printSudo();//打印游戏
 
                     if (engine.solveSudo(false)) {
                         int[][] resultData = engine.getData();
@@ -295,7 +327,7 @@ public class SudokuFrame extends JFrame {
                                 }
                             }
                         }
-                        engine.printSudo();
+                        engine.printSudo();//打印游戏结果
                     } else {
                         JOptionPane.showMessageDialog(getContentPane(), "无解，请修改游戏");
                         return;
@@ -353,24 +385,35 @@ public class SudokuFrame extends JFrame {
         submitBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if (engine == null) {
+                    JOptionPane.showMessageDialog(getContentPane(), "游戏还没有开始，或已经结束\n请从菜单中选择游戏方式");
+                    return;
+                }
                 gameStopped = true;
 
                 SudokuValidator.SudokuValidationMessages messages = SudokuValidator.getInstance().validate(textFields);
                 if (messages.isPassed()) {
                     JOptionPane.showMessageDialog(getContentPane(), "恭喜，你在" + countingField.getText() + "完成了本局数独游戏");
                 } else {
-                    StringBuilder sb = new StringBuilder("错误信息:\n");
+                    StringBuilder sb = new StringBuilder("错误信息:\n\n");
                     for (int i = 0; i < messages.getMessages().size() && i < 5; i++) {
                         sb.append(messages.getMessages().get(i).getMessage());
                     }
                     if (messages.getMessages().size() > 5) {
-                        sb.append("\n还有" + (messages.getMessages().size() - 5) + "个错误等待修正......");
+                        sb.append("还有" + (messages.getMessages().size() - 5) + "个错误等待修正......");
                     }
                     JOptionPane.showMessageDialog(getContentPane(), sb.toString());
                 }
 
             }
         });
+
+//        restartBtn.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                //TODO
+//            }
+//        });
     }
 
     /**

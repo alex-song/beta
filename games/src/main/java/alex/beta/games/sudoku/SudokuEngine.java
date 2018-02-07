@@ -15,6 +15,9 @@
  */
 package alex.beta.games.sudoku;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Scanner;
 
 /**
@@ -24,6 +27,7 @@ import java.util.Scanner;
  * @version ${project.version}
  */
 public class SudokuEngine {
+    private static final Logger logger = LoggerFactory.getLogger(SudokuEngine.class);
 
     private int[][] data = new int[9][9]; //muti_array
     private int lef; //the number of zero in array
@@ -139,12 +143,12 @@ public class SudokuEngine {
     public boolean solveSudo(boolean isGen) {
         if (dfs()) {
             if (isGen)
-                System.out.println("Generate sudoku completed.");
+                logger.info("Generate sudoku completed.");
             else
-                System.out.println("Solve completed.");
+                logger.info("Solve completed.");
             return true;
         } else {
-            System.out.println("Error:There are no solution.");
+            logger.info("Error:There are no solution.");
             return false;
         }
     }
@@ -153,24 +157,30 @@ public class SudokuEngine {
      * 输出数独数组
      */
     public void printSudo() {
-        System.out.println("----------------------");
+        StringBuilder sb = new StringBuilder(System.lineSeparator());
+
+        sb.append("----------------------");
+        sb.append(System.lineSeparator());
         for (int i = 0; i < 9; ++i) {
             if (i == 3 || i == 6) {
-                System.out.println("----------------------");
+                sb.append("----------------------");
+                sb.append(System.lineSeparator());
             }
             for (int j = 0; j < 9; ++j) {
                 if (j == 0 || j == 3 || j == 6) {
-                    System.out.print("|");
+                    sb.append("|");
                 }
                 if (data[i][j] > 0)
-                    System.out.print(data[i][j] + " ");
+                    sb.append(data[i][j] + " ");
                 else
-                    System.out.print("* ");
+                    sb.append("* ");
             }
-            System.out.print("|");
-            System.out.print('\n');
+            sb.append("|");
+            sb.append(System.lineSeparator());
         }
-        System.out.println("----------------------");
+        sb.append("----------------------");
+        sb.append(System.lineSeparator());
+        logger.info(sb.toString());
     }
 
     /**
