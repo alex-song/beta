@@ -49,7 +49,7 @@ public class BaseFutureTest {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(200);
                     initialStr1 += "b";
                     future.setSuccess(initialStr1);
                 } catch (InterruptedException e) {

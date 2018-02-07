@@ -61,7 +61,7 @@ public class IFutureListenerTest {
             @Override
             public void run() {
                 try {
-                    Thread.sleep(950);
+                    Thread.sleep(150);
                     future.setSuccess("b");
                 } catch (InterruptedException e) {
                     future.setFailure(e.getCause());

@@ -17,6 +17,7 @@
 
 		<maven-compiler-plugin_version>3.7.0</maven-compiler-plugin_version>
 		<maven-resources-plugin_version>3.0.2</maven-resources-plugin_version>
+		<maven-assembly-plugin_version>3.1.0</maven-assembly-plugin_version>
 
 		<junit_version>4.12</junit_version>
 		<slf4j-api_version>1.7.9</slf4j-api_version>
