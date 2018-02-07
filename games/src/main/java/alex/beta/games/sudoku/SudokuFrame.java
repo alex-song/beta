@@ -163,7 +163,10 @@ public class SudokuFrame extends JFrame {
                     inputValue = JOptionPane.showInputDialog("请输入显示的数字个数(9 - 45)：", inputValue);
                     logger.debug("Input string is {}", inputValue);
                 }
-                while (!inputValue.matches("\\d+") || Integer.parseInt(inputValue) < 9 || Integer.parseInt(inputValue) > 45);
+                while (inputValue != null && (!inputValue.matches("\\d+") || Integer.parseInt(inputValue) < 9 || Integer.parseInt(inputValue) > 45));
+                if (inputValue == null) {
+                    return;
+                }
                 //初始化游戏引擎
                 engine = new SudokuEngine();
                 initialData = new int[9][9];
@@ -257,20 +260,23 @@ public class SudokuFrame extends JFrame {
                         engine.printSudo();//打印游戏结果
                     } else {
                         JOptionPane.showMessageDialog(getContentPane(), "无解，请修改游戏");
+                        shownResult = true;
+                        gameStopped = true;
+                        engine = null;
+                        startBtn.setEnabled(false);
                         return;
                     }
-                } else {
-                    for (int k = 0; k < 9; k++) {
-                        for (int n = 0; n < 9; n++) {
-                            if (textFields[k][n].isSame()) {
-                                textFields[k][n].showSuggestion(Color.BLACK, null, false);
-                            } else {
-                                textFields[k][n].showSuggestion(Color.RED, null, false);
-                            }
+                }
+                for (int k = 0; k < 9; k++) {
+                    for (int n = 0; n < 9; n++) {
+                        if (textFields[k][n].isSame()) {
+                            textFields[k][n].showSuggestion(Color.BLACK, null, false);
+                        } else {
+                            textFields[k][n].showSuggestion(Color.RED, null, false);
                         }
                     }
-                    shownResult = true;
                 }
+                shownResult = true;
                 gameStopped = true;
                 engine = null;
                 startBtn.setEnabled(false);
