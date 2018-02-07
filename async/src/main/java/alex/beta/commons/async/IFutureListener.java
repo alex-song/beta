@@ -26,5 +26,5 @@ public interface IFutureListener<V> {
 	 * @param future
 	 * @throws Exception
 	 */
-	public void operationCompleted(IFuture<V> future) throws Exception;
+    void operationCompleted(IFuture<V> future) throws Exception;
 }

@@ -119,7 +119,7 @@ public class BaseFuture<V> implements IFuture<V> {
 
 	@Override
 	public boolean isSuccess() {
-		return result == null ? false : !(result instanceof CauseHolder);
+		return result != null && !(result instanceof CauseHolder);
 	}
 
 	@SuppressWarnings("unchecked")

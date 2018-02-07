@@ -15,19 +15,20 @@
  */
 package alex.beta.games.sudoku;
 
-import junit.framework.TestCase;
+import alex.beta.games.sudoku.SudokuValidator.SudokuValidationError;
+import alex.beta.games.sudoku.SudokuValidator.SudokuValidationMessages;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import alex.beta.games.sudoku.SudokuValidator.*;
+import static org.junit.Assert.*;
 
 /**
  * @author alexsong
  * @version ${project.version}
  */
-public class SudokuValidatorTest extends TestCase {
-    private static final int[][] initialData = new int[][] {//here is a good sudoku result
+public class SudokuValidatorTest {
+    private static final int[][] initialData = new int[][]{//here is a good sudoku result
             {2, 7, 9, 4, 3, 8, 6, 5, 1},
             {5, 3, 8, 2, 1, 6, 4, 9, 7},
             {1, 6, 4, 5, 9, 7, 8, 2, 3},
@@ -43,15 +44,13 @@ public class SudokuValidatorTest extends TestCase {
 
     private SudokuValidator validator;
 
-    @Override
     @Before
-    protected void setUp() {
+    public void setUp() {
         validator = SudokuValidator.getInstance();
     }
 
-    @Override
     @After
-    protected void tearDown() {
+    public void tearDown() {
         validator = null;
     }
 
@@ -66,40 +65,41 @@ public class SudokuValidatorTest extends TestCase {
     }
 
     @Test
-    public void testDuplicated() throws Exception {
+    public void testDuplicated() {
         int[][] testData = cloneInitialData();
         testData[3][5] = 5;
 
         SudokuValidationMessages messages = validator.validate(testData);
         assertFalse(messages.isPassed());
-        assertTrue(messages.getMessages().contains(validator.new SudokuValidationMessage(3, 0, 5,null, SudokuValidationError.DUPLICATED_IN_ROW)));
-        assertTrue(messages.getMessages().contains(validator.new SudokuValidationMessage(0, 5, 5,null, SudokuValidationError.DUPLICATED_IN_COLUMN)));
-        assertTrue(messages.getMessages().contains(validator.new SudokuValidationMessage(1, 1, 5,null, SudokuValidationError.DUPLICATED_IN_BLOCK)));
+        assertTrue(messages.getMessages().contains(validator.new SudokuValidationMessage(3, 0, 5, null, SudokuValidationError.DUPLICATED_IN_ROW)));
+        assertTrue(messages.getMessages().contains(validator.new SudokuValidationMessage(0, 5, 5, null, SudokuValidationError.DUPLICATED_IN_COLUMN)));
+        assertTrue(messages.getMessages().contains(validator.new SudokuValidationMessage(1, 1, 5, null, SudokuValidationError.DUPLICATED_IN_BLOCK)));
     }
 
     @Test
-    public void testNotInUse() throws Exception {
+    public void testNotInUse() {
         int[][] testData = cloneInitialData();
         testData[2][6] = 5;
 
         SudokuValidationMessages messages = validator.validate(testData);
         assertFalse(messages.isPassed());
-        assertTrue(messages.getMessages().contains(validator.new SudokuValidationMessage(2, 0, 8,null, SudokuValidationError.NOT_IN_USE_IN_ROW)));
-        assertTrue(messages.getMessages().contains(validator.new SudokuValidationMessage(0, 6, 8,null, SudokuValidationError.NOT_IN_USE_IN_COLUMN)));
-        assertTrue(messages.getMessages().contains(validator.new SudokuValidationMessage(0, 2, 8,null, SudokuValidationError.NOT_IN_USE_IN_BLOCK)));
+        assertTrue(messages.getMessages().contains(validator.new SudokuValidationMessage(2, 0, 8, null, SudokuValidationError.NOT_IN_USE_IN_ROW)));
+        assertTrue(messages.getMessages().contains(validator.new SudokuValidationMessage(0, 6, 8, null, SudokuValidationError.NOT_IN_USE_IN_COLUMN)));
+        assertTrue(messages.getMessages().contains(validator.new SudokuValidationMessage(0, 2, 8, null, SudokuValidationError.NOT_IN_USE_IN_BLOCK)));
     }
 
     @Test
-    public void testEmpty() throws Exception {
+    public void testEmpty() {
         int[][] testData = cloneInitialData();
         testData[4][7] = 0;
 
         SudokuValidationMessages messages = validator.validate(testData);
         assertFalse(messages.isPassed());
-        assertTrue(messages.getMessages().contains(validator.new SudokuValidationMessage(4, 7, 0,null, SudokuValidationError.EMPTY)));
+        assertTrue(messages.getMessages().contains(validator.new SudokuValidationMessage(4, 7, 0, null, SudokuValidationError.EMPTY)));
     }
 
-    public void testFoundAll() throws Exception {
+    @Test
+    public void testFoundAll() {
         int[][] testData = cloneInitialData();
         testData[8][8] = 1;
 

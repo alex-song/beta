@@ -46,6 +46,11 @@ public class SudokuValidator {
         return validate(data);
     }
 
+    /**
+     * @param data
+     * @return
+     */
+    @SuppressWarnings("unchecked")
     public SudokuValidationMessages validate(int[][] data) {
         Objects.requireNonNull(data, "Cannot validate an empty Sudoku result");
 
@@ -99,7 +104,7 @@ public class SudokuValidator {
         ArrayList<Integer>[][] blocks = new ArrayList[3][3];
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                blocks[i][j] = new ArrayList<Integer>();
+                blocks[i][j] = new ArrayList<>();
             }
         }
         for (int k = 0; k < 9; k++) {
@@ -138,7 +143,7 @@ public class SudokuValidator {
         NOT_IN_USE_IN_ROW,
         NOT_IN_USE_IN_COLUMN,
         NOT_IN_USE_IN_BLOCK,
-        EMPTY;
+        EMPTY
     }
 
     public class SudokuValidationMessages {
@@ -146,7 +151,7 @@ public class SudokuValidator {
         private List<SudokuValidationMessage> messages;
 
         public SudokuValidationMessages() {
-            messages = new ArrayList<SudokuValidationMessage>();
+            messages = new ArrayList<>();
             passed = true;
         }
 
@@ -227,7 +232,7 @@ public class SudokuValidator {
         @Override
         public boolean equals(Object var1) {
             if (var1 instanceof SudokuValidationMessage) {
-                SudokuValidationMessage another = (SudokuValidationMessage)var1;
+                SudokuValidationMessage another = (SudokuValidationMessage) var1;
                 return this.error == another.error && this.row == another.row && this.column == another.column && this.digit == another.digit;
             } else {
                 return false;

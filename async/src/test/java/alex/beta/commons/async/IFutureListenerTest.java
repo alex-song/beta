@@ -20,61 +20,59 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
- * @author  alexsong
- * @version 
+ * @author alexsong
  */
-public class IFutureListenerTest extends TestCase {
-	private BaseFuture<String> future;
-	private IFutureListener<String> listener;
-	private String initialStr;
-	
-	@Override
-	@Before
-	protected void setUp() {
-		this.future = new BaseFuture<String>();
-		
-		this.listener = new IFutureListener<String>() {
-			@Override
-			public void operationCompleted(IFuture<String> future) throws Exception {
-				initialStr += future.getNow();
-			}
-		};
-		
-		this.future.addListener(listener);
-		
-		this.initialStr = "a";
-	}
+public class IFutureListenerTest {
+    private BaseFuture<String> future;
+    private IFutureListener<String> listener;
+    private String initialStr;
 
-	@Override
-	@After
-	protected void tearDown() {
-		this.future.removeListener(listener);
-		this.listener = null;
-		this.future = null;
-		this.initialStr = null;
-	}
-	
-	@Test
-	public void testOperationCompleted() throws Exception {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(950);
-					future.setSuccess("b");
-				} catch (InterruptedException e) {
-					future.setFailure(e.getCause());
-				}
-			}
-		}).start();
-		this.initialStr += "c";
-		assertNull(future.getNow());
-		assertEquals("ac", initialStr);
-		this.future.await();
-		Thread.sleep(50);
-		assertEquals("acb", initialStr);
-	}
+    @Before
+    public void setUp() {
+        this.future = new BaseFuture<>();
+
+        this.listener = new IFutureListener<String>() {
+            @Override
+            public void operationCompleted(IFuture<String> future) {
+                initialStr += future.getNow();
+            }
+        };
+
+        this.future.addListener(listener);
+
+        this.initialStr = "a";
+    }
+
+    @After
+    public void tearDown() {
+        this.future.removeListener(listener);
+        this.listener = null;
+        this.future = null;
+        this.initialStr = null;
+    }
+
+    @Test
+    public void testOperationCompleted() throws Exception {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(950);
+                    future.setSuccess("b");
+                } catch (InterruptedException e) {
+                    future.setFailure(e.getCause());
+                }
+            }
+        }).start();
+        this.initialStr += "c";
+        assertNull(future.getNow());
+        assertEquals("ac", initialStr);
+        this.future.await();
+        Thread.sleep(50);
+        assertEquals("acb", initialStr);
+    }
 }

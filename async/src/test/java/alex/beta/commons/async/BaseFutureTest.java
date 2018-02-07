@@ -20,50 +20,47 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import alex.beta.commons.async.BaseFuture;
-import junit.framework.TestCase;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author alexsong
- * @version
  */
-public class BaseFutureTest extends TestCase {
-	private BaseFuture<String> future;
-	private String initialStr1;
+public class BaseFutureTest {
+    private BaseFuture<String> future;
+    private String initialStr1;
 
-	@Override
-	@Before
-	protected void setUp() {
-		this.future = new BaseFuture<String>();
-		this.initialStr1 = "";
-	}
+    @Before
+    public void setUp() {
+        this.future = new BaseFuture<>();
+        this.initialStr1 = "";
+    }
 
-	@Override
-	@After
-	protected void tearDown() {
-		this.future = null;
-		this.initialStr1 = null;
-	}
+    @After
+    public void tearDown() {
+        this.future = null;
+        this.initialStr1 = null;
+    }
 
-	@Test
-	public void testGetNow() throws Exception {
-		this.initialStr1 += "a";
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(1000);
-					initialStr1 += "b";
-					future.setSuccess(initialStr1);
-				} catch (InterruptedException e) {
-					future.setFailure(e.getCause());
-				}
-			}
-		}).start();
-		this.initialStr1 += "c";
-		assertNull(future.getNow());
-		assertEquals("ac", initialStr1);
-		this.future.await();
-		assertEquals("acb", initialStr1);
-	}
+    @Test
+    public void testGetNow() throws Exception {
+        this.initialStr1 += "a";
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1000);
+                    initialStr1 += "b";
+                    future.setSuccess(initialStr1);
+                } catch (InterruptedException e) {
+                    future.setFailure(e.getCause());
+                }
+            }
+        }).start();
+        this.initialStr1 += "c";
+        assertNull(future.getNow());
+        assertEquals("ac", initialStr1);
+        this.future.await();
+        assertEquals("acb", initialStr1);
+    }
 }
