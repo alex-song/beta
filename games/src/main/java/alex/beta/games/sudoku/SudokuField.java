@@ -27,7 +27,7 @@ import java.awt.event.KeyListener;
  * @author alexsong
  * @version ${project.version}
  */
-public class SudokuField extends JTextField implements JDuoIntValuesField {
+public class SudokuField extends JTextField {
 
     private static final Logger logger = LoggerFactory.getLogger(SudokuField.class);
 
@@ -70,27 +70,22 @@ public class SudokuField extends JTextField implements JDuoIntValuesField {
         });
     }
 
-    @Override
     public int getSuggestedValue() {
         return this.suggestedValue;
     }
 
-    @Override
     public void setSuggestedValue(int value) {
         this.suggestedValue = value;
     }
 
-    @Override
     public int getInputValue() {
         return this.inputValue;
     }
 
-    @Override
     public void setInputValue(int value) {
         this.inputValue = value;
     }
 
-    @Override
     public void showSuggestion(Color foreground, Color background, boolean editable) {
         this.setEditable(editable);
         if (foreground != null)
@@ -100,7 +95,6 @@ public class SudokuField extends JTextField implements JDuoIntValuesField {
         this.setText(this.suggestedValue > 9 || this.suggestedValue < 1 ? "" : String.valueOf(this.suggestedValue));
     }
 
-    @Override
     public void showInput(Color foreground, Color background, boolean editable) {
         this.setEditable(editable);
         if (foreground != null)
@@ -110,7 +104,6 @@ public class SudokuField extends JTextField implements JDuoIntValuesField {
         this.setText(this.inputValue > 9 || this.inputValue < 1 ? "" : String.valueOf(this.inputValue));
     }
 
-    @Override
     public boolean isSame() {
         return this.inputValue == this.suggestedValue;
     }
