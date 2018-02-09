@@ -45,16 +45,13 @@ public class BaseFutureTest {
     @Test
     public void testGetNow() throws Exception {
         this.initialStr1 += "a";
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(200);
-                    initialStr1 += "b";
-                    future.setSuccess(initialStr1);
-                } catch (InterruptedException e) {
-                    future.setFailure(e.getCause());
-                }
+        new Thread(() -> {
+            try {
+                Thread.sleep(200);
+                initialStr1 += "b";
+                future.setSuccess(initialStr1);
+            } catch (InterruptedException e) {
+                future.setFailure(e.getCause());
             }
         }).start();
         this.initialStr1 += "c";

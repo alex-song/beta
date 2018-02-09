@@ -18,6 +18,7 @@ package alex.beta.games.sudoku;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Random;
 import java.util.Scanner;
 
 /**
@@ -108,15 +109,15 @@ public class SudokuEngine {
         }
         /*打乱顺序*/
         for (int i = 0; i < 9; ++i) {
-            int ta = (int) (Math.random() * 10) % 9;
-            int tb = (int) (Math.random() * 10) % 9;
+            int ta = new Random().nextInt(9);
+            int tb = new Random().nextInt(9);
             int tem = data[0][ta];
             data[0][ta] = data[0][tb];
             data[0][tb] = tem;
         }
         for (int i = 0; i < 9; ++i) {
-            int ta = (int) (Math.random() * 10) % 9;
-            int tb = (int) (Math.random() * 10) % 9;
+            int ta = new Random().nextInt(9);
+            int tb = new Random().nextInt(9);
             int tem = data[0][i];
             data[0][i] = data[ta][tb];
             data[ta][tb] = tem;
@@ -125,8 +126,8 @@ public class SudokuEngine {
         solveSudo(true);
         lef = 81 - tip;
         for (int i = 0; i < lef; ++i) {
-            int ta = (int) (Math.random() * 10) % 9;
-            int tb = (int) (Math.random() * 10) % 9;
+            int ta = new Random().nextInt(9);
+            int tb = new Random().nextInt(9);
             if (data[ta][tb] != 0)
                 data[ta][tb] = 0;
             else
@@ -170,9 +171,10 @@ public class SudokuEngine {
                 if (j == 0 || j == 3 || j == 6) {
                     sb.append("|");
                 }
-                if (data[i][j] > 0)
-                    sb.append(data[i][j] + " ");
-                else
+                if (data[i][j] > 0) {
+                    sb.append(data[i][j]);
+                    sb.append(" ");
+                } else
                     sb.append("* ");
             }
             sb.append("|");
@@ -180,7 +182,9 @@ public class SudokuEngine {
         }
         sb.append("----------------------");
         sb.append(System.lineSeparator());
-        logger.info(sb.toString());
+        if (logger.isInfoEnabled()) {
+            logger.info(sb.toString());
+        }
     }
 
     /**
@@ -221,7 +225,8 @@ public class SudokuEngine {
     private boolean dfs() {
         if (lef == 0) return true;
         int mincount = 10;
-        int mini = 0, minj = 0;
+        int mini = 0;
+        int minj = 0;
         int[] mark = new int[10];
         /*找到不确定度最小的格子*/
         for (int i = 0; i < 9; ++i) {

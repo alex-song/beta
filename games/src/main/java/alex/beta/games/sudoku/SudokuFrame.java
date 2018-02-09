@@ -27,9 +27,12 @@ import java.awt.event.ActionListener;
  * @author alexsong
  * @version ${project.version}
  */
+@SuppressWarnings("squid:S3776")
 public class SudokuFrame extends JFrame {
 
     private static final Logger logger = LoggerFactory.getLogger(SudokuFrame.class);
+
+    private static final String INITIAL_COUNTING_TEXT = "00:00:00 000";
 
 //    private JButton restartBtn;
     private JButton startBtn;
@@ -45,7 +48,7 @@ public class SudokuFrame extends JFrame {
     private JMenuItem exitMenuItem;
 
     //Controller
-    private SudokuEngine engine;
+    private transient SudokuEngine engine;
 
     private boolean customizedGame;
     private boolean shownResult;
@@ -64,11 +67,11 @@ public class SudokuFrame extends JFrame {
     public static void main(String[] args) {
         SudokuFrame frame = new SudokuFrame();
         frame.setSize(600, 900);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setVisible(true);
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "squid:CallToDeprecatedMethod"})
     private void createUIComponents() {
         //Menu
         JMenuBar menuBar = new JMenuBar();
@@ -106,7 +109,7 @@ public class SudokuFrame extends JFrame {
         JPanel toolbarPanel = new JPanel(new FlowLayout());
         getContentPane().add(toolbarPanel, BorderLayout.NORTH);
 
-        countingField = new JLabel("00:00:00 000");
+        countingField = new JLabel(INITIAL_COUNTING_TEXT);
         countingField.setFont(new Font("宋体", Font.BOLD, 20));
         countingField.setPreferredSize(new Dimension(150, 30));
         countingField.setMinimumSize(new Dimension(150, 30));
@@ -152,152 +155,114 @@ public class SudokuFrame extends JFrame {
 
     private void createUIActions() {
         //Menu actions
-        quickStartMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (gameStarted && !gameStopped) {
-                    return;
-                }
-                String inputValue = "18";
-                do {
-                    inputValue = JOptionPane.showInputDialog("请输入显示的数字个数(9 - 45)：", inputValue);
-                    logger.debug("Input string is {}", inputValue);
-                }
-                while (inputValue != null && (!inputValue.matches("\\d+") || Integer.parseInt(inputValue) < 9 || Integer.parseInt(inputValue) > 45));
-                if (inputValue == null) {
-                    return;
-                }
-                //初始化游戏引擎
-                engine = new SudokuEngine();
-                initialData = new int[9][9];
-                engine.setTip(Integer.parseInt(inputValue));
-                countingField.setText("00:00:00 000");
-                boolean canSolve = true;
-                do {
-                    engine.genSudo();
-                    engine.printSudo();//打印游戏
-                    cacheInitialData(engine.getData());
-
-                    canSolve = engine.solveSudo(false);
-                    if (canSolve) {
-                        int[][] resultData = engine.getData();
-                        for (int k = 0; k < 9; k++) {
-                            for (int n = 0; n < 9; n++) {
-                                textFields[k][n].setSuggestedValue(resultData[k][n]);
-                            }
-                        }
-                    }
-                } while (!canSolve);
-                engine.printSudo();//打印游戏结果
-                //初始化九宫格
-                setInitialData();
-                //初始化系统变量
-                customizedGame = false;
-                gameStarted = false;
-                gameStopped = true;
-                //gamePaused = false;
-                shownResult = false;
-                //初始化计数器
-                countingField.setText("00:00:00 000");
-                //初始化按钮
-                startBtn.setEnabled(true);
+        quickStartMenuItem.addActionListener(e -> {
+            if (gameStarted && !gameStopped) {
+                return;
             }
-        });
-
-        customizedMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (gameStarted && !gameStopped) {
-                    return;
-                }
-                //初始化游戏引擎
-                engine = new SudokuEngine();
-                initialData = new int[9][9];
-                for (int k = 0; k < 9; k++) {
-                    for (int n = 0; n < 9; n++) {
-                        initialData[k][n] = 0;
-                    }
-                }
-                setInitialData();
-                textFields[0][0].requestFocusInWindow();
-                customizedGame = true;
-                gameStarted = false;
-                gameStopped = true;
-                //gamePaused = false;
-                shownResult = false;
-                countingField.setText("00:00:00 000");
-                startBtn.setEnabled(true);
+            String inputValue = "18";
+            do {
+                inputValue = JOptionPane.showInputDialog("请输入显示的数字个数(9 - 45)：", inputValue);
+                logger.debug("Input string is {}", inputValue);
             }
-        });
+            while (inputValue != null && (!inputValue.matches("\\d+") || Integer.parseInt(inputValue) < 9 || Integer.parseInt(inputValue) > 45));
+            if (inputValue == null) {
+                return;
+            }
+            //初始化游戏引擎
+            engine = new SudokuEngine();
+            initialData = new int[9][9];
+            engine.setTip(Integer.parseInt(inputValue));
+            countingField.setText(INITIAL_COUNTING_TEXT);
+            boolean canSolve = true;
+            do {
+                engine.genSudo();
+                engine.printSudo();//打印游戏
+                cacheInitialData(engine.getData());
 
-        showMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (shownResult || engine == null) {//还未生成游戏或者已经显示了结果
-                    JOptionPane.showMessageDialog(getContentPane(), "游戏还没有开始，或已经结束\n请从菜单中选择游戏方式");
-                    return;
-                }
-                if (engine != null && !gameStarted && customizedGame) {//还未开始并且已经生成了游戏并且是定制游戏
+                canSolve = engine.solveSudo(false);
+                if (canSolve) {
+                    int[][] resultData = engine.getData();
                     for (int k = 0; k < 9; k++) {
                         for (int n = 0; n < 9; n++) {
-                            initialData[k][n] = textFields[k][n].getInputValue();
+                            textFields[k][n].setSuggestedValue(resultData[k][n]);
                         }
                     }
-                    engine.setData(initialData);
-                    engine.printSudo();//打印游戏
-                    if (engine.solveSudo(false)) {
-                        int[][] resultData = engine.getData();
-                        for (int k = 0; k < 9; k++) {
-                            for (int n = 0; n < 9; n++) {
-                                textFields[k][n].setSuggestedValue(resultData[k][n]);
-                                if (initialData[k][n] != 0) {
-                                    textFields[k][n].showInput(Color.BLACK, Color.GRAY, false);
-                                } else {
-                                    textFields[k][n].showInput(Color.BLACK, Color.WHITE, true);
-                                }
-                            }
-                        }
-                        engine.printSudo();//打印游戏结果
+                }
+            } while (!canSolve);
+            engine.printSudo();//打印游戏结果
+            //初始化九宫格
+            setInitialData();
+            //初始化系统变量
+            customizedGame = false;
+            gameStarted = false;
+            gameStopped = true;
+            //gamePaused = false;
+            shownResult = false;
+            //初始化计数器
+            countingField.setText(INITIAL_COUNTING_TEXT);
+            //初始化按钮
+            startBtn.setEnabled(true);
+        });
+
+        customizedMenuItem.addActionListener(e -> {
+            if (gameStarted && !gameStopped) {
+                return;
+            }
+            //初始化游戏引擎
+            engine = new SudokuEngine();
+            initialData = new int[9][9];
+            for (int k = 0; k < 9; k++) {
+                for (int n = 0; n < 9; n++) {
+                    initialData[k][n] = 0;
+                }
+            }
+            setInitialData();
+            textFields[0][0].requestFocusInWindow();
+            customizedGame = true;
+            gameStarted = false;
+            gameStopped = true;
+            //gamePaused = false;
+            shownResult = false;
+            countingField.setText(INITIAL_COUNTING_TEXT);
+            startBtn.setEnabled(true);
+        });
+
+        showMenuItem.addActionListener(e -> {
+            if (shownResult || engine == null) {//还未生成游戏或者已经显示了结果
+                JOptionPane.showMessageDialog(getContentPane(), "游戏还没有开始，或已经结束\n请从菜单中选择游戏方式");
+                return;
+            }
+            if (!gameStarted && customizedGame) {//还未开始并且已经生成了游戏并且是定制游戏
+                if (initializeSudokuFields()) {
+                    shownResult = true;
+                    gameStopped = true;
+                    engine = null;
+                    startBtn.setEnabled(false);
+                    return;
+                }
+            }
+            for (int k = 0; k < 9; k++) {
+                for (int n = 0; n < 9; n++) {
+                    if (textFields[k][n].isSame()) {
+                        textFields[k][n].showSuggestion(Color.BLACK, null, false);
                     } else {
-                        JOptionPane.showMessageDialog(getContentPane(), "无解，请修改游戏");
-                        shownResult = true;
-                        gameStopped = true;
-                        engine = null;
-                        startBtn.setEnabled(false);
-                        return;
+                        textFields[k][n].showSuggestion(Color.RED, null, false);
                     }
                 }
-                for (int k = 0; k < 9; k++) {
-                    for (int n = 0; n < 9; n++) {
-                        if (textFields[k][n].isSame()) {
-                            textFields[k][n].showSuggestion(Color.BLACK, null, false);
-                        } else {
-                            textFields[k][n].showSuggestion(Color.RED, null, false);
-                        }
-                    }
-                }
-                shownResult = true;
-                gameStopped = true;
-                engine = null;
-                startBtn.setEnabled(false);
             }
+            shownResult = true;
+            gameStopped = true;
+            engine = null;
+            startBtn.setEnabled(false);
         });
 
-        exitMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                gameStopped = true;
-                engine = null;
-                System.exit(0);
-            }
+        exitMenuItem.addActionListener(e -> {
+            gameStopped = true;
+            engine = null;
+            System.exit(0);
         });
 
-        aboutMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(getContentPane(), "作者：Alex Song \n E-mail: song_liping@hotmail.com");
-            }
-        });
+        aboutMenuItem.addActionListener(e -> JOptionPane.showMessageDialog(getContentPane(), "作者：Alex Song \n E-mail: song_liping@hotmail.com"));
 
         //Toolbar buttons
         startBtn.addActionListener(new ActionListener() {
@@ -313,51 +278,27 @@ public class SudokuFrame extends JFrame {
                 }
 
                 if (customizedGame) {
-                    for (int k = 0; k < 9; k++) {
-                        for (int n = 0; n < 9; n++) {
-                            initialData[k][n] = textFields[k][n].getInputValue();
-                        }
-                    }
-                    engine.setData(initialData);
-                    engine.printSudo();//打印游戏
-
-                    if (engine.solveSudo(false)) {
-                        int[][] resultData = engine.getData();
-                        for (int k = 0; k < 9; k++) {
-                            for (int n = 0; n < 9; n++) {
-                                textFields[k][n].setSuggestedValue(resultData[k][n]);
-                                if (initialData[k][n] != 0) {
-                                    textFields[k][n].showInput(Color.BLACK, Color.GRAY, false);
-                                } else {
-                                    textFields[k][n].showInput(Color.BLACK, Color.WHITE, true);
-                                }
-                            }
-                        }
-                        engine.printSudo();//打印游戏结果
-                    } else {
-                        JOptionPane.showMessageDialog(getContentPane(), "无解，请修改游戏");
+                    if (initializeSudokuFields()) {
                         return;
                     }
                 }
                 //初始化计时器
-                countingField.setText("00:00:00 000");
+                countingField.setText(INITIAL_COUNTING_TEXT);
                 //启动计时程序
-                Thread countingThread = new Thread() {
-                    @Override
-                    public void run() {
-                        long startTime = System.currentTimeMillis();
-                        do {
-                            countingField.setText(formatMilliseconds(System.currentTimeMillis() - startTime));
+                Thread countingThread = new Thread(() -> {
+                    long startTime = System.currentTimeMillis();
+                    do {
+                        countingField.setText(formatMilliseconds(System.currentTimeMillis() - startTime));
 
-                            try {
-                                Thread.sleep(1);
-                            } catch (InterruptedException ex) {
-                                logger.error("Counter thread is interrupted", ex);
-                                countingField.setText("99:99:99 999");
-                            }
-                        } while (!gameStopped);
-                    }
-                };
+                        try {
+                            Thread.sleep(1);
+                        } catch (InterruptedException ex) {
+                            logger.error("Counter thread is interrupted", ex);
+                            countingField.setText("99:99:99 999");
+                            Thread.currentThread().interrupt();
+                        }
+                    } while (!gameStopped);
+                });
                 countingThread.setDaemon(true);
                 countingThread.start();
                 //初始化控制变量
@@ -370,54 +311,48 @@ public class SudokuFrame extends JFrame {
             /**
              * 将毫秒数格式化
              */
-            private final String formatMilliseconds(long elapsed) {
-                int hour, minute, second, milli;
-
-                milli = (int) (elapsed % 1000);
+            private String formatMilliseconds(long elapsed) {
+                int milli = (int) (elapsed % 1000);
                 elapsed = elapsed / 1000;
 
-                second = (int) (elapsed % 60);
+                int second = (int) (elapsed % 60);
                 elapsed = elapsed / 60;
 
-                minute = (int) (elapsed % 60);
+                int minute = (int) (elapsed % 60);
                 elapsed = elapsed / 60;
 
-                hour = (int) (elapsed % 60);
+                int hour = (int) (elapsed % 60);
 
                 return String.format("%02d:%02d:%02d %03d", hour, minute, second, milli);
             }
         });
 
-        submitBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (engine == null) {
-                    JOptionPane.showMessageDialog(getContentPane(), "游戏还没有开始，或已经结束\n请从菜单中选择游戏方式");
-                    return;
-                }
-                gameStopped = true;
-
-                SudokuValidator.SudokuValidationMessages messages = SudokuValidator.getInstance().validate(textFields);
-                if (messages.isPassed()) {
-                    JOptionPane.showMessageDialog(getContentPane(), "恭喜，你在" + countingField.getText() + "完成了本局数独游戏");
-                } else {
-                    StringBuilder sb = new StringBuilder("错误信息:\n\n");
-                    for (int i = 0; i < messages.getMessages().size() && i < 5; i++) {
-                        sb.append(messages.getMessages().get(i).getMessage());
-                    }
-                    if (messages.getMessages().size() > 5) {
-                        sb.append("还有" + (messages.getMessages().size() - 5) + "个错误等待修正......");
-                    }
-                    JOptionPane.showMessageDialog(getContentPane(), sb.toString());
-                }
-
+        submitBtn.addActionListener(e -> {
+            if (engine == null) {
+                JOptionPane.showMessageDialog(getContentPane(), "游戏还没有开始，或已经结束\n请从菜单中选择游戏方式");
+                return;
             }
+            gameStopped = true;
+
+            SudokuValidator.SudokuValidationMessages messages = SudokuValidator.getInstance().validate(textFields);
+            if (messages.isPassed()) {
+                JOptionPane.showMessageDialog(getContentPane(), "恭喜，你在" + countingField.getText() + "完成了本局数独游戏");
+            } else {
+                StringBuilder sb = new StringBuilder("错误信息:\n\n");
+                for (int i = 0; i < messages.getMessages().size() && i < 5; i++) {
+                    sb.append(messages.getMessages().get(i).getMessage());
+                }
+                if (messages.getMessages().size() > 5) {
+                    sb.append(String.format("还有%d个错误等待修正......", messages.getMessages().size() - 5));
+                }
+                JOptionPane.showMessageDialog(getContentPane(), sb.toString());
+            }
+
         });
 
 //        restartBtn.addActionListener(new ActionListener() {
 //            @Override
 //            public void actionPerformed(ActionEvent e) {
-//                //TODO
 //            }
 //        });
     }
@@ -478,6 +413,35 @@ public class SudokuFrame extends JFrame {
             for (int n = 0; n < 9; n++) {
                 this.initialData[k][n] = data[k][n];
             }
+        }
+    }
+
+    private boolean initializeSudokuFields() {
+        for (int k = 0; k < 9; k++) {
+            for (int n = 0; n < 9; n++) {
+                initialData[k][n] = textFields[k][n].getInputValue();
+            }
+        }
+        engine.setData(initialData);
+        engine.printSudo();//打印游戏
+
+        if (engine.solveSudo(false)) {
+            int[][] resultData = engine.getData();
+            for (int k = 0; k < 9; k++) {
+                for (int n = 0; n < 9; n++) {
+                    textFields[k][n].setSuggestedValue(resultData[k][n]);
+                    if (initialData[k][n] != 0) {
+                        textFields[k][n].showInput(Color.BLACK, Color.GRAY, false);
+                    } else {
+                        textFields[k][n].showInput(Color.BLACK, Color.WHITE, true);
+                    }
+                }
+            }
+            engine.printSudo();//打印游戏结果
+            return false;
+        } else {
+            JOptionPane.showMessageDialog(getContentPane(), "无解，请修改游戏");
+            return true;
         }
     }
 }

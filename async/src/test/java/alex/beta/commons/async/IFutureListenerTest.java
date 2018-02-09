@@ -35,12 +35,7 @@ public class IFutureListenerTest {
     public void setUp() {
         this.future = new BaseFuture<>();
 
-        this.listener = new IFutureListener<String>() {
-            @Override
-            public void operationCompleted(IFuture<String> future) {
-                initialStr += future.getNow();
-            }
-        };
+        this.listener = future -> initialStr += future.getNow();
 
         this.future.addListener(listener);
 
@@ -57,15 +52,12 @@ public class IFutureListenerTest {
 
     @Test
     public void testOperationCompleted() throws Exception {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(150);
-                    future.setSuccess("b");
-                } catch (InterruptedException e) {
-                    future.setFailure(e.getCause());
-                }
+        new Thread(() -> {
+            try {
+                Thread.sleep(150);
+                future.setSuccess("b");
+            } catch (InterruptedException e) {
+                future.setFailure(e.getCause());
             }
         }).start();
         this.initialStr += "c";

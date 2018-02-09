@@ -24,7 +24,7 @@ import java.util.Objects;
  * @version ${project.version}
  */
 public class SudokuValidator {
-    private static SudokuValidator ourInstance = new SudokuValidator();
+    private static final SudokuValidator ourInstance = new SudokuValidator();
 
     private SudokuValidator() {
         //To hide default public constructor
@@ -178,7 +178,9 @@ public class SudokuValidator {
 
     public class SudokuValidationMessage {
         private SudokuValidationError error = SudokuValidationError.NONE;
-        private int row, column, digit;
+        private int row;
+        private int column;
+        private int digit;
         private String message;
 
         public SudokuValidationMessage(int row, int column, int digit, String message, SudokuValidationError error) {

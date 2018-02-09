@@ -47,10 +47,10 @@ public class BaseFuture<V> implements IFuture<V> {
 	/**
 	 * 监听器集
 	 */
-	protected Collection<IFutureListener<V>> listeners = new CopyOnWriteArrayList<IFutureListener<V>>();
+	protected final Collection<IFutureListener<V>> listeners = new CopyOnWriteArrayList<>();
 
 	/**
-	 * 当任务正常执行结果为null时, 即客户端调用{@link BaseFuture#setSuccess(null)}时, result引用该对象
+	 * 当任务正常执行结果为null时, 即客户端调用{@link BaseFuture#setSuccess(Object)}时传入参数是null, result引用该对象
 	 */
 	private static final SuccessSignal SUCCESS_SIGNAL = new SuccessSignal();
 
@@ -273,7 +273,8 @@ public class BaseFuture<V> implements IFuture<V> {
 		try {
 			return await0(false);
 		} catch (InterruptedException e) { // 这里若抛异常了就无法处理了
-			throw new java.lang.InternalError();
+			Thread.currentThread().interrupt();
+			throw new java.lang.InternalError(e);
 		}
 	}
 
@@ -282,7 +283,8 @@ public class BaseFuture<V> implements IFuture<V> {
 		try {
 			return await0(TimeUnit.MILLISECONDS.toNanos(timeoutMillis), false);
 		} catch (InterruptedException e) {
-			throw new java.lang.InternalError();
+			Thread.currentThread().interrupt();
+			throw new java.lang.InternalError(e);
 		}
 	}
 
@@ -291,7 +293,8 @@ public class BaseFuture<V> implements IFuture<V> {
 		try {
 			return await0(unit.toNanos(timeout), false);
 		} catch (InterruptedException e) {
-			throw new java.lang.InternalError();
+			Thread.currentThread().interrupt();
+			throw new java.lang.InternalError(e);
 		}
 	}
 
@@ -353,15 +356,13 @@ public class BaseFuture<V> implements IFuture<V> {
 	}
 
 	private void notifyListener(IFutureListener<V> l) {
-		try {
-			l.operationCompleted(this);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		l.operationCompleted(this);
 	}
 
 	private static class SuccessSignal {
-
+        private SuccessSignal() {
+            //Default constructor
+        }
 	}
 
 	private static final class CauseHolder {

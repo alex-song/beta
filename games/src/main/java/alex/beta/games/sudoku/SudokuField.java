@@ -15,9 +15,6 @@
  */
 package alex.beta.games.sudoku;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -29,9 +26,8 @@ import java.awt.event.KeyListener;
  */
 public class SudokuField extends JTextField {
 
-    private static final Logger logger = LoggerFactory.getLogger(SudokuField.class);
-
-    private int inputValue, suggestedValue;
+    private int inputValue;
+    private int suggestedValue;
 
     public SudokuField() {
         super();
@@ -45,14 +41,14 @@ public class SudokuField extends JTextField {
                 int temp = e.getKeyChar();
                 if (temp == KeyEvent.VK_ENTER || temp == KeyEvent.VK_TAB) {//按回车时
                     e.getComponent().transferFocus();
+                } else if (temp == KeyEvent.VK_BACK_SPACE || temp == KeyEvent.VK_DELETE) {
+                    //回退或者删除
                 } else if (((JTextField) e.getComponent()).getText().length() > 0) {
                     //已有数字
                     e.consume();
                 } else if (temp <= KeyEvent.VK_9 && temp > KeyEvent.VK_0) {
                     //数字键
                     inputValue = temp - KeyEvent.VK_0;
-                } else if (temp == KeyEvent.VK_BACK_SPACE || temp == KeyEvent.VK_DELETE) {
-                    //回退或者删除
                 } else {
                     e.consume();    //如果不是则消除key事件,也就是按了键盘以后没有反应;
                 }
