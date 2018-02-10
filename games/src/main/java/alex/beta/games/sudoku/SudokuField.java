@@ -24,10 +24,17 @@ import java.awt.event.KeyListener;
  * @author alexsong
  * @version ${project.version}
  */
+@SuppressWarnings("squid:S3776")
 public class SudokuField extends JTextField {
 
     private int inputValue;
     private int suggestedValue;
+
+    private Component upComponent;
+    private Component downComponent;
+    private Component leftComponent;
+    private Component rightComponent;
+
 
     public SudokuField() {
         super();
@@ -43,12 +50,13 @@ public class SudokuField extends JTextField {
                     e.getComponent().transferFocus();
                 } else if (temp == KeyEvent.VK_BACK_SPACE || temp == KeyEvent.VK_DELETE) {
                     //回退或者删除
-                } else if (((JTextField) e.getComponent()).getText().length() > 0) {
-                    //已有数字
-                    e.consume();
-                } else if (temp <= KeyEvent.VK_9 && temp > KeyEvent.VK_0) {
-                    //数字键
-                    inputValue = temp - KeyEvent.VK_0;
+                } else if (((JTextField) e.getComponent()).isEditable() && (temp <= KeyEvent.VK_9 && temp > KeyEvent.VK_0)) {
+                    if (!isEmpty(((JTextField) e.getComponent()).getText()) && isEmpty(((JTextField) e.getComponent()).getSelectedText())) {
+                        //已有数字，并且没有被选中
+                        e.consume();
+                    } else {
+                        inputValue = temp - KeyEvent.VK_0;
+                    }
                 } else {
                     e.consume();    //如果不是则消除key事件,也就是按了键盘以后没有反应;
                 }
@@ -61,7 +69,20 @@ public class SudokuField extends JTextField {
 
             @Override
             public void keyPressed(KeyEvent e) {
-                // nothing
+                int temp = e.getKeyCode();
+                if (temp == KeyEvent.VK_UP && upComponent != null) {
+                    upComponent.requestFocus();
+                } else if (temp == KeyEvent.VK_DOWN && downComponent != null) {
+                    downComponent.requestFocus();
+                } else if (temp == KeyEvent.VK_LEFT && leftComponent != null) {
+                    leftComponent.requestFocus();
+                } else if (temp == KeyEvent.VK_RIGHT && rightComponent != null) {
+                    rightComponent.requestFocus();
+                } else if (temp == KeyEvent.VK_BACK_SPACE || temp == KeyEvent.VK_DELETE) {
+                    //Nothing
+                } else {
+                    e.consume();
+                }
             }
         });
     }
@@ -102,5 +123,25 @@ public class SudokuField extends JTextField {
 
     public boolean isSame() {
         return this.inputValue == this.suggestedValue;
+    }
+
+    public void setUpComponent(Component upComponent) {
+        this.upComponent = upComponent;
+    }
+
+    public void setDownComponent(Component downComponent) {
+        this.downComponent = downComponent;
+    }
+
+    public void setLeftComponent(Component leftComponent) {
+        this.leftComponent = leftComponent;
+    }
+
+    public void setRightComponent(Component rightComponent) {
+        this.rightComponent = rightComponent;
+    }
+
+    private static boolean isEmpty(CharSequence cs) {
+        return cs == null || cs.length() == 0;
     }
 }

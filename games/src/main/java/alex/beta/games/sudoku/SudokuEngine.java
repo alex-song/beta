@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Random;
-import java.util.Scanner;
 
 /**
  * 参考 https://segmentfault.com/a/1190000004641936
@@ -45,25 +44,6 @@ public class SudokuEngine {
                 data[i][j] = 0;
             }
         }
-    }
-
-    /**
-     * main函数
-     *
-     * @param args
-     */
-    public static void main(String[] args) {
-        SudokuEngine su = new SudokuEngine();
-
-        System.out.println("Please input the number of digits provided:");
-        Scanner scan = new Scanner(System.in);
-        su.setTip(scan.nextInt());
-        scan.close();
-
-        su.genSudo();
-        su.printSudo();
-        su.solveSudo(false);
-        su.printSudo();
     }
 
     public int[][] getData() {
@@ -223,7 +203,12 @@ public class SudokuEngine {
      * @return 是否有解的boolean标识
      */
     private boolean dfs() {
-        if (lef == 0) return true;
+        if (lef == 0) {
+            return true;
+        }
+        if (!SudokuValidator.getInstance().preview(data)) {
+            return false;
+        }
         int mincount = 10;
         int mini = 0;
         int minj = 0;

@@ -33,8 +33,9 @@ public class SudokuFrame extends JFrame {
     private static final Logger logger = LoggerFactory.getLogger(SudokuFrame.class);
 
     private static final String INITIAL_COUNTING_TEXT = "00:00:00 000";
+    private static final String INVALID_DATA = "无解，请修改游戏";
 
-//    private JButton restartBtn;
+    //Toolbar buttons/field
     private JButton startBtn;
     private JButton submitBtn;
     private JLabel countingField;
@@ -54,7 +55,6 @@ public class SudokuFrame extends JFrame {
     private boolean shownResult;
     private boolean gameStarted;
     private boolean gameStopped;
-    //private boolean gamePaused;
 
     private int[][] initialData;
 
@@ -120,11 +120,6 @@ public class SudokuFrame extends JFrame {
         startBtn.setMargin(new Insets(5, 0, 5, 0));
         toolbarPanel.add(startBtn);
 
-//        restartBtn = new JButton("重新开始");
-//        restartBtn.setToolTipText("重新开始这局数独游戏");
-//        restartBtn.setMargin(new Insets(5, 0, 5, 0));
-//        toolbarPanel.add(restartBtn);
-
         submitBtn = new JButton("提交");
         submitBtn.setToolTipText("提交答案，并结束计时");
         submitBtn.setMargin(new Insets(5, 0, 5, 0));
@@ -144,7 +139,31 @@ public class SudokuFrame extends JFrame {
             for (int n = 0; n < 9; n++) {
                 textFields[k][n] = new SudokuField();
                 textFields[k][n].setEditable(false);         //只可显示不可修改
-                positionTextField(k, n, subGridPanels, textFields[k][n]);      //添加文本框
+                subGridPanels[(k / 3) * 3 + n / 3].add(textFields[k][n]);   //添加文本框
+            }
+        }
+        for (int k = 0; k < 9; k++) {
+            for (int n = 0; n < 9; n++) {
+                if (k == 0) {
+                    textFields[0][n].setUpComponent(null);
+                    textFields[0][n].setDownComponent(textFields[1][n]);
+                } else if (k == 8) {
+                    textFields[8][n].setUpComponent(textFields[7][n]);
+                    textFields[8][n].setDownComponent(null);
+                } else {
+                    textFields[k][n].setUpComponent(textFields[k - 1][n]);
+                    textFields[k][n].setDownComponent(textFields[k + 1][n]);
+                }
+                if (n == 0) {
+                    textFields[k][0].setLeftComponent(null);
+                    textFields[k][0].setRightComponent(textFields[k][1]);
+                } else if (n == 8) {
+                    textFields[k][8].setLeftComponent(textFields[k][7]);
+                    textFields[k][8].setRightComponent(null);
+                } else {
+                    textFields[k][n].setLeftComponent(textFields[k][n - 1]);
+                    textFields[k][n].setRightComponent(textFields[k][n + 1]);
+                }
             }
         }
         textFields[8][8].setNextFocusableComponent(textFields[0][0]);
@@ -152,7 +171,6 @@ public class SudokuFrame extends JFrame {
 
 
     //---------private methods----------
-
     private void createUIActions() {
         //Menu actions
         quickStartMenuItem.addActionListener(e -> {
@@ -191,7 +209,7 @@ public class SudokuFrame extends JFrame {
             } while (!canSolve);
             engine.printSudo();//打印游戏结果
             //初始化九宫格
-            setInitialData();
+            diaplayInitialData();
             //初始化系统变量
             customizedGame = false;
             gameStarted = false;
@@ -216,7 +234,7 @@ public class SudokuFrame extends JFrame {
                     initialData[k][n] = 0;
                 }
             }
-            setInitialData();
+            diaplayInitialData();
             textFields[0][0].requestFocusInWindow();
             customizedGame = true;
             gameStarted = false;
@@ -232,14 +250,12 @@ public class SudokuFrame extends JFrame {
                 JOptionPane.showMessageDialog(getContentPane(), "游戏还没有开始，或已经结束\n请从菜单中选择游戏方式");
                 return;
             }
-            if (!gameStarted && customizedGame) {//还未开始并且已经生成了游戏并且是定制游戏
-                if (initializeSudokuFields()) {
-                    shownResult = true;
-                    gameStopped = true;
-                    engine = null;
-                    startBtn.setEnabled(false);
-                    return;
-                }
+            if (!gameStarted && customizedGame && validateSudokuData()) {//还未开始并且已经生成了游戏，并且是定制游戏，并且无解
+                shownResult = true;
+                gameStopped = true;
+                engine = null;
+                startBtn.setEnabled(false);
+                return;
             }
             for (int k = 0; k < 9; k++) {
                 for (int n = 0; n < 9; n++) {
@@ -264,7 +280,7 @@ public class SudokuFrame extends JFrame {
 
         aboutMenuItem.addActionListener(e -> JOptionPane.showMessageDialog(getContentPane(), "作者：Alex Song \n E-mail: song_liping@hotmail.com"));
 
-        //Toolbar buttons
+        //Toolbar actions
         startBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -277,10 +293,8 @@ public class SudokuFrame extends JFrame {
                     return;
                 }
 
-                if (customizedGame) {
-                    if (initializeSudokuFields()) {
-                        return;
-                    }
+                if (customizedGame && validateSudokuData()) {//定制游戏，并且无解
+                    return;
                 }
                 //初始化计时器
                 countingField.setText(INITIAL_COUNTING_TEXT);
@@ -349,52 +363,12 @@ public class SudokuFrame extends JFrame {
             }
 
         });
-
-//        restartBtn.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//            }
-//        });
-    }
-
-    /**
-     * @param k             行
-     * @param n             列
-     * @param subGridPanels 子托盘数组
-     * @param textField     数字框
-     */
-    private void positionTextField(int k, int n, JPanel[] subGridPanels, JTextField textField) {
-        if (k < 3) {
-            if (n < 3) {
-                subGridPanels[0].add(textField);
-            } else if (n < 6) {
-                subGridPanels[1].add(textField);
-            } else {
-                subGridPanels[2].add(textField);
-            }
-        } else if (k < 6) {
-            if (n < 3) {
-                subGridPanels[3].add(textField);
-            } else if (n < 6) {
-                subGridPanels[4].add(textField);
-            } else {
-                subGridPanels[5].add(textField);
-            }
-        } else {
-            if (n < 3) {
-                subGridPanels[6].add(textField);
-            } else if (n < 6) {
-                subGridPanels[7].add(textField);
-            } else {
-                subGridPanels[8].add(textField);
-            }
-        }
     }
 
     /**
      * 显示游戏初始值
      */
-    private void setInitialData() {
+    private void diaplayInitialData() {
         for (int k = 0; k < 9; k++) {
             for (int n = 0; n < 9; n++) {
                 textFields[k][n].setInputValue(this.initialData[k][n]);
@@ -407,6 +381,11 @@ public class SudokuFrame extends JFrame {
         }
     }
 
+    /**
+     * 缓存游戏初始值
+     *
+     * @param data
+     */
     private void cacheInitialData(int[][] data) {
         this.initialData = new int[9][9];
         for (int k = 0; k < 9; k++) {
@@ -416,7 +395,12 @@ public class SudokuFrame extends JFrame {
         }
     }
 
-    private boolean initializeSudokuFields() {
+    /**
+     * 验算数独游戏
+     *
+     * @return true, if there is no answer
+     */
+    private boolean validateSudokuData() {
         for (int k = 0; k < 9; k++) {
             for (int n = 0; n < 9; n++) {
                 initialData[k][n] = textFields[k][n].getInputValue();
@@ -425,7 +409,7 @@ public class SudokuFrame extends JFrame {
         engine.setData(initialData);
         engine.printSudo();//打印游戏
 
-        if (engine.solveSudo(false)) {
+        if (SudokuValidator.getInstance().preview(initialData) && engine.solveSudo(false)) {
             int[][] resultData = engine.getData();
             for (int k = 0; k < 9; k++) {
                 for (int n = 0; n < 9; n++) {
@@ -440,7 +424,7 @@ public class SudokuFrame extends JFrame {
             engine.printSudo();//打印游戏结果
             return false;
         } else {
-            JOptionPane.showMessageDialog(getContentPane(), "无解，请修改游戏");
+            JOptionPane.showMessageDialog(getContentPane(), INVALID_DATA);
             return true;
         }
     }

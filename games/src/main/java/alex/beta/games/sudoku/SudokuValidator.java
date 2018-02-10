@@ -26,6 +26,8 @@ import java.util.Objects;
 public class SudokuValidator {
     private static final SudokuValidator ourInstance = new SudokuValidator();
 
+    private static final String EMPTY_SUDOKU_DATA = "Cannot validate an empty Sudoku result";
+
     private SudokuValidator() {
         //To hide default public constructor
     }
@@ -35,7 +37,7 @@ public class SudokuValidator {
     }
 
     public SudokuValidationMessages validate(SudokuField[][] fields) {
-        Objects.requireNonNull(fields, "Cannot validate an empty Sudoku result");
+        Objects.requireNonNull(fields, EMPTY_SUDOKU_DATA);
 
         int[][] data = new int[9][9];
         for (int k = 0; k < 9; k++) {
@@ -52,7 +54,7 @@ public class SudokuValidator {
      */
     @SuppressWarnings("unchecked")
     public SudokuValidationMessages validate(int[][] data) {
-        Objects.requireNonNull(data, "Cannot validate an empty Sudoku result");
+        Objects.requireNonNull(data, EMPTY_SUDOKU_DATA);
 
         SudokuValidationMessages messages = new SudokuValidationMessages();
         //validate empty fields
@@ -133,6 +135,67 @@ public class SudokuValidator {
         }
 
         return messages;
+    }
+
+    public boolean preview(int[][] data) {
+        Objects.requireNonNull(data, EMPTY_SUDOKU_DATA);
+
+        //validate row
+        for (int k = 0; k < 9; k++) {
+            int[] count = new int[9];
+            for (int i = 0; i < 9; i++) {
+                if (data[k][i] > 0) {
+                    count[data[k][i] - 1]++;
+                }
+            }
+            for (int i = 0; i < 9; i++) {
+                if (count[i] > 1) {
+                    return false;
+                }
+            }
+        }
+        //validate column
+        for (int n = 0; n < 9; n++) {
+            int[] count = new int[9];
+            for (int i = 0; i < 9; i++) {
+                if (data[i][n] > 0) {
+                    count[data[i][n] - 1]++;
+                }
+            }
+            for (int i = 0; i < 9; i++) {
+                if (count[i] > 1) {
+                    return false;
+                }
+            }
+        }
+        //validate block
+        ArrayList<Integer>[][] blocks = new ArrayList[3][3];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                blocks[i][j] = new ArrayList<>();
+            }
+        }
+        for (int k = 0; k < 9; k++) {
+            for (int n = 0; n < 9; n++) {
+                blocks[k / 3][n / 3].add(data[k][n]);
+            }
+        }
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                int[] count = new int[9];
+                for (int l = 0; l < 9; l++) {
+                    if (blocks[i][j].get(l) > 0) {
+                        count[blocks[i][j].get(l) - 1]++;
+                    }
+                }
+                for (int m = 0; m < 9; m++) {
+                    if (count[m] > 1) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     public enum SudokuValidationError {
