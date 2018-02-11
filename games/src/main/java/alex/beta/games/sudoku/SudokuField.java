@@ -50,6 +50,8 @@ public class SudokuField extends JTextField {
                     e.getComponent().transferFocus();
                 } else if (temp == KeyEvent.VK_BACK_SPACE || temp == KeyEvent.VK_DELETE) {
                     //回退或者删除
+                    inputValue = 0;
+                    setText("");
                 } else if (((JTextField) e.getComponent()).isEditable() && (temp <= KeyEvent.VK_9 && temp > KeyEvent.VK_0)) {
                     if (!isEmpty(((JTextField) e.getComponent()).getText()) && isEmpty(((JTextField) e.getComponent()).getSelectedText())) {
                         //已有数字，并且没有被选中

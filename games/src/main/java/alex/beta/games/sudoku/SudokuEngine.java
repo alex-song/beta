@@ -138,29 +138,29 @@ public class SudokuEngine {
      * 输出数独数组
      */
     public void printSudo() {
+        String sudokuLineSeparator = "----------------------";
+        String sudokuColumnSeparator = "|";
         StringBuilder sb = new StringBuilder(System.lineSeparator());
 
-        sb.append("----------------------");
+        sb.append(sudokuLineSeparator);
         sb.append(System.lineSeparator());
         for (int i = 0; i < 9; ++i) {
             if (i == 3 || i == 6) {
-                sb.append("----------------------");
-                sb.append(System.lineSeparator());
+                sb.append(sudokuLineSeparator).append(System.lineSeparator());
             }
             for (int j = 0; j < 9; ++j) {
-                if (j == 0 || j == 3 || j == 6) {
-                    sb.append("|");
+                if (j % 3 == 0) {
+                    sb.append(sudokuColumnSeparator);
                 }
                 if (data[i][j] > 0) {
-                    sb.append(data[i][j]);
-                    sb.append(" ");
-                } else
+                    sb.append(data[i][j]).append(" ");
+                } else {
                     sb.append("* ");
+                }
             }
-            sb.append("|");
-            sb.append(System.lineSeparator());
+            sb.append(sudokuColumnSeparator).append(System.lineSeparator());
         }
-        sb.append("----------------------");
+        sb.append(sudokuLineSeparator);
         sb.append(System.lineSeparator());
         if (logger.isInfoEnabled()) {
             logger.info(sb.toString());

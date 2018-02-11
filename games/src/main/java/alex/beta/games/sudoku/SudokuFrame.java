@@ -209,7 +209,7 @@ public class SudokuFrame extends JFrame {
             } while (!canSolve);
             engine.printSudo();//打印游戏结果
             //初始化九宫格
-            diaplayInitialData();
+            diaplayInitialData(false);
             //初始化系统变量
             customizedGame = false;
             gameStarted = false;
@@ -234,7 +234,7 @@ public class SudokuFrame extends JFrame {
                     initialData[k][n] = 0;
                 }
             }
-            diaplayInitialData();
+            diaplayInitialData(true);
             textFields[0][0].requestFocusInWindow();
             customizedGame = true;
             gameStarted = false;
@@ -296,6 +296,18 @@ public class SudokuFrame extends JFrame {
                 if (customizedGame && validateSudokuData()) {//定制游戏，并且无解
                     return;
                 }
+
+                if (!customizedGame) {
+                    //允许填写答案
+                    for (int k = 0; k < 9; k++) {
+                        for (int n = 0; n < 9; n++) {
+                            if (initialData[k][n] == 0) {
+                                textFields[k][n].setEditable(true);
+                            }
+                        }
+                    }
+                }
+
                 //初始化计时器
                 countingField.setText(INITIAL_COUNTING_TEXT);
                 //启动计时程序
@@ -367,15 +379,16 @@ public class SudokuFrame extends JFrame {
 
     /**
      * 显示游戏初始值
+     * @param enableEditing
      */
-    private void diaplayInitialData() {
+    private void diaplayInitialData(boolean enableEditing) {
         for (int k = 0; k < 9; k++) {
             for (int n = 0; n < 9; n++) {
                 textFields[k][n].setInputValue(this.initialData[k][n]);
                 if (this.initialData[k][n] != 0) {
                     textFields[k][n].showInput(Color.BLACK, Color.GRAY, false);
                 } else {
-                    textFields[k][n].showInput(Color.BLACK, Color.WHITE, true);
+                    textFields[k][n].showInput(Color.BLACK, Color.WHITE, enableEditing);
                 }
             }
         }

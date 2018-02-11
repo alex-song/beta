@@ -115,4 +115,13 @@ public class SudokuValidatorTest {
         assertTrue(messages.getMessages().contains(validator.new SudokuValidationMessage(8, 0, 2, null, SudokuValidationError.NOT_IN_USE_IN_ROW)));
         assertTrue(messages.getMessages().contains(validator.new SudokuValidationMessage(2, 2, 2, null, SudokuValidationError.NOT_IN_USE_IN_BLOCK)));
     }
+
+    @Test
+    public void testPreview() {
+        int[][] testData = cloneInitialData();
+        testData[5][7] = 0;
+        assertTrue(validator.preview(testData));
+        testData[5][7] = 5;
+        assertFalse(validator.preview(testData));
+    }
 }

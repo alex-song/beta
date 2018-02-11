@@ -137,6 +137,7 @@ public class SudokuValidator {
         return messages;
     }
 
+    @SuppressWarnings("unchecked")
     public boolean preview(int[][] data) {
         Objects.requireNonNull(data, EMPTY_SUDOKU_DATA);
 
@@ -145,12 +146,11 @@ public class SudokuValidator {
             int[] count = new int[9];
             for (int i = 0; i < 9; i++) {
                 if (data[k][i] > 0) {
-                    count[data[k][i] - 1]++;
-                }
-            }
-            for (int i = 0; i < 9; i++) {
-                if (count[i] > 1) {
-                    return false;
+                    if (count[data[k][i] - 1] >= 1) {
+                        return false;
+                    } else {
+                        count[data[k][i] - 1]++;
+                    }
                 }
             }
         }
@@ -159,12 +159,11 @@ public class SudokuValidator {
             int[] count = new int[9];
             for (int i = 0; i < 9; i++) {
                 if (data[i][n] > 0) {
-                    count[data[i][n] - 1]++;
-                }
-            }
-            for (int i = 0; i < 9; i++) {
-                if (count[i] > 1) {
-                    return false;
+                    if (count[data[i][n] - 1] >= 1) {
+                        return false;
+                    } else {
+                        count[data[i][n] - 1]++;
+                    }
                 }
             }
         }
@@ -185,12 +184,11 @@ public class SudokuValidator {
                 int[] count = new int[9];
                 for (int l = 0; l < 9; l++) {
                     if (blocks[i][j].get(l) > 0) {
-                        count[blocks[i][j].get(l) - 1]++;
-                    }
-                }
-                for (int m = 0; m < 9; m++) {
-                    if (count[m] > 1) {
-                        return false;
+                        if (count[blocks[i][j].get(l) - 1] >= 1) {
+                            return false;
+                        } else {
+                            count[blocks[i][j].get(l) - 1]++;
+                        }
                     }
                 }
             }

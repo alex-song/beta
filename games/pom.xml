@@ -44,7 +44,7 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>${maven-assembly-plugin_version}</version>
                 <configuration>
-                    <finalName>Sudoku</finalName>
+                    <finalName>Sudoku_1_0</finalName>
                     <archive>
                         <manifest>
                             <mainClass>alex.beta.games.sudoku.SudokuFrame</mainClass>
