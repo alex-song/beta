@@ -6,8 +6,8 @@
 		<artifactId>beta</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>async</artifactId>
-	<name>async</name>
+	<artifactId>commons</artifactId>
+	<name>commons</name>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
