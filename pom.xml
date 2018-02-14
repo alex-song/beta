@@ -9,7 +9,8 @@
 	<modules>
 		<module>commons</module>
         <module>games</module>
-    </modules>
+		<module>easypr4j</module>
+	</modules>
 	<properties>
         <!-- compile parameters -->
 		<compiler_source>1.8</compiler_source>
@@ -31,6 +32,16 @@
         <!-- build parameters -->
         <skip.unit.tests>false</skip.unit.tests>
     </properties>
+
+	<dependencies>
+		<!-- junit for all modules -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+			<version>${junit_version}</version>
+		</dependency>
+	</dependencies>
 
     <build>
         <plugins>

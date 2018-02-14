@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>beta</artifactId>
+        <groupId>alex</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>easypr4j</artifactId>
+
+    <dependencies>
+        <!-- OpenCV 3.4.0 -->
+        <!-- native lib libopencv_java340.dylib -->
+        <dependency>
+            <groupId>org.opencv</groupId>
+            <artifactId>opencv</artifactId>
+            <version>3.4.0</version>
+            <systemPath>/usr/local/Cellar/opencv/3.4.0_1/share/OpenCV/java/opencv-340.jar</systemPath>
+            <scope>system</scope>
+        </dependency>
+    </dependencies>
+
+</project>

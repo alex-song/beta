@@ -28,13 +28,6 @@
             <artifactId>logback-core</artifactId>
             <version>${logback_version}</version>
         </dependency>
-        <!-- Unit test -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-            <version>${junit_version}</version>
-        </dependency>
     </dependencies>
 
     <build>
