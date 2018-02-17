@@ -23,8 +23,8 @@
 		<maven-resources-plugin_version>3.0.2</maven-resources-plugin_version>
 		<maven-assembly-plugin_version>3.1.0</maven-assembly-plugin_version>
 		<maven-deploy-plugin_version>2.8.2</maven-deploy-plugin_version>
-		<!--<spring-boot-maven-plugin_version>1.5.10.RELEASE</spring-boot-maven-plugin_version>-->
-        <!--<exec-maven-plugin_version>1.6.0</exec-maven-plugin_version>-->
+		<maven-war-plugin_version>3.2.0</maven-war-plugin_version>
+        <exec-maven-plugin_version>1.6.0</exec-maven-plugin_version>
 
         <!-- dependencies -->
 		<junit_version>4.12</junit_version>

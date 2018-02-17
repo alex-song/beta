@@ -1,0 +1,39 @@
+server:
+  port: 7070
+  contextPath: /onlinetranslation/
+
+endpoints:
+  enabled: false
+  info:
+    enabled: true
+  health:
+    enabled: true
+
+spring:
+  profiles:
+    active: dev
+  messages:
+    basename: l10n/exceptions
+  jackson:
+    date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+
+springfox:
+  documentation:
+    swagger:
+      v2:
+        path: /swagger-spec.json
+
+logging:
+  file: ./logs/onlinetranslation.log
+  level:
+    Root: WARN
+    beta: DEBUG
+
+info:
+  app:
+    name: Online Translation
+    description: Online Translation
+    version: 0.0.1
+
