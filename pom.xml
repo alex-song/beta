@@ -34,7 +34,11 @@
 		<spring-boot_version>1.5.10.RELEASE</spring-boot_version>
 		<io.swagger_version>1.5.13</io.swagger_version>
 		<springfox-swagger2_version>2.8.0</springfox-swagger2_version>
-
+		<h2_version>1.4.195</h2_version>
+		<hibernate-core_version>5.2.10.Final</hibernate-core_version>
+		<querydsl-jpa_version>4.1.4</querydsl-jpa_version>
+		<gson_version>2.2.4</gson_version>
+		<guava_version>22.0</guava_version>
 
 		<!-- build parameters -->
         <skip.unit.tests>false</skip.unit.tests>

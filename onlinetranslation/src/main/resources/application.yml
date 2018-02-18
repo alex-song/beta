@@ -18,6 +18,39 @@ spring:
     date-format: com.fasterxml.jackson.databind.util.ISO8601DateFormat
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
+  h2:
+    console:
+      path: /console
+      enabled: true
+  datasource:
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      org:
+        hibernate:
+          envers:
+            use_revision_entity_with_native_id: false
+      hibernate:
+        show_sql: true
+        format_sql: true
+        cache:
+          region:
+            factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
+          use_second_level_cache: true
+          use_query_cache: true
+      javax:
+        persistence:
+          sharedCache:
+            mode: ENABLE_SELECTIVE
+  cache:
+    ehcache:
+      config: classpath:ehcache.xml
+
 
 springfox:
   documentation:
@@ -29,7 +62,7 @@ logging:
   file: ./logs/onlinetranslation.log
   level:
     Root: WARN
-    beta: DEBUG
+    alex: DEBUG
 
 info:
   app:

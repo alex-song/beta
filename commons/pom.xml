@@ -10,4 +10,13 @@
 	<artifactId>commons</artifactId>
 
 	<name>commons</name>
+
+	<dependencies>
+		<!-- logger -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j-api_version}</version>
+		</dependency>
+	</dependencies>
 </project>

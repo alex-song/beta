@@ -1,11 +1,17 @@
 #Online Translation
-Leverage Baidu online translation API, to build an embedded translation engine in the browser
+Leverage Baidu online translation API, to build an simple translation plugin of browser.
+
+Application doesn't persist any data. The embedded H2 database is for cache purpose only. It's dropped and recreated during application startup.
 
 ###TODO:
 >       1.不考虑安全验证，实现翻译接口。
 >       2.实现浏览器插件，并和后台服务集成。
 >       3.加入安全验证。
 >       4.加入缓存，优化性能。
+
+###Baidu Fanyi
+http://api.fanyi.baidu.com/api/trans/product/index
+
 
 ###Swagger flow:
 

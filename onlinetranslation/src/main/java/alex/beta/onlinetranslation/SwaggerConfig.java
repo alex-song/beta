@@ -15,7 +15,7 @@
  */
 package alex.beta.onlinetranslation;
 
-import alex.beta.onlinetranslation.controller.TranslationRestEndpoint;
+import alex.beta.onlinetranslation.controllers.TranslationRestEndpoint;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
