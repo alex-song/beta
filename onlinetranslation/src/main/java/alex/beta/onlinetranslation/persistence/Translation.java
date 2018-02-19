@@ -15,8 +15,6 @@
  */
 package alex.beta.onlinetranslation.persistence;
 
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -31,8 +29,6 @@ import java.util.Date;
 @Table(name = "Translation",
         indexes = {@Index(columnList = "status"),
                 @Index(columnList = "lastUpdatedOn")})
-@Cacheable
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "alex.beta.onlinetranslation.persistence.Translation")
 public class Translation implements Serializable {
     private static final String ENTITY_TYPE = "Translation";
 
@@ -173,7 +169,7 @@ public class Translation implements Serializable {
         if (this.getCreatedOn() != null)
             sb.append("\"createdOn\" : \"").append(this.getCreatedOn()).append("\", ");
         if (this.getLastUpdatedOn() != null)
-            sb.append("\"lastUpdatedOn\" : \"").append(this.getLastUpdatedOn()).append("\", ");
+            sb.append("\"lastUpdatedOn\" : \"").append(this.getLastUpdatedOn()).append("\"");
         sb.append("}");
         return sb.toString();
     }

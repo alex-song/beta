@@ -49,11 +49,6 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-        <!-- cache -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cache</artifactId>
-        </dependency>
         <!-- health check -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -106,17 +101,6 @@
             <version>${guava_version}</version>
         </dependency>
 
-        <!-- cache -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cache</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-ehcache</artifactId>
-            <version>${hibernate-core_version}</version>
-        </dependency>
-
         <!-- security -->
         <!--<dependency>-->
             <!--<groupId>org.springframework.security</groupId>-->
@@ -126,6 +110,7 @@
             <!--<groupId>org.springframework.security</groupId>-->
             <!--<artifactId>spring-security-config</artifactId>-->
         <!--</dependency>-->
+
         <!-- test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

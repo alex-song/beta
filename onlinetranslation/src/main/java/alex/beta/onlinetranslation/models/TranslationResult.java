@@ -162,7 +162,7 @@ public class TranslationResult {
         if (createdOn != null)
             sb.append("\"createdOn\" : \"").append(this.createdOn).append("\", ");
         if (lastUpdatedOn != null)
-            sb.append("\"lastUpdatedOn\" : \"").append(this.lastUpdatedOn).append("\", ");
+            sb.append("\"lastUpdatedOn\" : \"").append(this.lastUpdatedOn).append("\"");
         sb.append("}");
         return sb.toString();
     }

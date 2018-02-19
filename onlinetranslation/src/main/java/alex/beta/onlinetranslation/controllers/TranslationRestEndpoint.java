@@ -15,6 +15,7 @@
  */
 package alex.beta.onlinetranslation.controllers;
 
+import alex.beta.onlinetranslation.models.TranslationError;
 import alex.beta.onlinetranslation.models.TranslationResult;
 import alex.beta.onlinetranslation.persistence.Translation;
 import alex.beta.onlinetranslation.persistence.TranslationRepository;
@@ -36,7 +37,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -51,13 +54,6 @@ import java.util.stream.Collectors;
 @Api(value = "Online Translation API")
 public class TranslationRestEndpoint {
     private static final Logger logger = LoggerFactory.getLogger(TranslationRestEndpoint.class);
-
-    @Autowired
-    private MessageSource messageSource;
-
-    @Autowired
-    private TranslationRepository translationRepository;
-
     private static final List<String> availableLanguages = Arrays.asList(
             "zh",
             "en",
@@ -87,6 +83,10 @@ public class TranslationRestEndpoint {
             "hu",
             "cht",
             "vie");
+    @Autowired
+    private MessageSource messageSource;
+    @Autowired
+    private TranslationRepository translationRepository;
 
     @GetMapping("/")
     void home(HttpServletResponse response) throws IOException {
@@ -95,8 +95,8 @@ public class TranslationRestEndpoint {
 
     @ApiOperation(value = "Submit a translation request")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Translation request is successfully submitted.", response = String.class),
-            @ApiResponse(code = 500, message = "Internal error, that failed to submit the translation request.", response = String.class)
+            @ApiResponse(code = 200, message = "Translation request is successfully submitted.", response = TranslationResult.class),
+            @ApiResponse(code = 400, message = "Unsupported language to translate.", response = TranslationError.class)
     })
     @PostMapping(value = "/translate", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity translate(
@@ -105,32 +105,34 @@ public class TranslationRestEndpoint {
             @RequestBody String content,
             @ApiParam(value = "Target language to translate.")
             @Valid
-            @RequestParam(value = "toLanguage", required = false, defaultValue = "en") String toLanguage) {
+            @RequestParam(value = "toLanguage", required = false, defaultValue = "zh") String toLanguage) {
         if (logger.isInfoEnabled()) {
-            logger.info("Receive translation request.\ntoLanguage : {},\ntext: \n{}", toLanguage, content);
+            logger.info("Receive translation request.\ntoLanguage : {},\ntext: {}", toLanguage, content);
         }
-        String validatedToLanguage = validateToLanguage(toLanguage);
-        if (logger.isDebugEnabled()) {
-            logger.debug("toLanguage : {}", validatedToLanguage);
+
+        String lang = Objects.requireNonNull(toLanguage).trim().toLowerCase();
+        if (!availableLanguages.contains(lang)) {
+            return ResponseEntity.badRequest().body(
+                    new TranslationError("TranslationRestEndpoint.UnsupportedLanguage",
+                            buildResponseErrorMessage("TranslationRestEndpoint.UnsupportedLanguage",
+                                    toLanguage, availableLanguages.stream().collect(Collectors.joining("\', \'"))))
+            );
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("toLanguage : {}", lang);
+            }
+            Translation translation = translationRepository.saveAndFlush(new Translation(TranslationStatus.SUBMITTED, "auto", lang, content));
+            TranslationResult result = new TranslationResult(translation);
+            if (logger.isInfoEnabled()) {
+                logger.info("Translation request is successfully submitted.\n{}", result);
+            }
+            return ResponseEntity.ok(result);
         }
-        Translation translation = translationRepository.saveAndFlush(new Translation(TranslationStatus.SUBMITTED, "auto", validatedToLanguage, content));
-        TranslationResult result = new TranslationResult(translation);
-        if (logger.isInfoEnabled()) {
-            logger.info("Translation request is successfully submitted.\n{}", result);
-        }
-        return ResponseEntity.ok(result);
     }
 
-    private String validateToLanguage(String toLanguage) {
-        String lang = Objects.requireNonNull(toLanguage).trim().toLowerCase();
-        if (availableLanguages.contains(lang)) {
-            return lang;
-        } else {
-            String msg = messageSource.getMessage("TranslationRestEndpoint.unsupportedToLanguage",
-                    new Object[]{toLanguage, availableLanguages.stream().collect(Collectors.joining("\', \'"))},
-                    LocaleContextHolder.getLocale());
-            logger.warn(msg);
-            throw new IllegalArgumentException(msg);
-        }
+    private String buildResponseErrorMessage(String errorCode, String... paramters) {
+        String msg = messageSource.getMessage(errorCode, paramters, LocaleContextHolder.getLocale());
+        logger.warn("{} - {}", errorCode, msg);
+        return msg;
     }
 }

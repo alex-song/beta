@@ -38,19 +38,6 @@ spring:
       hibernate:
         show_sql: true
         format_sql: true
-        cache:
-          region:
-            factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
-          use_second_level_cache: true
-          use_query_cache: true
-      javax:
-        persistence:
-          sharedCache:
-            mode: ENABLE_SELECTIVE
-  cache:
-    ehcache:
-      config: classpath:ehcache.xml
-
 
 springfox:
   documentation:
