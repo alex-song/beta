@@ -33,11 +33,6 @@ public enum TranslationStatus {
         this.value = value;
     }
 
-    @Override
-    public String toString() {
-        return this.value;
-    }
-
     public static TranslationStatus fromString(String value) {
         if (value == null) {
             return null;
@@ -56,5 +51,10 @@ public enum TranslationStatus {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public String toString() {
+        return this.value;
     }
 }

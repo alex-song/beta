@@ -18,8 +18,7 @@ package alex.beta.onlinetranslation.controllers;
 import alex.beta.onlinetranslation.models.TranslationError;
 import alex.beta.onlinetranslation.models.TranslationResult;
 import alex.beta.onlinetranslation.persistence.Translation;
-import alex.beta.onlinetranslation.persistence.TranslationRepository;
-import alex.beta.onlinetranslation.persistence.TranslationStatus;
+import alex.beta.onlinetranslation.services.TranslationService;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -83,10 +83,12 @@ public class TranslationRestEndpoint {
             "hu",
             "cht",
             "vie");
+
     @Autowired
     private MessageSource messageSource;
+
     @Autowired
-    private TranslationRepository translationRepository;
+    private TranslationService translationService;
 
     @GetMapping("/")
     void home(HttpServletResponse response) throws IOException {
@@ -98,16 +100,20 @@ public class TranslationRestEndpoint {
             @ApiResponse(code = 200, message = "Translation request is successfully submitted.", response = TranslationResult.class),
             @ApiResponse(code = 400, message = "Unsupported language to translate.", response = TranslationError.class)
     })
-    @PostMapping(value = "/translate", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/translate", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity translate(
             @ApiParam(value = "Content to translate.", required = true)
             @NotNull
             @RequestBody String content,
-            @ApiParam(value = "Target language to translate.")
+            @ApiParam(value = "Target language to translate.", required = true)
             @Valid
-            @RequestParam(value = "toLanguage", required = false, defaultValue = "zh") String toLanguage) {
+            @RequestParam(value = "toLanguage", defaultValue = "zh") String toLanguage) {
         if (logger.isInfoEnabled()) {
             logger.info("Receive translation request.\ntoLanguage : {},\ntext: {}", toLanguage, content);
+        }
+
+        if (content == null || content.trim().isEmpty()) {
+            return ResponseEntity.ok(TranslationResult.NOTHING_TO_TRANSLATE);
         }
 
         String lang = Objects.requireNonNull(toLanguage).trim().toLowerCase();
@@ -121,7 +127,7 @@ public class TranslationRestEndpoint {
             if (logger.isDebugEnabled()) {
                 logger.debug("toLanguage : {}", lang);
             }
-            Translation translation = translationRepository.saveAndFlush(new Translation(TranslationStatus.SUBMITTED, "auto", lang, content));
+            Translation translation = translationService.submit("auto", lang, content);
             TranslationResult result = new TranslationResult(translation);
             if (logger.isInfoEnabled()) {
                 logger.info("Translation request is successfully submitted.\n{}", result);
@@ -130,6 +136,33 @@ public class TranslationRestEndpoint {
         }
     }
 
+    @ApiOperation(value = "Get status of a translation request")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Translation request is found.", response = TranslationResult.class),
+            @ApiResponse(code = 404, message = "Translation request is not found.", response = TranslationError.class)
+    })
+    @GetMapping(value = "/translate/{uuid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity translate(
+            @ApiParam(value = "uuid of a translation request.", required = true)
+            @PathVariable(value = "uuid") String uuid) {
+        Translation translation = translationService.getTranslation(uuid);
+        if (logger.isDebugEnabled()) {
+            logger.debug("uuid : {}, translation : {}", uuid, translation);
+        }
+        if (translation == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    new TranslationError("TranslationRestEndpoint.NotFound",
+                            buildResponseErrorMessage("TranslationRestEndpoint.NotFound")));
+        } else {
+            TranslationResult result = new TranslationResult(translation);
+            if (logger.isInfoEnabled()) {
+                logger.info("Translation is found.\n{}", result);
+            }
+            return ResponseEntity.ok(result);
+        }
+    }
+
+    //----------- private methods -----------
     private String buildResponseErrorMessage(String errorCode, String... paramters) {
         String msg = messageSource.getMessage(errorCode, paramters, LocaleContextHolder.getLocale());
         logger.warn("{} - {}", errorCode, msg);

@@ -29,39 +29,32 @@ import java.util.Date;
  */
 public class TranslationResult {
 
+    public static final TranslationResult NOTHING_TO_TRANSLATE = new TranslationResult("NOTHING_TO_TRANSLATE", TranslationStatus.READY);
     @JsonProperty("uuid")
     @ApiModelProperty
     @NotNull
     private String uuid;
-
     @JsonProperty("status")
     @ApiModelProperty
     private TranslationStatus status;
-
     @JsonProperty("message")
     @ApiModelProperty
     private String message;
-
     @JsonProperty("text")
     @ApiModelProperty
     private String text;
-
     @JsonProperty("translatedText")
     @ApiModelProperty
     private String translatedText;
-
     @JsonProperty("fromLanguage")
     @ApiModelProperty
     private String fromLanguage;
-
     @JsonProperty("toLanguage")
     @ApiModelProperty
     private String toLanguage;
-
     @JsonProperty("createdOn")
     @ApiModelProperty
     private Date createdOn;
-
     @JsonProperty("lastUpdatedOn")
     @ApiModelProperty
     private Date lastUpdatedOn;
@@ -76,6 +69,11 @@ public class TranslationResult {
         this.translatedText = translation.getTranslatedText();
         this.message = translation.getMessage();
         this.lastUpdatedOn = translation.getLastUpdatedOn();
+    }
+
+    private TranslationResult(String uuid, TranslationStatus status) {
+        this.uuid = uuid;
+        this.status = status;
     }
 
     public String getUuid() {

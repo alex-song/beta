@@ -21,5 +21,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author alexsong
  * @version ${project.version}
  */
-public interface TranslationRepository extends JpaRepository<Translation, String> {//, QueryDslPredicateExecutor<Translation> {
+public interface TranslationRepository extends JpaRepository<Translation, String> {
+    Translation findFirstByStatusOrderByLastUpdatedOnAsc(TranslationStatus status);
 }
