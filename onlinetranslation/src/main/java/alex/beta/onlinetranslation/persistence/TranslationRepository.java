@@ -17,10 +17,12 @@ package alex.beta.onlinetranslation.persistence;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 /**
  * @author alexsong
  * @version ${project.version}
  */
 public interface TranslationRepository extends JpaRepository<Translation, String> {
-    Translation findFirstByStatusOrderByLastUpdatedOnAsc(TranslationStatus status);
+    List<Translation> findFirst5ByStatusOrderByLastUpdatedOnAsc(TranslationStatus status);
 }

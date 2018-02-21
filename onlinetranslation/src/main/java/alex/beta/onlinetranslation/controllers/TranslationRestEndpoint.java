@@ -33,6 +33,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -87,7 +88,7 @@ public class TranslationRestEndpoint {
     @Autowired
     private MessageSource messageSource;
 
-    @Autowired
+    @Resource
     private TranslationService translationService;
 
     @GetMapping("/")
@@ -95,10 +96,10 @@ public class TranslationRestEndpoint {
         response.sendRedirect("api-spec/index.html");
     }
 
-    @ApiOperation(value = "Submit a translation request")
+    @ApiOperation(value = "Submit a translation request. Max. 2000 characters.", consumes = MediaType.TEXT_PLAIN_VALUE)
     @ApiResponses({
             @ApiResponse(code = 200, message = "Translation request is successfully submitted.", response = TranslationResult.class),
-            @ApiResponse(code = 400, message = "Unsupported language to translate.", response = TranslationError.class)
+            @ApiResponse(code = 400, message = "Invalid parameters.", response = TranslationError.class)
     })
     @PostMapping(value = "/translate", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity translate(
@@ -114,6 +115,12 @@ public class TranslationRestEndpoint {
 
         if (content == null || content.trim().isEmpty()) {
             return ResponseEntity.ok(TranslationResult.NOTHING_TO_TRANSLATE);
+        } else if (content.length() > 2000) {
+            return ResponseEntity.badRequest().body(
+                    new TranslationError("TranslationRestEndpoint.ContentOversize",
+                            buildResponseErrorMessage("TranslationRestEndpoint.ContentOversize",
+                                    toLanguage, String.valueOf(content.length())))
+            );
         }
 
         String lang = Objects.requireNonNull(toLanguage).trim().toLowerCase();

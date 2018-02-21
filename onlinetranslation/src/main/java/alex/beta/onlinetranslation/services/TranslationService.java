@@ -36,20 +36,14 @@ public interface TranslationService {
     Translation submit(String fromLanguage, String toLanguage, String text);
 
     /**
-     * Get the oldest unprocessed translation request
-     *
-     * @return null, if all translation requests are proceeded or being proceeded
-     */
-    Translation getOldestUnprocessedRequest();
-
-    /**
      * Update the translation request, such as the status, last updated timestamp, etc
      *
      * @param request
+     * @param flush
      * @return
      */
     @Transactional
-    Translation updateTranslationRequest(Translation request);
+    Translation updateTranslationRequest(Translation request, boolean flush);
 
     /**
      * Get translation request according to given uuid
@@ -58,4 +52,18 @@ public interface TranslationService {
      * @return
      */
     Translation getTranslation(String uuid);
+
+    /**
+     * Find and translate unproceeded 5 requests
+     * Execute once every 1 second
+     */
+    void executeTranslationJob();
+
+    /**
+     * Perform translation using Baidu fanyi API
+     *
+     * @param request
+     */
+    @Transactional
+    void performTranslation(Translation request);
 }

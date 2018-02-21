@@ -52,3 +52,6 @@ dependency-reduced-pom.xml
 *.iws
 *.idea
 
+# Personal Baidu Dev account file
+baidu.key
+

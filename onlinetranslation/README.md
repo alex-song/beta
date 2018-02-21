@@ -3,7 +3,10 @@ Leverage Baidu online translation API, to build an simple translation plugin of 
 
 Application doesn't persist any data. The embedded H2 database is for cache purpose only. It's dropped and recreated during application startup.
 
-###TODO:
+baidu.key file contains the appid and securityKey to use Baidu Fanyi service. It's not shared, not uploaded to Git.
+
+
+###Plan:
 >       1.不考虑安全验证，实现翻译接口。
 >       2.实现浏览器插件，并和后台服务集成。
 >       3.加入安全验证。

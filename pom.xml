@@ -39,6 +39,7 @@
 		<querydsl-jpa_version>4.1.4</querydsl-jpa_version>
 		<gson_version>2.2.4</gson_version>
 		<guava_version>22.0</guava_version>
+		<httpclient_version>4.5.5</httpclient_version>
 
 		<!-- build parameters -->
         <skip.unit.tests>false</skip.unit.tests>

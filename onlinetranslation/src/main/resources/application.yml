@@ -57,3 +57,6 @@ info:
     description: Online Translation
     version: 0.0.1
 
+TranslationJobConfiguration:
+  poolSize: 5
+

@@ -1,6 +1,6 @@
 /**
  * <p>
- * File Name: SimpleMD5.java
+ * File Name: BaiduMD5.java
  * </p>
  * <p>
  * Project:   beta
@@ -13,12 +13,12 @@
  * Created on 2018/2/18 下午3:36
  * </p>
  */
-package alex.beta.commons.lang;
+package alex.beta.onlinetranslation.services.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -26,8 +26,8 @@ import java.security.NoSuchAlgorithmException;
  * @author alexsong
  * @version ${project.version}
  */
-public class SimpleMD5 {
-    private static final Logger logger = LoggerFactory.getLogger(SimpleMD5.class);
+public class BaiduMD5 {
+    private static final Logger logger = LoggerFactory.getLogger(BaiduMD5.class);
 
     // 首先初始化一个字符数组，用来存放每个16进制字符
     private static final char[] hexDigits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
@@ -44,9 +44,9 @@ public class SimpleMD5 {
 
         try {
             // 拿到一个MD5转换器（如果想要SHA1参数换成”SHA1”）
-            MessageDigest messageDigest = MessageDigest.getInstance("SimpleMD5");
+            MessageDigest messageDigest = MessageDigest.getInstance("MD5");
             // 输入的字符串转换成字节数组
-            byte[] inputByteArray = input.getBytes("utf-8");
+            byte[] inputByteArray = input.getBytes("UTF-8");
             // inputByteArray是输入字符串转换得到的字节数组
             messageDigest.update(inputByteArray);
             // 转换并返回结果，也是字节数组，包含16个元素
@@ -56,46 +56,6 @@ public class SimpleMD5 {
         } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
             logger.error("Unexpected exception when encoding string \'{}\'", input, e);
             return null;
-        }
-    }
-
-    /**
-     * 获取文件的MD5值
-     *
-     * @param file
-     * @return
-     */
-    public static String md5(File file) throws IOException {
-        if (!file.isFile()) {
-            logger.error("File \'{}\' doesn't exist, or it's not a file.", file.getAbsolutePath());
-            return null;
-        }
-        FileInputStream in = null;
-        try {
-            in = new FileInputStream(file);
-            return md5(in);
-        } finally {
-            if (in != null) {
-                in.close();
-            }
-        }
-    }
-
-    public static String md5(InputStream in) throws IOException {
-        try {
-            MessageDigest messagedigest = MessageDigest.getInstance("SimpleMD5");
-
-            byte[] buffer = new byte[1024];
-            int read = 0;
-            while ((read = in.read(buffer)) != -1) {
-                messagedigest.update(buffer, 0, read);
-            }
-            return byteArrayToHex(messagedigest.digest());
-        } catch (NoSuchAlgorithmException e) {
-            logger.error("Unexpected exception when encoding input stream", e);
-            return null;
-        } finally {
-            in.close();
         }
     }
 
