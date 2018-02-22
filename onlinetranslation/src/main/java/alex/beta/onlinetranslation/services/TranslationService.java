@@ -39,10 +39,10 @@ public interface TranslationService {
      * For application internal use only
      *
      * @param request
-     * @param flush
+     * @param delay lastUpdatedOn = current timestamp + delay (in ms)
      * @return
      */
-    Translation updateTranslationRequest(Translation request, boolean flush);
+    Translation updateTranslationRequest(Translation request, long delay);
 
     /**
      * Get translation result according to given uuid

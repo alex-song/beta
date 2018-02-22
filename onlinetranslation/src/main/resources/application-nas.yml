@@ -1,0 +1,13 @@
+spring:
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: false
+
+logging:
+  file: onlinetranslation.log
+  level:
+    Root: WARN
+    alex: INFO

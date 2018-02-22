@@ -17,6 +17,7 @@ package alex.beta.onlinetranslation.persistence;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -24,5 +25,5 @@ import java.util.List;
  * @version ${project.version}
  */
 public interface TranslationRepository extends JpaRepository<Translation, String> {
-    List<Translation> findFirst5ByStatusOrderByLastUpdatedOnAsc(TranslationStatus status);
+    List<Translation> findFirst5ByStatusAndLastUpdatedOnLessThanOrderByLastUpdatedOnAsc(TranslationStatus status, Date beforeDate);
 }

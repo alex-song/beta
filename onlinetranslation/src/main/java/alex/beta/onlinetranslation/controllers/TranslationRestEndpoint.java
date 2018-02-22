@@ -109,7 +109,7 @@ public class TranslationRestEndpoint {
             @Valid
             @RequestParam(value = "toLanguage", defaultValue = "zh") String toLanguage) {
         if (logger.isInfoEnabled()) {
-            logger.info("Receive translation request.\ntoLanguage : {},\ntext: {}", toLanguage, content);
+            logger.info("Receive translation request.\ntoLanguage : {}, text: {}", toLanguage, content);
         }
 
         if (content.trim().isEmpty()) {

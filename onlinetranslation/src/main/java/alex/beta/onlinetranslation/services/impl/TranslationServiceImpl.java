@@ -67,6 +67,8 @@ import static alex.beta.onlinetranslation.persistence.Translation.TRANSLATED_TEX
  * @author alexsong
  * @version ${project.version}
  */
+
+@SuppressWarnings("squid:S3776")
 @Service
 public class TranslationServiceImpl implements TranslationService {
 
@@ -134,9 +136,13 @@ public class TranslationServiceImpl implements TranslationService {
         );
     }
 
+    private Translation updateTranslationRequest(Translation request) {
+        return updateTranslationRequest(request, 0);
+    }
+
     @Override
     @Transactional
-    public Translation updateTranslationRequest(Translation request, boolean flush) {
+    public Translation updateTranslationRequest(Translation request, long delay) {
         Objects.requireNonNull(request);
 
         Translation persistedT = translationRepository.findOne(request.getUuid());
@@ -162,9 +168,9 @@ public class TranslationServiceImpl implements TranslationService {
         if (request.getTranslatedText() != null) {
             persistedT.setTranslatedText(request.getTranslatedText());
         }
-        persistedT.setLastUpdatedOn(new Date());
+        persistedT.setLastUpdatedOn(new Date(System.currentTimeMillis() + delay));
 
-        return flush ? translationRepository.saveAndFlush(persistedT) : translationRepository.save(persistedT);
+        return translationRepository.saveAndFlush(persistedT);
     }
 
     @Override
@@ -210,11 +216,12 @@ public class TranslationServiceImpl implements TranslationService {
             return;
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Translation job starts at {}.", new Date());
-        }
         try {
-            List<Translation> requests = translationRepository.findFirst5ByStatusOrderByLastUpdatedOnAsc(TranslationStatus.SUBMITTED);
+            Date filterDate = new Date();
+            if (logger.isDebugEnabled()) {
+                logger.debug("Translation job starts with filter {}.", filterDate);
+            }
+            List<Translation> requests = translationRepository.findFirst5ByStatusAndLastUpdatedOnLessThanOrderByLastUpdatedOnAsc(TranslationStatus.SUBMITTED, filterDate);
             if (requests == null || requests.isEmpty()) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("No pending request");
@@ -225,6 +232,9 @@ public class TranslationServiceImpl implements TranslationService {
                 }
                 for (Translation request : requests) {
                     try {
+                        request.setStatus(TranslationStatus.PROCESSING);
+                        request = updateTranslationRequest(request);
+
                         performTranslation(request);
                     } catch (Exception ex) {//this should not happen
                         logger.error("Unexpected error when initiating async job for request {}", request.getUuid(), ex);
@@ -248,11 +258,7 @@ public class TranslationServiceImpl implements TranslationService {
         CloseableHttpResponse response = null;
         String body = null;
         try {
-            request.setStatus(TranslationStatus.PROCESSING);
-            request = updateTranslationRequest(request, true);
-
             httpclient = HttpClients.custom().setConnectionManager(cm).setConnectionManagerShared(true).build();
-            //httpclient = HttpClients.createDefault();
             HttpPost httpPost = new HttpPost("http://api.fanyi.baidu.com/api/trans/vip/translate");
             List<NameValuePair> nvps = new ArrayList<>();
             nvps.add(new BasicNameValuePair("q", request.getText()));
@@ -263,10 +269,8 @@ public class TranslationServiceImpl implements TranslationService {
             nvps.add(new BasicNameValuePair("salt", salt));
             nvps.add(new BasicNameValuePair("sign",
                     BaiduMD5.md5(baiduKey.getAppid() + request.getText() + salt + baiduKey.getSecurityKey())));
-
             httpPost.setEntity(new UrlEncodedFormEntity(nvps, "UTF-8"));
             response = httpclient.execute(httpPost);
-            //TODO 错误码 http://api.fanyi.baidu.com/api/trans/product/apidoc
             HttpEntity entity = response.getEntity();
             if (entity != null) {
                 //按指定编码转换结果实体为String类型
@@ -279,14 +283,16 @@ public class TranslationServiceImpl implements TranslationService {
         } catch (SocketTimeoutException ex) {
             logger.error("Timeout to translate request {}", request.getUuid(), ex);
             request.setStatus(TranslationStatus.TIMEOUT);
-            request.setMessage(ex.getMessage());
-            updateTranslationRequest(request, true);
+            request.setMessage(ex.getMessage() != null && ex.getMessage().length() > 250 ?
+                    ex.getMessage().substring(0, 250) : ex.getMessage());
+            updateTranslationRequest(request);
             return;
         } catch (Exception ex) {
             logger.error("Failed to translate request {}", request.getUuid(), ex);
             request.setStatus(TranslationStatus.ERROR);
-            request.setMessage(ex.getMessage());
-            updateTranslationRequest(request, true);
+            request.setMessage(ex.getMessage() != null && ex.getMessage().length() > 250 ?
+                    ex.getMessage().substring(0, 250) : ex.getMessage());
+            updateTranslationRequest(request);
             return;
         } finally {
             //释放链接
@@ -304,29 +310,59 @@ public class TranslationServiceImpl implements TranslationService {
 
         if (body != null && !body.trim().isEmpty()) {
             try {
-                BaiduTranslation bt = BaiduTranslation.fromString(body);
-                request.setFromLanguage(bt.getFrom());
-                if (bt.getFirstDst() != null && bt.getFirstDst().length() > TRANSLATED_TEXT_MAXLENGTH) {
-                    request.setStatus(TranslationStatus.WARNING);
-                    request.setTranslatedText(bt.getFirstDst().substring(0, TRANSLATED_TEXT_MAXLENGTH));
-                    request.setMessage("Translated text is truncated, " + bt.getFirstDst().length());
+                if (body.startsWith("{\"error_code\"") || body.startsWith("{\"error_msg\"")) {
+                    //百度返回错误消息
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("Baidu Fanyi returns error.\n{}", body);
+                    }
+
+                    BaiduTranslationError baiduError = BaiduTranslationError.fromString(body);
+
+                    if (BaiduTranslationError.INTERNAL_ERROR.equalsIgnoreCase(baiduError.getErrorCode())
+                            || BaiduTranslationError.TIMEOUT.equalsIgnoreCase(baiduError.getErrorCode())
+                            || BaiduTranslationError.TOO_FREQUENT.equalsIgnoreCase(baiduError.getErrorCode())
+                            || BaiduTranslationError.LONG_QUERY_TOO_FREQUENT.equalsIgnoreCase(baiduError.getErrorCode())) {
+                        request.setStatus(TranslationStatus.SUBMITTED);
+                        updateTranslationRequest(request, 30 * 1000);
+                        return;
+                    } else if (BaiduTranslationError.UNAUTHORIZED_USER.equalsIgnoreCase(baiduError.getErrorCode())
+                            || BaiduTranslationError.INVALID_SIGN.equalsIgnoreCase(baiduError.getErrorCode())
+                            || BaiduTranslationError.INVALID_IP.equalsIgnoreCase(baiduError.getErrorCode())) {
+                        request.setStatus(TranslationStatus.NOT_AUTHORIZED);
+                        request.setMessage(baiduError.getErrorCode() + " - " + baiduError.getErrorMessage());
+                    } else {
+                        request.setStatus(TranslationStatus.ERROR);
+                        String tmp = (baiduError.getErrorMessage() != null && baiduError.getErrorMessage().length() > 240 ?
+                                baiduError.getErrorMessage().substring(0, 240) : baiduError.getErrorMessage());
+                        request.setMessage(baiduError.getErrorCode() + " - " + tmp);
+                    }
                 } else {
-                    request.setStatus(TranslationStatus.READY);
-                    request.setTranslatedText(bt.getFirstDst());
+                    //百度返回正确消息
+                    BaiduTranslation bt = BaiduTranslation.fromString(body);
+                    request.setFromLanguage(bt.getFrom());
+                    if (bt.getFirstDst() != null && bt.getFirstDst().length() > TRANSLATED_TEXT_MAXLENGTH) {
+                        request.setStatus(TranslationStatus.WARNING);
+                        request.setTranslatedText(bt.getFirstDst().substring(0, TRANSLATED_TEXT_MAXLENGTH));
+                        request.setMessage("Translated text is truncated, " + bt.getFirstDst().length());
+                    } else {
+                        request.setStatus(TranslationStatus.READY);
+                        request.setTranslatedText(bt.getFirstDst());
+                    }
                 }
-                updateTranslationRequest(request, true);
             } catch (IOException ex) {
+                //无法解析百度返回消息
                 logger.error("Failed to parse Baidu Fanyi response.\n{}", body, ex);
                 request.setStatus(TranslationStatus.ERROR);
-                request.setMessage(ex.getMessage());
-                updateTranslationRequest(request, true);
+                request.setMessage(ex.getMessage() != null && ex.getMessage().length() > 250 ?
+                        ex.getMessage().substring(0, 250) : ex.getMessage());
             }
         } else {
+            //百度返回空的消息，无法解析
             logger.error("Baidu Fanyi response is empty.");
             request.setStatus(TranslationStatus.ERROR);
             request.setMessage("Baidu Fanyi response is empty.");
-            updateTranslationRequest(request, true);
         }
+        updateTranslationRequest(request);
     }
 
     @Override
@@ -335,7 +371,7 @@ public class TranslationServiceImpl implements TranslationService {
     @Scheduled(fixedRate = 12 * 60 * 60 * 1000, initialDelay = 30000) // every 12 hours, with initial delay 30 seconds
     public void performHousekeeping() {
         if (logger.isDebugEnabled()) {
-            logger.debug("Housekeeping starts at {}", new Date());
+            logger.debug("Housekeeping starts");
         }
         int deleteCount = housekeepingRepository.removeExpiredTranslationRequests(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
         if (logger.isInfoEnabled()) {
