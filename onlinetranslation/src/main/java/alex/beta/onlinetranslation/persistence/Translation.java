@@ -30,7 +30,8 @@ import java.util.Date;
         indexes = {@Index(columnList = "status"),
                 @Index(columnList = "lastUpdatedOn")})
 public class Translation implements Serializable {
-    private static final String ENTITY_TYPE = "Translation";
+    public static final int TEXT_MAXLENGTH = 2048;
+    public static final int TRANSLATED_TEXT_MAXLENGTH = 8192;
 
     @Id
     @Column(name = "uuid", length = 64)
@@ -45,10 +46,10 @@ public class Translation implements Serializable {
     @Column(name = "message")
     private String message;
 
-    @Column(name = "text", length = 2048)
+    @Column(name = "text", length = TEXT_MAXLENGTH)
     private String text;
 
-    @Column(name = "translatedText", length = 6144)
+    @Column(name = "translatedText", length = TRANSLATED_TEXT_MAXLENGTH)
     private String translatedText;
 
     @Column(name = "fromLanguage", length = 8)

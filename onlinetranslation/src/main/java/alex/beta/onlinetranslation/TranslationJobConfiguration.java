@@ -15,6 +15,8 @@
  */
 package alex.beta.onlinetranslation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -31,16 +33,38 @@ import org.springframework.stereotype.Component;
 @Component
 @EnableAutoConfiguration
 public class TranslationJobConfiguration {
-    @Value("${TranslationJobConfiguration.poolSize:2}")
-    private int poolSize;
+    private static final Logger logger = LoggerFactory.getLogger(TranslationJobConfiguration.class);
+
+    @Value("${TranslationJobConfiguration.numOfThreads:2}")
+    private int numOfThreads;
 
     @Bean(name = "translationJobExecutor")
     public AsyncTaskExecutor translationJobExecutor() {
+        if (logger.isInfoEnabled()) {
+            logger.info("Initiate ThreadPoolTaskExecutor for translation, poolSize : {}, queueCapacity : {}",
+                    numOfThreads, numOfThreads * 20);
+        }
+
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(poolSize);
-        executor.setMaxPoolSize(poolSize * 2);
-        executor.setQueueCapacity(poolSize * 10);
+        executor.setCorePoolSize(numOfThreads);
+        executor.setMaxPoolSize(numOfThreads);
+        executor.setQueueCapacity(numOfThreads * 20);
         executor.setThreadNamePrefix("TranslationJob-");
+        executor.initialize();
+        return new SimpleAsyncTaskExecutor(executor);
+    }
+
+    @Bean(name = "housekeepingJobExecutor")
+    public AsyncTaskExecutor housekeepingJobExecutor() {
+        if (logger.isInfoEnabled()) {
+            logger.info("Initiate ThreadPoolTaskExecutor for housekeeping");
+        }
+
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(2);
+        executor.setQueueCapacity(5);
+        executor.setThreadNamePrefix("Housekeeping-");
         executor.initialize();
         return new SimpleAsyncTaskExecutor(executor);
     }

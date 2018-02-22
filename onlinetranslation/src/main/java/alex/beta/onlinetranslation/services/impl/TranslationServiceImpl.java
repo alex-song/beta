@@ -15,6 +15,8 @@
  */
 package alex.beta.onlinetranslation.services.impl;
 
+import alex.beta.onlinetranslation.models.TranslationResult;
+import alex.beta.onlinetranslation.persistence.HousekeepingRepository;
 import alex.beta.onlinetranslation.persistence.Translation;
 import alex.beta.onlinetranslation.persistence.TranslationRepository;
 import alex.beta.onlinetranslation.persistence.TranslationStatus;
@@ -39,8 +41,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -48,12 +49,19 @@ import org.springframework.stereotype.Service;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+
+import static alex.beta.onlinetranslation.persistence.Translation.TEXT_MAXLENGTH;
+import static alex.beta.onlinetranslation.persistence.Translation.TRANSLATED_TEXT_MAXLENGTH;
 
 /**
  * @author alexsong
@@ -65,11 +73,18 @@ public class TranslationServiceImpl implements TranslationService {
     private static final Logger logger = LoggerFactory.getLogger(TranslationServiceImpl.class);
 
     @Autowired
-    private TranslationRepository repository;
+    private TranslationRepository translationRepository;
+
+    @Autowired
+    private HousekeepingRepository housekeepingRepository;
+
+    @Autowired
+    private BaiduKey baiduKey;
+
+    @Value("${TranslationJobConfiguration.numOfThreads:2}")
+    private int numOfThreads;
 
     private PoolingHttpClientConnectionManager cm;
-
-    private Properties baiduKey;
 
     /**
      * 绕过验证
@@ -78,7 +93,7 @@ public class TranslationServiceImpl implements TranslationService {
      * @throws NoSuchAlgorithmException
      * @throws KeyManagementException
      */
-    public static SSLContext createIgnoreVerifySSL() throws NoSuchAlgorithmException, KeyManagementException {
+    private static SSLContext createIgnoreVerifySSL() throws NoSuchAlgorithmException, KeyManagementException {
         SSLContext sc = SSLContext.getInstance("TLS");
 
         // 实现一个X509TrustManager接口，用于绕过验证，不用修改里面的方法
@@ -106,16 +121,25 @@ public class TranslationServiceImpl implements TranslationService {
     }
 
     @Override
-    public Translation submit(String fromLanguage, String toLanguage, String text) {
-        String sl = fromLanguage == null ? "auto" : fromLanguage;
-        return repository.saveAndFlush(new Translation(TranslationStatus.SUBMITTED, sl, toLanguage, text));
+    @Transactional
+    public TranslationResult submit(String fromLanguage, String toLanguage, String text) {
+        Objects.requireNonNull(text);
+
+        return new TranslationResult(translationRepository.saveAndFlush(
+                new Translation(TranslationStatus.SUBMITTED,
+                        fromLanguage == null ? "auto" : fromLanguage,
+                        toLanguage,
+                        text.length() > TEXT_MAXLENGTH ?
+                                text.substring(0, TEXT_MAXLENGTH) : text))
+        );
     }
 
     @Override
+    @Transactional
     public Translation updateTranslationRequest(Translation request, boolean flush) {
         Objects.requireNonNull(request);
 
-        Translation persistedT = repository.findOne(request.getUuid());
+        Translation persistedT = translationRepository.findOne(request.getUuid());
         if (persistedT == null) {
             return null;
         }
@@ -140,14 +164,15 @@ public class TranslationServiceImpl implements TranslationService {
         }
         persistedT.setLastUpdatedOn(new Date());
 
-        return flush ? repository.saveAndFlush(persistedT) : repository.save(persistedT);
+        return flush ? translationRepository.saveAndFlush(persistedT) : translationRepository.save(persistedT);
     }
 
     @Override
-    public Translation getTranslation(String uuid) {
+    public TranslationResult getTranslation(String uuid) {
         Objects.requireNonNull(uuid);
 
-        return repository.findOne(uuid);
+        Translation tmp = translationRepository.findOne(uuid);
+        return tmp == null ? null : new TranslationResult(tmp);
     }
 
     @Override
@@ -166,11 +191,11 @@ public class TranslationServiceImpl implements TranslationService {
                                 .register("https", new SSLConnectionSocketFactory(createIgnoreVerifySSL()))
                                 .build();
                         cm = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-                        cm.setMaxTotal(100);
+                        cm.setMaxTotal(Math.max(100, numOfThreads * 20));
                         HttpHost host = new HttpHost("api.fanyi.baidu.com", 80);
-                        cm.setMaxPerRoute(new HttpRoute(host), 5);
+                        cm.setMaxPerRoute(new HttpRoute(host), Math.min(5, numOfThreads));
                         HttpHost shost = new HttpHost("api.fanyi.baidu.com", 443);
-                        cm.setMaxPerRoute(new HttpRoute(shost), 5);
+                        cm.setMaxPerRoute(new HttpRoute(shost), Math.min(5, numOfThreads));
                     } catch (NoSuchAlgorithmException | KeyManagementException ex) {
                         logger.error("Failed to instantiate PoolingHttpClientConnectionManager. No translation job will be executed.", ex);
                         cm = null;
@@ -180,35 +205,16 @@ public class TranslationServiceImpl implements TranslationService {
             }
         }
 
-        if (baiduKey == null) {
-            synchronized (this) {
-                if (baiduKey == null) {
-                    try {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("Read baidu.key file");
-                        }
-                        baiduKey = new Properties();
-                        baiduKey.load(new ClassPathResource("baidu.key").getInputStream());
-
-                        if (!baiduKey.containsKey("appid") || !baiduKey.containsKey("securityKey")) {
-                            logger.error("Make sure both \'appid\' and \'securityKey\' are in classpath:baidu.key");
-                            baiduKey = null;
-                            return;
-                        }
-                    } catch (IOException ex) {
-                        logger.error("Make sure baidu.key is at following place classpath:baidu.key", ex);
-                        baiduKey = null;
-                        return;
-                    }
-                }
-            }
+        if (baiduKey == null || baiduKey.getAppid() == null || baiduKey.getSecurityKey() == null) {
+            logger.error("Make sure \'classpath:/baidu.key\' exists, both \'appid\' and \'securityKey\' are defined.");
+            return;
         }
 
         if (logger.isDebugEnabled()) {
             logger.debug("Translation job starts at {}.", new Date());
         }
         try {
-            List<Translation> requests = repository.findFirst5ByStatusOrderByLastUpdatedOnAsc(TranslationStatus.SUBMITTED);
+            List<Translation> requests = translationRepository.findFirst5ByStatusOrderByLastUpdatedOnAsc(TranslationStatus.SUBMITTED);
             if (requests == null || requests.isEmpty()) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("No pending request");
@@ -231,9 +237,8 @@ public class TranslationServiceImpl implements TranslationService {
         }
     }
 
-    //------------ private methods -------------
-
     @Override
+    @Transactional
     @Async("translationJobExecutor")
     public void performTranslation(Translation request) {
         if (logger.isInfoEnabled()) {
@@ -253,12 +258,11 @@ public class TranslationServiceImpl implements TranslationService {
             nvps.add(new BasicNameValuePair("q", request.getText()));
             nvps.add(new BasicNameValuePair("from", "auto"));
             nvps.add(new BasicNameValuePair("to", request.getToLanguage()));
-            String appid = baiduKey.getProperty("appid");
-            nvps.add(new BasicNameValuePair("appid", appid));
+            nvps.add(new BasicNameValuePair("appid", baiduKey.getAppid()));
             String salt = String.valueOf(System.currentTimeMillis());
             nvps.add(new BasicNameValuePair("salt", salt));
-            String securityKey = baiduKey.getProperty("securityKey");
-            nvps.add(new BasicNameValuePair("sign", BaiduMD5.md5(appid + request.getText() + salt + securityKey)));
+            nvps.add(new BasicNameValuePair("sign",
+                    BaiduMD5.md5(baiduKey.getAppid() + request.getText() + salt + baiduKey.getSecurityKey())));
 
             httpPost.setEntity(new UrlEncodedFormEntity(nvps, "UTF-8"));
             response = httpclient.execute(httpPost);
@@ -302,8 +306,14 @@ public class TranslationServiceImpl implements TranslationService {
             try {
                 BaiduTranslation bt = BaiduTranslation.fromString(body);
                 request.setFromLanguage(bt.getFrom());
-                request.setStatus(TranslationStatus.READY);
-                request.setTranslatedText(bt.getFirstDst());
+                if (bt.getFirstDst() != null && bt.getFirstDst().length() > TRANSLATED_TEXT_MAXLENGTH) {
+                    request.setStatus(TranslationStatus.WARNING);
+                    request.setTranslatedText(bt.getFirstDst().substring(0, TRANSLATED_TEXT_MAXLENGTH));
+                    request.setMessage("Translated text is truncated, " + bt.getFirstDst().length());
+                } else {
+                    request.setStatus(TranslationStatus.READY);
+                    request.setTranslatedText(bt.getFirstDst());
+                }
                 updateTranslationRequest(request, true);
             } catch (IOException ex) {
                 logger.error("Failed to parse Baidu Fanyi response.\n{}", body, ex);
@@ -316,6 +326,20 @@ public class TranslationServiceImpl implements TranslationService {
             request.setStatus(TranslationStatus.ERROR);
             request.setMessage("Baidu Fanyi response is empty.");
             updateTranslationRequest(request, true);
+        }
+    }
+
+    @Override
+    @Transactional
+    @Async("housekeepingJobExecutor")
+    @Scheduled(fixedRate = 12 * 60 * 60 * 1000, initialDelay = 30000) // every 12 hours, with initial delay 30 seconds
+    public void performHousekeeping() {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Housekeeping starts at {}", new Date());
+        }
+        int deleteCount = housekeepingRepository.removeExpiredTranslationRequests(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
+        if (logger.isInfoEnabled()) {
+            logger.info("Housekeeping deleted {} requests.", deleteCount);
         }
     }
 }

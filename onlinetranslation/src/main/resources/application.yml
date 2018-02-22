@@ -58,5 +58,6 @@ info:
     version: 0.0.1
 
 TranslationJobConfiguration:
-  poolSize: 5
+  numOfThreads: 5
+
 

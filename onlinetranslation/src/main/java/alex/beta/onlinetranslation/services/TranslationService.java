@@ -15,9 +15,8 @@
  */
 package alex.beta.onlinetranslation.services;
 
+import alex.beta.onlinetranslation.models.TranslationResult;
 import alex.beta.onlinetranslation.persistence.Translation;
-
-import javax.transaction.Transactional;
 
 /**
  * @author alexsong
@@ -30,31 +29,31 @@ public interface TranslationService {
      * @param fromLanguage
      * @param toLanguage
      * @param text
-     * @return Persisted request
+     * @return Persisted translation request
      */
-    @Transactional
-    Translation submit(String fromLanguage, String toLanguage, String text);
+    TranslationResult submit(String fromLanguage, String toLanguage, String text);
 
     /**
      * Update the translation request, such as the status, last updated timestamp, etc
+     * <p>
+     * For application internal use only
      *
      * @param request
      * @param flush
      * @return
      */
-    @Transactional
     Translation updateTranslationRequest(Translation request, boolean flush);
 
     /**
-     * Get translation request according to given uuid
+     * Get translation result according to given uuid
      *
      * @param uuid
      * @return
      */
-    Translation getTranslation(String uuid);
+    TranslationResult getTranslation(String uuid);
 
     /**
-     * Find and translate unproceeded 5 requests
+     * Find and translate un-proceeded 5 (or less) requests
      * Execute once every 1 second
      */
     void executeTranslationJob();
@@ -64,6 +63,11 @@ public interface TranslationService {
      *
      * @param request
      */
-    @Transactional
     void performTranslation(Translation request);
+
+    /**
+     * Remove translation request, which is older than 24 hours
+     * Execute once every 12 hours
+     */
+    void performHousekeeping();
 }

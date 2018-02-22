@@ -24,6 +24,7 @@ public enum TranslationStatus {
     PROCESSING("PROCESSING"),
     READY("READY"),
     ERROR("ERROR"),
+    WARNING("WARNING"),
     NOT_AUTHORIZED("NOT_AUTHORIZED"),
     TIMEOUT("TIMEOUT");
 
@@ -42,6 +43,8 @@ public enum TranslationStatus {
             return PROCESSING;
         } else if (value.equalsIgnoreCase("READY")) {
             return READY;
+        } else if (value.equalsIgnoreCase("WARNING")) {
+            return WARNING;
         } else if (value.equalsIgnoreCase("ERROR")) {
             return ERROR;
         } else if (value.equalsIgnoreCase("NOT_AUTHORIZED")) {

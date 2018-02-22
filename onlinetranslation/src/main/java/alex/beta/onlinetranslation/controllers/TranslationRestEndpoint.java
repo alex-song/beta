@@ -17,7 +17,6 @@ package alex.beta.onlinetranslation.controllers;
 
 import alex.beta.onlinetranslation.models.TranslationError;
 import alex.beta.onlinetranslation.models.TranslationResult;
-import alex.beta.onlinetranslation.persistence.Translation;
 import alex.beta.onlinetranslation.services.TranslationService;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -113,7 +112,7 @@ public class TranslationRestEndpoint {
             logger.info("Receive translation request.\ntoLanguage : {},\ntext: {}", toLanguage, content);
         }
 
-        if (content == null || content.trim().isEmpty()) {
+        if (content.trim().isEmpty()) {
             return ResponseEntity.ok(TranslationResult.NOTHING_TO_TRANSLATE);
         } else if (content.length() > 2000) {
             return ResponseEntity.badRequest().body(
@@ -134,8 +133,7 @@ public class TranslationRestEndpoint {
             if (logger.isDebugEnabled()) {
                 logger.debug("toLanguage : {}", lang);
             }
-            Translation translation = translationService.submit("auto", lang, content);
-            TranslationResult result = new TranslationResult(translation);
+            TranslationResult result = translationService.submit("auto", lang, content);
             if (logger.isInfoEnabled()) {
                 logger.info("Translation request is successfully submitted.\n{}", result);
             }
@@ -152,24 +150,25 @@ public class TranslationRestEndpoint {
     public ResponseEntity translate(
             @ApiParam(value = "uuid of a translation request.", required = true)
             @PathVariable(value = "uuid") String uuid) {
-        Translation translation = translationService.getTranslation(uuid);
         if (logger.isDebugEnabled()) {
-            logger.debug("uuid : {}, translation : {}", uuid, translation);
+            logger.debug("Get translation according to uuid  {}", uuid);
         }
+        TranslationResult translation = translationService.getTranslation(uuid);
+
         if (translation == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     new TranslationError("TranslationRestEndpoint.NotFound",
                             buildResponseErrorMessage("TranslationRestEndpoint.NotFound")));
         } else {
-            TranslationResult result = new TranslationResult(translation);
             if (logger.isInfoEnabled()) {
-                logger.info("Translation is found.\n{}", result);
+                logger.info("Translation is found.\n{}", translation);
             }
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(translation);
         }
     }
 
     //----------- private methods -----------
+
     private String buildResponseErrorMessage(String errorCode, String... paramters) {
         String msg = messageSource.getMessage(errorCode, paramters, LocaleContextHolder.getLocale());
         logger.warn("{} - {}", errorCode, msg);
