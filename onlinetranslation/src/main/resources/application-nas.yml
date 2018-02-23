@@ -1,3 +1,10 @@
+endpoints:
+  enabled: false
+  info:
+    enabled: true
+  health:
+    enabled: true
+
 spring:
   jpa:
     show-sql: false
@@ -7,7 +14,7 @@ spring:
         format_sql: false
 
 logging:
-  file: onlinetranslation.log
-  level:
-    Root: WARN
-    alex: INFO
+  config: classpath:logback-nas.xml
+
+TranslationJobConfiguration:
+  numOfThreads: 5

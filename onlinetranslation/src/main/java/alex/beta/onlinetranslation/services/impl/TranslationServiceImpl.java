@@ -104,17 +104,19 @@ public class TranslationServiceImpl implements TranslationService {
             public void checkClientTrusted(
                     java.security.cert.X509Certificate[] paramArrayOfX509Certificate,
                     String paramString) throws CertificateException {
+                //Bypass client trust check
             }
 
             @Override
             public void checkServerTrusted(
                     java.security.cert.X509Certificate[] paramArrayOfX509Certificate,
                     String paramString) throws CertificateException {
+                //Bypass server trust check
             }
 
             @Override
             public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                return null;
+                return new java.security.cert.X509Certificate[]{};
             }
         };
 
@@ -181,41 +183,48 @@ public class TranslationServiceImpl implements TranslationService {
         return tmp == null ? null : new TranslationResult(tmp);
     }
 
-    @Override
-    @Async("translationJobExecutor")
-    @Scheduled(fixedRate = 1000, initialDelay = 30000) // every 1 second, with initial delay 30 seconds
-    public void executeTranslationJob() {
+    /**
+     * Initiate connection manager and load baidu key
+     *
+     * @return true, if lazy initialization is failed
+     */
+    private synchronized boolean lazyInitializeConnections() {
         if (cm == null) {
-            synchronized (this) {
-                if (cm == null) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Instantiate PoolingHttpClientConnectionManager");
-                    }
-                    try {
-                        Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
-                                .register("http", PlainConnectionSocketFactory.INSTANCE)
-                                .register("https", new SSLConnectionSocketFactory(createIgnoreVerifySSL()))
-                                .build();
-                        cm = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-                        cm.setMaxTotal(Math.max(100, numOfThreads * 20));
-                        HttpHost host = new HttpHost("api.fanyi.baidu.com", 80);
-                        cm.setMaxPerRoute(new HttpRoute(host), Math.min(5, numOfThreads));
-                        HttpHost shost = new HttpHost("api.fanyi.baidu.com", 443);
-                        cm.setMaxPerRoute(new HttpRoute(shost), Math.min(5, numOfThreads));
-                    } catch (NoSuchAlgorithmException | KeyManagementException ex) {
-                        logger.error("Failed to instantiate PoolingHttpClientConnectionManager. No translation job will be executed.", ex);
-                        cm = null;
-                        return;
-                    }
-                }
+            if (logger.isDebugEnabled()) {
+                logger.debug("Instantiate PoolingHttpClientConnectionManager");
+            }
+            try {
+                Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+                        .register("http", PlainConnectionSocketFactory.INSTANCE)
+                        .register("https", new SSLConnectionSocketFactory(createIgnoreVerifySSL()))
+                        .build();
+                cm = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+                cm.setMaxTotal(Math.max(100, numOfThreads * 20));
+                HttpHost host = new HttpHost("api.fanyi.baidu.com", 80);
+                cm.setMaxPerRoute(new HttpRoute(host), Math.min(5, numOfThreads));
+                HttpHost shost = new HttpHost("api.fanyi.baidu.com", 443);
+                cm.setMaxPerRoute(new HttpRoute(shost), Math.min(5, numOfThreads));
+            } catch (NoSuchAlgorithmException | KeyManagementException ex) {
+                logger.error("Failed to instantiate PoolingHttpClientConnectionManager. No translation job will be executed.", ex);
+                cm = null;
+                return true;
             }
         }
 
         if (baiduKey == null || baiduKey.getAppid() == null || baiduKey.getSecurityKey() == null) {
             logger.error("Make sure \'classpath:/baidu.key\' exists, both \'appid\' and \'securityKey\' are defined.");
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    @Async("translationJobExecutor")
+    @Scheduled(fixedRate = 1000, initialDelay = 30000) // every 1 second, with initial delay 30 seconds
+    public void executeTranslationJob() {
+        if (lazyInitializeConnections()) {
             return;
         }
-
         try {
             Date filterDate = new Date();
             if (logger.isDebugEnabled()) {
@@ -251,15 +260,15 @@ public class TranslationServiceImpl implements TranslationService {
     @Transactional
     @Async("translationJobExecutor")
     public void performTranslation(Translation request) {
-        if (logger.isInfoEnabled()) {
-            logger.info("Translating request {}", request.getUuid());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Translating request {}", request.getUuid());
         }
         CloseableHttpClient httpclient = null;
         CloseableHttpResponse response = null;
         String body = null;
         try {
             httpclient = HttpClients.custom().setConnectionManager(cm).setConnectionManagerShared(true).build();
-            HttpPost httpPost = new HttpPost("http://api.fanyi.baidu.com/api/trans/vip/translate");
+            HttpPost httpPost = new HttpPost("https://api.fanyi.baidu.com/api/trans/vip/translate");
             List<NameValuePair> nvps = new ArrayList<>();
             nvps.add(new BasicNameValuePair("q", request.getText()));
             nvps.add(new BasicNameValuePair("from", "auto"));
@@ -323,7 +332,7 @@ public class TranslationServiceImpl implements TranslationService {
                             || BaiduTranslationError.TOO_FREQUENT.equalsIgnoreCase(baiduError.getErrorCode())
                             || BaiduTranslationError.LONG_QUERY_TOO_FREQUENT.equalsIgnoreCase(baiduError.getErrorCode())) {
                         request.setStatus(TranslationStatus.SUBMITTED);
-                        updateTranslationRequest(request, 30 * 1000);
+                        updateTranslationRequest(request, 10 * 1000L);
                         return;
                     } else if (BaiduTranslationError.UNAUTHORIZED_USER.equalsIgnoreCase(baiduError.getErrorCode())
                             || BaiduTranslationError.INVALID_SIGN.equalsIgnoreCase(baiduError.getErrorCode())
@@ -340,13 +349,13 @@ public class TranslationServiceImpl implements TranslationService {
                     //百度返回正确消息
                     BaiduTranslation bt = BaiduTranslation.fromString(body);
                     request.setFromLanguage(bt.getFrom());
-                    if (bt.getFirstDst() != null && bt.getFirstDst().length() > TRANSLATED_TEXT_MAXLENGTH) {
+                    if (bt.joinAllDstsWithLineSeparator() != null && bt.joinAllDstsWithLineSeparator().length() > TRANSLATED_TEXT_MAXLENGTH) {
                         request.setStatus(TranslationStatus.WARNING);
-                        request.setTranslatedText(bt.getFirstDst().substring(0, TRANSLATED_TEXT_MAXLENGTH));
-                        request.setMessage("Translated text is truncated, " + bt.getFirstDst().length());
+                        request.setTranslatedText(bt.joinAllDstsWithLineSeparator().substring(0, TRANSLATED_TEXT_MAXLENGTH));
+                        request.setMessage("Translated text is truncated, " + bt.joinAllDstsWithLineSeparator().length());
                     } else {
                         request.setStatus(TranslationStatus.READY);
-                        request.setTranslatedText(bt.getFirstDst());
+                        request.setTranslatedText(bt.joinAllDstsWithLineSeparator());
                     }
                 }
             } catch (IOException ex) {
@@ -361,6 +370,9 @@ public class TranslationServiceImpl implements TranslationService {
             logger.error("Baidu Fanyi response is empty.");
             request.setStatus(TranslationStatus.ERROR);
             request.setMessage("Baidu Fanyi response is empty.");
+        }
+        if (logger.isInfoEnabled()) {
+            logger.info("Translated request {}", request.getUuid());
         }
         updateTranslationRequest(request);
     }

@@ -21,13 +21,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * @author alexsong
  * @version ${project.version}
  */
-public class TranslationResult {
+public class TranslationResult implements Serializable {
 
     public static final TranslationResult NOTHING_TO_TRANSLATE = new TranslationResult("NOTHING_TO_TRANSLATE", TranslationStatus.READY);
     @JsonProperty("uuid")

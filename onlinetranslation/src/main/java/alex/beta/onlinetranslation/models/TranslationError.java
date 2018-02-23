@@ -19,12 +19,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 /**
  * @author alexsong
  * @version ${project.version}
  */
-public class TranslationError {
+public class TranslationError implements Serializable {
     @JsonProperty("errorCode")
     @ApiModelProperty
     @NotNull

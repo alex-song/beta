@@ -39,7 +39,7 @@ public interface TranslationService {
      * For application internal use only
      *
      * @param request
-     * @param delay lastUpdatedOn = current timestamp + delay (in ms)
+     * @param delay   lastUpdatedOn = current timestamp + delay (in ms)
      * @return
      */
     Translation updateTranslationRequest(Translation request, long delay);

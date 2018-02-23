@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author alexsong
@@ -63,17 +64,9 @@ public class BaiduTranslation {
         this.transResult = transResult;
     }
 
-    public String getFirstDst() {
+    public String joinAllDstsWithLineSeparator() {
         if (this.transResult != null && !this.transResult.isEmpty()) {
-            return transResult.get(0).getDst();
-        } else {
-            return null;
-        }
-    }
-
-    public String getFirstSrc() {
-        if (this.transResult != null && !this.transResult.isEmpty()) {
-            return transResult.get(0).getSrc();
+            return transResult.stream().map(BaiduTranslationResult::<String>getDst).collect(Collectors.joining(System.lineSeparator()));
         } else {
             return null;
         }

@@ -44,6 +44,10 @@ public class BaiduTranslationError {
     @JsonProperty("error_msg")
     private String errorMessage;
 
+    public static BaiduTranslationError fromString(String jsonString) throws IOException {
+        return new ObjectMapper().readValue(jsonString, BaiduTranslationError.class);
+    }
+
     public String getErrorCode() {
         return errorCode;
     }
@@ -58,9 +62,5 @@ public class BaiduTranslationError {
 
     public void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
-    }
-
-    public static BaiduTranslationError fromString(String jsonString) throws IOException {
-        return new ObjectMapper().readValue(jsonString, BaiduTranslationError.class);
     }
 }
