@@ -33,9 +33,8 @@ import java.util.Date;
  * @version ${project.version}
  */
 public class TranslationResult implements Serializable {
-    private static final Logger logger = LoggerFactory.getLogger(TranslationResult.class);
-
     public static final TranslationResult NOTHING_TO_TRANSLATE = new TranslationResult("NOTHING_TO_TRANSLATE", TranslationStatus.READY);
+    private static final Logger logger = LoggerFactory.getLogger(TranslationResult.class);
     @JsonProperty("uuid")
     @ApiModelProperty
     @NotNull

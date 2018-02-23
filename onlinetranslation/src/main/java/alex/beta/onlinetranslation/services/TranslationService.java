@@ -18,6 +18,8 @@ package alex.beta.onlinetranslation.services;
 import alex.beta.onlinetranslation.models.TranslationResult;
 import alex.beta.onlinetranslation.persistence.Translation;
 
+import java.util.List;
+
 /**
  * @author alexsong
  * @version ${project.version}
@@ -53,6 +55,13 @@ public interface TranslationService {
     TranslationResult getTranslation(String uuid);
 
     /**
+     * Find top 5 requests to translate, whose timestamp(lastUpdatedOn) before current time
+     *
+     * @return
+     */
+    List<Translation> findRequestsToTranslate();
+
+    /**
      * Perform translation using Baidu fanyi API
      *
      * @param request
@@ -64,11 +73,4 @@ public interface TranslationService {
      * Execute once every 12 hours
      */
     void performHousekeeping();
-
-    /**
-     * Initiate connection manager and load baidu key
-     *
-     * @return true, if lazy initialization is failed
-     */
-    boolean lazyInitializeConnections();
 }

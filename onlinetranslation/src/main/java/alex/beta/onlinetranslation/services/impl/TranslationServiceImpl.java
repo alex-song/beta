@@ -22,43 +22,29 @@ import alex.beta.onlinetranslation.persistence.TranslationRepository;
 import alex.beta.onlinetranslation.persistence.TranslationStatus;
 import alex.beta.onlinetranslation.services.TranslationService;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.routing.HttpRoute;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static alex.beta.onlinetranslation.persistence.Translation.TEXT_MAXLENGTH;
 import static alex.beta.onlinetranslation.persistence.Translation.TRANSLATED_TEXT_MAXLENGTH;
@@ -78,56 +64,19 @@ public class TranslationServiceImpl implements TranslationService {
 
     private HousekeepingRepository housekeepingRepository;
 
+    private ConnectionManagerHolder connectionManagerHolder;
+
     private BaiduKey baiduKey;
-
-    @Value("${TranslationJobConfiguration.numOfThreads:2}")
-    private int numOfThreads;
-
-    private PoolingHttpClientConnectionManager connectionManager;
 
     @Autowired
     public TranslationServiceImpl(TranslationRepository translationRepository,
                                   HousekeepingRepository housekeepingRepository,
+                                  ConnectionManagerHolder connectionManagerHolder,
                                   BaiduKey baiduKey) {
         this.translationRepository = translationRepository;
         this.housekeepingRepository = housekeepingRepository;
+        this.connectionManagerHolder = connectionManagerHolder;
         this.baiduKey = baiduKey;
-    }
-
-    /**
-     * 绕过验证
-     *
-     * @return
-     * @throws NoSuchAlgorithmException
-     * @throws KeyManagementException
-     */
-    private static SSLContext createIgnoreVerifySSL() throws NoSuchAlgorithmException, KeyManagementException {
-        SSLContext sc = SSLContext.getInstance("TLS");
-
-        // 实现一个X509TrustManager接口，用于绕过验证，不用修改里面的方法
-        X509TrustManager trustManager = new X509TrustManager() {
-            @Override
-            public void checkClientTrusted(
-                    java.security.cert.X509Certificate[] paramArrayOfX509Certificate,
-                    String paramString) throws CertificateException {
-                //Bypass client trust check
-            }
-
-            @Override
-            public void checkServerTrusted(
-                    java.security.cert.X509Certificate[] paramArrayOfX509Certificate,
-                    String paramString) throws CertificateException {
-                //Bypass server trust check
-            }
-
-            @Override
-            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                return new java.security.cert.X509Certificate[]{};
-            }
-        };
-
-        sc.init(null, new TrustManager[]{trustManager}, null);
-        return sc;
     }
 
     @Override
@@ -190,34 +139,20 @@ public class TranslationServiceImpl implements TranslationService {
     }
 
     @Override
-    public synchronized boolean lazyInitializeConnections() {
-        if (connectionManager == null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Instantiate PoolingHttpClientConnectionManager");
-            }
-            try {
-                Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
-                        .register("http", PlainConnectionSocketFactory.INSTANCE)
-                        .register("https", new SSLConnectionSocketFactory(createIgnoreVerifySSL()))
-                        .build();
-                connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-                connectionManager.setMaxTotal(Math.max(100, numOfThreads * 20));
-                HttpHost host = new HttpHost("api.fanyi.baidu.com", 80);
-                connectionManager.setMaxPerRoute(new HttpRoute(host), Math.min(5, numOfThreads));
-                HttpHost shost = new HttpHost("api.fanyi.baidu.com", 443);
-                connectionManager.setMaxPerRoute(new HttpRoute(shost), Math.min(5, numOfThreads));
-            } catch (NoSuchAlgorithmException | KeyManagementException ex) {
-                logger.error("Failed to instantiate PoolingHttpClientConnectionManager. No translation job will be executed.", ex);
-                connectionManager = null;
-                return true;
-            }
+    public List<Translation> findRequestsToTranslate() {
+        Date filterDate = new Date();
+        if (logger.isDebugEnabled()) {
+            logger.debug("To find un-translated requests before {}.", filterDate);
         }
-
-        if (baiduKey == null || baiduKey.getAppid() == null || baiduKey.getSecurityKey() == null) {
-            logger.error("Make sure \'classpath:/baidu.key\' exists, both \'appid\' and \'securityKey\' are defined.");
-            return true;
+        List<Translation> requests = translationRepository.findFirst5ByStatusAndLastUpdatedOnLessThanOrderByLastUpdatedOnAsc(
+                TranslationStatus.SUBMITTED, filterDate);
+        if (logger.isInfoEnabled()) {
+            logger.info("Found {} un-translated translation request(s).", requests.size());
         }
-        return false;
+        if (logger.isDebugEnabled()) {
+            logger.debug("To translate:\n{}", requests.stream().map(Translation::<String>getUuid).collect(Collectors.joining(System.lineSeparator())));
+        }
+        return requests;
     }
 
     @Override
@@ -225,13 +160,18 @@ public class TranslationServiceImpl implements TranslationService {
     @Async("translationJobExecutor")
     public void performTranslation(Translation request) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Translating request {}", request.getUuid());
+            logger.debug("Translating request {}.", request.getUuid());
+        }
+        if (connectionManagerHolder == null || connectionManagerHolder.getConnectionManager() == null ||
+                baiduKey == null || baiduKey.getSecurityKey() == null || baiduKey.getAppid() == null) {
+            return;
         }
         CloseableHttpClient httpclient = null;
         CloseableHttpResponse response = null;
         String body = null;
         try {
-            httpclient = HttpClients.custom().setConnectionManager(connectionManager).setConnectionManagerShared(true).build();
+            httpclient = HttpClients.custom().setConnectionManager(connectionManagerHolder.getConnectionManager())
+                    .setConnectionManagerShared(true).build();
             HttpPost httpPost = new HttpPost("https://api.fanyi.baidu.com/api/trans/vip/translate");
             List<NameValuePair> nvps = new ArrayList<>();
             nvps.add(new BasicNameValuePair("q", request.getText()));
@@ -254,7 +194,7 @@ public class TranslationServiceImpl implements TranslationService {
             }
             EntityUtils.consume(entity);
         } catch (SocketTimeoutException ex) {
-            logger.error("Timeout to translate request {}", request.getUuid(), ex);
+            logger.error("Timeout to translate request {}.", request.getUuid(), ex);
             request.setStatus(TranslationStatus.TIMEOUT);
             request.setMessage(ex.getMessage() != null && ex.getMessage().length() > 250 ?
                     ex.getMessage().substring(0, 250) : ex.getMessage());
@@ -277,7 +217,7 @@ public class TranslationServiceImpl implements TranslationService {
                     httpclient.close();
                 }
             } catch (IOException ex) {
-                logger.warn("Failed to close HttpResponse", ex);
+                logger.warn("Failed to close HttpResponse.", ex);
             }
         }
 
@@ -336,7 +276,7 @@ public class TranslationServiceImpl implements TranslationService {
             request.setMessage("Baidu Fanyi response is empty.");
         }
         if (logger.isInfoEnabled()) {
-            logger.info("Translated request {}", request.getUuid());
+            logger.info("Translated request {}.", request.getUuid());
         }
         updateTranslationRequest(request);
     }
@@ -347,7 +287,7 @@ public class TranslationServiceImpl implements TranslationService {
     @Scheduled(fixedRate = 12 * 60 * 60 * 1000, initialDelay = 25000) // every 12 hours, with initial delay 25 seconds
     public void performHousekeeping() {
         if (logger.isDebugEnabled()) {
-            logger.debug("Housekeeping starts");
+            logger.debug("To start housekeeping job.");
         }
         int deleteCount = housekeepingRepository.removeExpiredTranslationRequests(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
         if (logger.isInfoEnabled()) {
