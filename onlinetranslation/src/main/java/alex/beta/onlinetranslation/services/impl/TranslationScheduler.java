@@ -74,7 +74,7 @@ public class TranslationScheduler {
                     logger.info("Find {} translation request(s)", requests.size());
                 }
                 if (logger.isDebugEnabled()) {
-                    logger.debug("Translation request(s):\n", requests.stream().map(Translation::<String>getUuid).collect(Collectors.joining(System.lineSeparator())));
+                    logger.debug("Translation request(s):\n{}", requests.stream().map(Translation::<String>getUuid).collect(Collectors.joining(System.lineSeparator())));
                 }
                 for (Translation request : requests) {
                     try {
