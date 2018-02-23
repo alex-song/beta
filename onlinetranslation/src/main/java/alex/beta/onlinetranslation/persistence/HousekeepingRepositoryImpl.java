@@ -32,8 +32,12 @@ import java.util.Date;
 public class HousekeepingRepositoryImpl implements HousekeepingRepository {
     private static final Logger logger = LoggerFactory.getLogger(HousekeepingRepositoryImpl.class);
 
-    @Autowired
     private EntityManager entityManager;
+
+    @Autowired
+    public HousekeepingRepositoryImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
     @Override
     @Transactional

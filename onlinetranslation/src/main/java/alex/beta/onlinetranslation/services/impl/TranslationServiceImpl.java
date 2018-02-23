@@ -74,19 +74,25 @@ public class TranslationServiceImpl implements TranslationService {
 
     private static final Logger logger = LoggerFactory.getLogger(TranslationServiceImpl.class);
 
-    @Autowired
     private TranslationRepository translationRepository;
 
-    @Autowired
     private HousekeepingRepository housekeepingRepository;
 
-    @Autowired
     private BaiduKey baiduKey;
 
     @Value("${TranslationJobConfiguration.numOfThreads:2}")
     private int numOfThreads;
 
-    private PoolingHttpClientConnectionManager cm;
+    private PoolingHttpClientConnectionManager connectionManager;
+
+    @Autowired
+    public TranslationServiceImpl(TranslationRepository translationRepository,
+                                  HousekeepingRepository housekeepingRepository,
+                                  BaiduKey baiduKey) {
+        this.translationRepository = translationRepository;
+        this.housekeepingRepository = housekeepingRepository;
+        this.baiduKey = baiduKey;
+    }
 
     /**
      * 绕过验证
@@ -183,13 +189,9 @@ public class TranslationServiceImpl implements TranslationService {
         return tmp == null ? null : new TranslationResult(tmp);
     }
 
-    /**
-     * Initiate connection manager and load baidu key
-     *
-     * @return true, if lazy initialization is failed
-     */
-    private synchronized boolean lazyInitializeConnections() {
-        if (cm == null) {
+    @Override
+    public synchronized boolean lazyInitializeConnections() {
+        if (connectionManager == null) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Instantiate PoolingHttpClientConnectionManager");
             }
@@ -198,15 +200,15 @@ public class TranslationServiceImpl implements TranslationService {
                         .register("http", PlainConnectionSocketFactory.INSTANCE)
                         .register("https", new SSLConnectionSocketFactory(createIgnoreVerifySSL()))
                         .build();
-                cm = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-                cm.setMaxTotal(Math.max(100, numOfThreads * 20));
+                connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+                connectionManager.setMaxTotal(Math.max(100, numOfThreads * 20));
                 HttpHost host = new HttpHost("api.fanyi.baidu.com", 80);
-                cm.setMaxPerRoute(new HttpRoute(host), Math.min(5, numOfThreads));
+                connectionManager.setMaxPerRoute(new HttpRoute(host), Math.min(5, numOfThreads));
                 HttpHost shost = new HttpHost("api.fanyi.baidu.com", 443);
-                cm.setMaxPerRoute(new HttpRoute(shost), Math.min(5, numOfThreads));
+                connectionManager.setMaxPerRoute(new HttpRoute(shost), Math.min(5, numOfThreads));
             } catch (NoSuchAlgorithmException | KeyManagementException ex) {
                 logger.error("Failed to instantiate PoolingHttpClientConnectionManager. No translation job will be executed.", ex);
-                cm = null;
+                connectionManager = null;
                 return true;
             }
         }
@@ -216,44 +218,6 @@ public class TranslationServiceImpl implements TranslationService {
             return true;
         }
         return false;
-    }
-
-    @Override
-    @Async("translationJobExecutor")
-    @Scheduled(fixedRate = 1000, initialDelay = 30000) // every 1 second, with initial delay 30 seconds
-    public void executeTranslationJob() {
-        if (lazyInitializeConnections()) {
-            return;
-        }
-        try {
-            Date filterDate = new Date();
-            if (logger.isDebugEnabled()) {
-                logger.debug("Translation job starts with filter {}.", filterDate);
-            }
-            List<Translation> requests = translationRepository.findFirst5ByStatusAndLastUpdatedOnLessThanOrderByLastUpdatedOnAsc(TranslationStatus.SUBMITTED, filterDate);
-            if (requests == null || requests.isEmpty()) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("No pending request");
-                }
-            } else {
-                if (logger.isInfoEnabled()) {
-                    logger.info("Find {} translation request(s)", requests.size());
-                }
-                for (Translation request : requests) {
-                    try {
-                        request.setStatus(TranslationStatus.PROCESSING);
-                        request = updateTranslationRequest(request);
-
-                        performTranslation(request);
-                    } catch (Exception ex) {//this should not happen
-                        logger.error("Unexpected error when initiating async job for request {}", request.getUuid(), ex);
-                        //continue processing next request
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            logger.error("Failed to find first 5 unproceeded requests", ex);
-        }
     }
 
     @Override
@@ -267,7 +231,7 @@ public class TranslationServiceImpl implements TranslationService {
         CloseableHttpResponse response = null;
         String body = null;
         try {
-            httpclient = HttpClients.custom().setConnectionManager(cm).setConnectionManagerShared(true).build();
+            httpclient = HttpClients.custom().setConnectionManager(connectionManager).setConnectionManagerShared(true).build();
             HttpPost httpPost = new HttpPost("https://api.fanyi.baidu.com/api/trans/vip/translate");
             List<NameValuePair> nvps = new ArrayList<>();
             nvps.add(new BasicNameValuePair("q", request.getText()));
@@ -380,7 +344,7 @@ public class TranslationServiceImpl implements TranslationService {
     @Override
     @Transactional
     @Async("housekeepingJobExecutor")
-    @Scheduled(fixedRate = 12 * 60 * 60 * 1000, initialDelay = 30000) // every 12 hours, with initial delay 30 seconds
+    @Scheduled(fixedRate = 12 * 60 * 60 * 1000, initialDelay = 25000) // every 12 hours, with initial delay 25 seconds
     public void performHousekeeping() {
         if (logger.isDebugEnabled()) {
             logger.debug("Housekeeping starts");

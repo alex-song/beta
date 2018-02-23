@@ -15,6 +15,9 @@ spring:
 
 logging:
   file: ./logs/onlinetranslation.log
+  level:
+    Root: WARN
+    alex: DEBUG
 
 TranslationJobConfiguration:
   numOfThreads: 3

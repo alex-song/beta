@@ -53,12 +53,6 @@ public interface TranslationService {
     TranslationResult getTranslation(String uuid);
 
     /**
-     * Find and translate un-proceeded 5 (or less) requests
-     * Execute once every 1 second
-     */
-    void executeTranslationJob();
-
-    /**
      * Perform translation using Baidu fanyi API
      *
      * @param request
@@ -70,4 +64,11 @@ public interface TranslationService {
      * Execute once every 12 hours
      */
     void performHousekeeping();
+
+    /**
+     * Initiate connection manager and load baidu key
+     *
+     * @return true, if lazy initialization is failed
+     */
+    boolean lazyInitializeConnections();
 }

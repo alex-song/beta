@@ -31,7 +31,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -82,11 +81,15 @@ public class TranslationRestEndpoint {
             "cht",
             "vie");
 
-    @Autowired
     private MessageSource messageSource;
 
-    @Resource
     private TranslationService translationService;
+
+    @Autowired
+    public TranslationRestEndpoint(MessageSource messageSource, TranslationService translationService) {
+        this.messageSource = messageSource;
+        this.translationService = translationService;
+    }
 
     @GetMapping("/")
     void home(HttpServletResponse response) throws IOException {
