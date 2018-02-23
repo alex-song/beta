@@ -16,7 +16,11 @@
 package alex.beta.onlinetranslation.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -26,6 +30,8 @@ import java.io.Serializable;
  * @version ${project.version}
  */
 public class TranslationError implements Serializable {
+    private static final Logger logger = LoggerFactory.getLogger(TranslationError.class);
+
     @JsonProperty("errorCode")
     @ApiModelProperty
     @NotNull
@@ -34,6 +40,10 @@ public class TranslationError implements Serializable {
     @JsonProperty("message")
     @ApiModelProperty
     private String message;
+
+    public TranslationError(String errorCode) {
+        this.errorCode = errorCode;
+    }
 
     public TranslationError(String errorCode, String message) {
         this.errorCode = errorCode;
@@ -54,5 +64,15 @@ public class TranslationError implements Serializable {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            logger.error("Failed to write this object as JSON string", e);
+            return super.toString();
+        }
     }
 }

@@ -18,7 +18,11 @@ package alex.beta.onlinetranslation.models;
 import alex.beta.onlinetranslation.persistence.Translation;
 import alex.beta.onlinetranslation.persistence.TranslationStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.annotations.ApiModelProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -29,6 +33,7 @@ import java.util.Date;
  * @version ${project.version}
  */
 public class TranslationResult implements Serializable {
+    private static final Logger logger = LoggerFactory.getLogger(TranslationResult.class);
 
     public static final TranslationResult NOTHING_TO_TRANSLATE = new TranslationResult("NOTHING_TO_TRANSLATE", TranslationStatus.READY);
     @JsonProperty("uuid")
@@ -141,28 +146,21 @@ public class TranslationResult implements Serializable {
         this.createdOn = createdOn;
     }
 
+    public Date getLastUpdatedOn() {
+        return lastUpdatedOn;
+    }
+
+    public void setLastUpdatedOn(Date lastUpdatedOn) {
+        this.lastUpdatedOn = lastUpdatedOn;
+    }
+
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("{");
-        if (uuid != null)
-            sb.append("\"uuid\" : \"").append(this.uuid).append("\", ");
-        if (status != null)
-            sb.append("\"status\" : \"").append(this.status).append("\", ");
-        if (message != null)
-            sb.append("\"message\" : \"").append(this.message).append("\", ");
-        if (text != null)
-            sb.append("\"text\" : \"").append(this.text).append("\", ");
-        if (fromLanguage != null)
-            sb.append("\"fromLanguage\" : \"").append(this.fromLanguage).append("\", ");
-        if (translatedText != null)
-            sb.append("\"translatedText\" : \"").append(this.translatedText).append("\", ");
-        if (toLanguage != null)
-            sb.append("\"toLanguage\" : \"").append(this.toLanguage).append("\", ");
-        if (createdOn != null)
-            sb.append("\"createdOn\" : \"").append(this.createdOn).append("\", ");
-        if (lastUpdatedOn != null)
-            sb.append("\"lastUpdatedOn\" : \"").append(this.lastUpdatedOn).append("\"");
-        sb.append("}");
-        return sb.toString();
+        try {
+            return new ObjectMapper().writeValueAsString(this);
+        } catch (JsonProcessingException e) {
+            logger.error("Failed to write this object as JSON string", e);
+            return super.toString();
+        }
     }
 }

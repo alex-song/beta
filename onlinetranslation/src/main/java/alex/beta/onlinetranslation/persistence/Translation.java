@@ -65,7 +65,7 @@ public class Translation implements Serializable {
     private Date lastUpdatedOn;
 
     public Translation() {
-
+        //default constructor
     }
 
     public Translation(TranslationStatus status, String fromLanguage, String toLanguage, String text) {

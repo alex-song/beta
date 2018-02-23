@@ -61,14 +61,10 @@ public class TranslationScheduler {
         }
         try {
             Date filterDate = new Date();
-            if (logger.isDebugEnabled()) {
-                logger.debug("Translation job starts with filter {}.", filterDate);
-            }
+            logger.debug("Translation job starts with filter {}.", filterDate);
             List<Translation> requests = translationRepository.findFirst5ByStatusAndLastUpdatedOnLessThanOrderByLastUpdatedOnAsc(TranslationStatus.SUBMITTED, filterDate);
             if (requests == null || requests.isEmpty()) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("No pending request");
-                }
+                logger.debug("No pending request");
             } else {
                 if (logger.isInfoEnabled()) {
                     logger.info("Find {} translation request(s)", requests.size());
