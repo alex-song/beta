@@ -57,11 +57,7 @@ public class TranslationScheduler {
         }
         try {
             List<Translation> requests = translationService.findRequestsToTranslate();
-            if (requests == null || requests.isEmpty()) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("No pending request");
-                }
-            } else {
+            if (requests != null && !requests.isEmpty()) {
                 for (Translation request : requests) {
                     performTranslation(request);
                 }

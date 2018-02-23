@@ -147,9 +147,9 @@ public class TranslationServiceImpl implements TranslationService {
         List<Translation> requests = translationRepository.findFirst5ByStatusAndLastUpdatedOnLessThanOrderByLastUpdatedOnAsc(
                 TranslationStatus.SUBMITTED, filterDate);
         if (logger.isInfoEnabled()) {
-            logger.info("Found {} un-translated translation request(s).", requests.size());
+            logger.info("Found {} un-translated translation request(s).", requests == null ? 0 : requests.size());
         }
-        if (logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled() && requests != null && !requests.isEmpty()) {
             logger.debug("To translate:\n{}", requests.stream().map(Translation::<String>getUuid).collect(Collectors.joining(System.lineSeparator())));
         }
         return requests;

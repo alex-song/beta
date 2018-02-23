@@ -27,8 +27,7 @@ import java.util.Date;
  */
 @Entity
 @Table(name = "Translation",
-        indexes = {@Index(columnList = "status"),
-                @Index(columnList = "lastUpdatedOn")})
+        indexes = {@Index(columnList = "lastUpdatedOn"), @Index(columnList = "status, lastUpdatedOn")})
 public class Translation implements Serializable {
     public static final int TEXT_MAXLENGTH = 2048;
     public static final int TRANSLATED_TEXT_MAXLENGTH = 8192;
