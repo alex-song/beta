@@ -1,6 +1,6 @@
 /**
  * <p>
- * File Name: TranslationResult.java
+ * File Name: TranslationModel.java
  * </p>
  * <p>
  * Project:   beta
@@ -15,7 +15,8 @@
  */
 package alex.beta.onlinetranslation.models;
 
-import alex.beta.onlinetranslation.persistence.Translation;
+import alex.beta.onlinetranslation.persistence.TranslationEntity;
+import alex.beta.onlinetranslation.persistence.TranslationLineEntity;
 import alex.beta.onlinetranslation.persistence.TranslationStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,16 +26,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author alexsong
  * @version ${project.version}
  */
-public class TranslationResult implements Serializable {
-    public static final TranslationResult NOTHING_TO_TRANSLATE = new TranslationResult("NOTHING_TO_TRANSLATE", TranslationStatus.READY);
-    private static final Logger logger = LoggerFactory.getLogger(TranslationResult.class);
+public class TranslationModel {
+    public static final TranslationModel NOTHING_TO_TRANSLATE = new TranslationModel("NOTHING_TO_TRANSLATE", TranslationStatus.READY);
+    private static final Logger logger = LoggerFactory.getLogger(TranslationModel.class);
     @JsonProperty("uuid")
     @ApiModelProperty
     @NotNull
@@ -45,12 +47,12 @@ public class TranslationResult implements Serializable {
     @JsonProperty("message")
     @ApiModelProperty
     private String message;
-    @JsonProperty("text")
+    @JsonProperty("inputText")
     @ApiModelProperty
     private String text;
-    @JsonProperty("translatedText")
+    @JsonProperty("translations")
     @ApiModelProperty
-    private String translatedText;
+    private List<TranslationLineModel> translationLines;
     @JsonProperty("fromLanguage")
     @ApiModelProperty
     private String fromLanguage;
@@ -64,19 +66,25 @@ public class TranslationResult implements Serializable {
     @ApiModelProperty
     private Date lastUpdatedOn;
 
-    public TranslationResult(Translation translation) {
-        this.uuid = translation.getUuid();
-        this.status = translation.getStatus();
-        this.text = translation.getText();
-        this.toLanguage = translation.getToLanguage();
-        this.createdOn = translation.getCreatedOn();
-        this.fromLanguage = translation.getFromLanguage();
-        this.translatedText = translation.getTranslatedText();
-        this.message = translation.getMessage();
-        this.lastUpdatedOn = translation.getLastUpdatedOn();
+    public TranslationModel(TranslationEntity translationEntity) {
+        this.uuid = translationEntity.getUuid();
+        this.status = translationEntity.getStatus();
+        this.text = translationEntity.getText();
+        this.toLanguage = translationEntity.getToLanguage();
+        this.createdOn = translationEntity.getCreatedOn();
+        this.fromLanguage = translationEntity.getFromLanguage();
+        this.message = translationEntity.getMessage();
+        this.lastUpdatedOn = translationEntity.getLastUpdatedOn();
+        if (translationEntity.getTranslationLines() != null && !translationEntity.getTranslationLines().isEmpty()) {
+            List<TranslationLineModel> lines = new ArrayList<>(translationEntity.getTranslationLines().size());
+            for (TranslationLineEntity l : translationEntity.getTranslationLines()) {
+                lines.add(new TranslationLineModel(l.getSrc(), l.getDst()));
+            }
+            this.translationLines = lines;
+        }
     }
 
-    private TranslationResult(String uuid, TranslationStatus status) {
+    private TranslationModel(String uuid, TranslationStatus status) {
         this.uuid = uuid;
         this.status = status;
     }
@@ -113,14 +121,6 @@ public class TranslationResult implements Serializable {
         this.text = text;
     }
 
-    public String getTranslatedText() {
-        return translatedText;
-    }
-
-    public void setTranslatedText(String translatedText) {
-        this.translatedText = translatedText;
-    }
-
     public String getFromLanguage() {
         return fromLanguage;
     }
@@ -151,6 +151,14 @@ public class TranslationResult implements Serializable {
 
     public void setLastUpdatedOn(Date lastUpdatedOn) {
         this.lastUpdatedOn = lastUpdatedOn;
+    }
+
+    public List<TranslationLineModel> getTranslationLines() {
+        return translationLines;
+    }
+
+    public void setTranslationLines(List<TranslationLineModel> translationLines) {
+        this.translationLines = translationLines;
     }
 
     @Override

@@ -43,6 +43,6 @@ springfox:
 
 info:
   app:
-    name: Online Translation
-    description: Online Translation
+    name: Alex Online Translation
+    description: Alex Online Translation API, which is built on top of Baidu's translation service. It supports auto-detect input text, and translates it to 28 languages.
     version: 0.0.1

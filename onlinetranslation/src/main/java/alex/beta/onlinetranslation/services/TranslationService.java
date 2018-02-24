@@ -15,8 +15,8 @@
  */
 package alex.beta.onlinetranslation.services;
 
-import alex.beta.onlinetranslation.models.TranslationResult;
-import alex.beta.onlinetranslation.persistence.Translation;
+import alex.beta.onlinetranslation.models.TranslationModel;
+import alex.beta.onlinetranslation.persistence.TranslationEntity;
 
 import java.util.List;
 
@@ -33,7 +33,7 @@ public interface TranslationService {
      * @param text
      * @return Persisted translation request
      */
-    TranslationResult submit(String fromLanguage, String toLanguage, String text);
+    TranslationModel submit(String fromLanguage, String toLanguage, String text);
 
     /**
      * Update the translation request, such as the status, last updated timestamp, etc
@@ -44,7 +44,7 @@ public interface TranslationService {
      * @param delay   lastUpdatedOn = current timestamp + delay (in ms)
      * @return
      */
-    Translation updateTranslationRequest(Translation request, long delay);
+    TranslationEntity updateTranslationRequest(TranslationEntity request, long delay);
 
     /**
      * Get translation result according to given uuid
@@ -52,21 +52,21 @@ public interface TranslationService {
      * @param uuid
      * @return
      */
-    TranslationResult getTranslation(String uuid);
+    TranslationModel getTranslation(String uuid);
 
     /**
      * Find top 5 requests to translate, whose timestamp(lastUpdatedOn) before current time
      *
      * @return
      */
-    List<Translation> findRequestsToTranslate();
+    List<TranslationEntity> findRequestsToTranslate();
 
     /**
      * Perform translation using Baidu fanyi API
      *
      * @param request
      */
-    void performTranslation(Translation request);
+    void performTranslation(TranslationEntity request);
 
     /**
      * Remove translation request, which is older than 24 hours

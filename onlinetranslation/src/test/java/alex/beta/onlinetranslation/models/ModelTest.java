@@ -15,7 +15,7 @@
  */
 package alex.beta.onlinetranslation.models;
 
-import alex.beta.onlinetranslation.persistence.Translation;
+import alex.beta.onlinetranslation.persistence.TranslationEntity;
 import alex.beta.onlinetranslation.persistence.TranslationStatus;
 import org.junit.After;
 import org.junit.Before;
@@ -30,17 +30,17 @@ import static org.junit.Assert.assertEquals;
  * @version ${project.version}
  */
 public class ModelTest {
-    private TranslationError error;
-    private TranslationResult result;
+    private TranslationErrorModel error;
+    private TranslationModel result;
 
     @Before
     public void setUp() {
-        error = new TranslationError("error code", "error message");
-        Translation t = new Translation(TranslationStatus.SUBMITTED, "zh", "en", "你好");
+        error = new TranslationErrorModel("error code", "error message");
+        TranslationEntity t = new TranslationEntity(TranslationStatus.SUBMITTED, "zh", "en", "你好");
         Date tmp = new Date(1519376391114L);
         t.setCreatedOn(tmp);
         t.setLastUpdatedOn(tmp);
-        result = new TranslationResult(t);
+        result = new TranslationModel(t);
     }
 
     @After
@@ -52,6 +52,6 @@ public class ModelTest {
     @Test
     public void testToString() {
         assertEquals("{\"errorCode\":\"error code\",\"message\":\"error message\"}", error.toString());
-        assertEquals("{\"uuid\":null,\"status\":\"SUBMITTED\",\"message\":null,\"text\":\"你好\",\"translatedText\":null,\"fromLanguage\":\"zh\",\"toLanguage\":\"en\",\"createdOn\":1519376391114,\"lastUpdatedOn\":1519376391114}", result.toString());
+        assertEquals("{\"uuid\":null,\"status\":\"SUBMITTED\",\"message\":null,\"inputText\":\"你好\",\"translations\":null,\"fromLanguage\":\"zh\",\"toLanguage\":\"en\",\"createdOn\":1519376391114,\"lastUpdatedOn\":1519376391114}", result.toString());
     }
 }

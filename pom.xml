@@ -25,6 +25,10 @@
 		<maven-deploy-plugin_version>2.8.2</maven-deploy-plugin_version>
 		<maven-war-plugin_version>3.2.0</maven-war-plugin_version>
         <exec-maven-plugin_version>1.6.0</exec-maven-plugin_version>
+        <jacoco-maven-plugin_version>0.8.0</jacoco-maven-plugin_version>
+        <maven-surefire-plugin_version>2.20.1</maven-surefire-plugin_version>
+        <maven-failsafe-plugin_version>2.20.1</maven-failsafe-plugin_version>
+        <sonar-maven-plugin_version>3.4.0.905</sonar-maven-plugin_version>
 
         <!-- dependencies -->
 		<junit_version>4.12</junit_version>
@@ -42,6 +46,7 @@
 
 		<!-- build parameters -->
         <skip.unit.tests>false</skip.unit.tests>
+		<test.failure.ignore>false</test.failure.ignore>
     </properties>
 
 	<dependencies>
@@ -91,14 +96,11 @@
 		<profile>
 			<id>sonarcloud</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <!-- plugin versions -->
-                <jacoco-maven-plugin_version>0.8.0</jacoco-maven-plugin_version>
-                <maven-surefire-plugin_version>2.20.1</maven-surefire-plugin_version>
-                <maven-failsafe-plugin_version>2.20.1</maven-failsafe-plugin_version>
-                <sonar-maven-plugin_version>3.4.0.905</sonar-maven-plugin_version>
+                <!-- overwrite parent setting, continue on failure -->
+				<test.failure.ignore>true</test.failure.ignore>
                 <!-- sonar parameters -->
                 <argLine/>
                 <sonar.language>java</sonar.language>
@@ -161,7 +163,7 @@
 								<sonar.tests>src/test/java</sonar.tests>
 							</systemPropertyVariables>
 							<argLine>${argLine}</argLine>
-							<testFailureIgnore>true</testFailureIgnore>
+							<testFailureIgnore>${test.failure.ignore}</testFailureIgnore>
 							<skipTests>${skip.unit.tests}</skipTests>
 						</configuration>
 					</plugin>

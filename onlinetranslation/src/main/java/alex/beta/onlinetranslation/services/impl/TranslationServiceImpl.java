@@ -15,11 +15,8 @@
  */
 package alex.beta.onlinetranslation.services.impl;
 
-import alex.beta.onlinetranslation.models.TranslationResult;
-import alex.beta.onlinetranslation.persistence.HousekeepingRepository;
-import alex.beta.onlinetranslation.persistence.Translation;
-import alex.beta.onlinetranslation.persistence.TranslationRepository;
-import alex.beta.onlinetranslation.persistence.TranslationStatus;
+import alex.beta.onlinetranslation.models.TranslationModel;
+import alex.beta.onlinetranslation.persistence.*;
 import alex.beta.onlinetranslation.services.TranslationService;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -46,8 +43,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static alex.beta.onlinetranslation.persistence.Translation.TEXT_MAXLENGTH;
-import static alex.beta.onlinetranslation.persistence.Translation.TRANSLATED_TEXT_MAXLENGTH;
+import static alex.beta.onlinetranslation.persistence.TranslationEntity.TEXT_MAXLENGTH;
+import static alex.beta.onlinetranslation.persistence.TranslationEntity.TRANSLATED_TEXT_MAXLENGTH;
 
 /**
  * @author alexsong
@@ -81,11 +78,11 @@ public class TranslationServiceImpl implements TranslationService {
 
     @Override
     @Transactional
-    public TranslationResult submit(String fromLanguage, String toLanguage, String text) {
+    public TranslationModel submit(String fromLanguage, String toLanguage, String text) {
         Objects.requireNonNull(text);
 
-        return new TranslationResult(translationRepository.saveAndFlush(
-                new Translation(TranslationStatus.SUBMITTED,
+        return new TranslationModel(translationRepository.saveAndFlush(
+                new TranslationEntity(TranslationStatus.SUBMITTED,
                         fromLanguage == null ? "auto" : fromLanguage,
                         toLanguage,
                         text.length() > TEXT_MAXLENGTH ?
@@ -93,17 +90,20 @@ public class TranslationServiceImpl implements TranslationService {
         );
     }
 
-    private Translation updateTranslationRequest(Translation request) {
+    private TranslationEntity updateTranslationRequest(TranslationEntity request) {
         return updateTranslationRequest(request, 0);
     }
 
     @Override
     @Transactional
-    public Translation updateTranslationRequest(Translation request, long delay) {
+    public TranslationEntity updateTranslationRequest(TranslationEntity request, long delay) {
         Objects.requireNonNull(request);
 
-        Translation persistedT = translationRepository.findOne(request.getUuid());
+        TranslationEntity persistedT = translationRepository.findOne(request.getUuid());
         if (persistedT == null) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("Translation {} is not found, cannot update it.", request.getUuid());
+            }
             return null;
         }
 
@@ -122,8 +122,14 @@ public class TranslationServiceImpl implements TranslationService {
         if (request.getText() != null) {
             persistedT.setText(request.getText());
         }
-        if (request.getTranslatedText() != null) {
-            persistedT.setTranslatedText(request.getTranslatedText());
+        if (request.getTranslationLines() != null && !request.getTranslationLines().isEmpty()) {
+            List<TranslationLineEntity> lines = new ArrayList<>(request.getTranslationLines().size());
+            for (TranslationLineEntity line : request.getTranslationLines()) {
+                lines.add(new TranslationLineEntity(line.getSrc(), line.getDst()));
+            }
+            persistedT.setTranslationLines(lines);
+        } else {
+            persistedT.setTranslationLines(null);
         }
         persistedT.setLastUpdatedOn(new Date(System.currentTimeMillis() + delay));
 
@@ -131,26 +137,26 @@ public class TranslationServiceImpl implements TranslationService {
     }
 
     @Override
-    public TranslationResult getTranslation(String uuid) {
+    public TranslationModel getTranslation(String uuid) {
         Objects.requireNonNull(uuid);
 
-        Translation tmp = translationRepository.findOne(uuid);
-        return tmp == null ? null : new TranslationResult(tmp);
+        TranslationEntity tmp = translationRepository.findOne(uuid);
+        return tmp == null ? null : new TranslationModel(tmp);
     }
 
     @Override
-    public List<Translation> findRequestsToTranslate() {
+    public List<TranslationEntity> findRequestsToTranslate() {
         Date filterDate = new Date();
         if (logger.isDebugEnabled()) {
-            logger.debug("To find un-translated requests before {}.", filterDate);
+            logger.debug("To find un-proceeded requests before {}.", filterDate);
         }
-        List<Translation> requests = translationRepository.findFirst5ByStatusAndLastUpdatedOnLessThanOrderByLastUpdatedOnAsc(
+        List<TranslationEntity> requests = translationRepository.findFirst5ByStatusAndLastUpdatedOnLessThanOrderByLastUpdatedOnAsc(
                 TranslationStatus.SUBMITTED, filterDate);
         if (logger.isInfoEnabled()) {
-            logger.info("Found {} un-translated translation request(s).", requests == null ? 0 : requests.size());
+            logger.info("Found {} un-proceeded translation request(s).", requests == null ? 0 : requests.size());
         }
         if (logger.isDebugEnabled() && requests != null && !requests.isEmpty()) {
-            logger.debug("To translate:\n{}", requests.stream().map(Translation::<String>getUuid).collect(Collectors.joining(System.lineSeparator())));
+            logger.debug("To translate:\n{}", requests.stream().map(TranslationEntity::<String>getUuid).collect(Collectors.joining(System.lineSeparator())));
         }
         return requests;
     }
@@ -158,7 +164,7 @@ public class TranslationServiceImpl implements TranslationService {
     @Override
     @Transactional
     @Async("translationJobExecutor")
-    public void performTranslation(Translation request) {
+    public void performTranslation(TranslationEntity request) {
         if (logger.isDebugEnabled()) {
             logger.debug("Translating request {}.", request.getUuid());
         }
@@ -253,13 +259,28 @@ public class TranslationServiceImpl implements TranslationService {
                     //百度返回正确消息
                     BaiduTranslation bt = BaiduTranslation.fromString(body);
                     request.setFromLanguage(bt.getFrom());
-                    if (bt.joinAllDstsWithLineSeparator() != null && bt.joinAllDstsWithLineSeparator().length() > TRANSLATED_TEXT_MAXLENGTH) {
-                        request.setStatus(TranslationStatus.WARNING);
-                        request.setTranslatedText(bt.joinAllDstsWithLineSeparator().substring(0, TRANSLATED_TEXT_MAXLENGTH));
-                        request.setMessage("Translated text is truncated, " + bt.joinAllDstsWithLineSeparator().length());
+                    //标示位，是否有翻译结果长度越界
+                    boolean isOverSize = false;
+                    if (bt.getTransResult() != null && !bt.getTransResult().isEmpty()) {
+                        List<TranslationLineEntity> lines = new ArrayList<>(bt.getTransResult().size());
+                        for (BaiduTranslationResult r : bt.getTransResult()) {
+                            if (r.getDst() != null && r.getDst().length() > TRANSLATED_TEXT_MAXLENGTH) {
+                                isOverSize = true;
+                                lines.add(new TranslationLineEntity(r.getSrc(), r.getDst().substring(0, TRANSLATED_TEXT_MAXLENGTH)));
+                            } else {
+                                lines.add(new TranslationLineEntity(r.getSrc(), r.getDst()));
+                            }
+                        }
+                        request.setTranslationLines(lines);
+                        if (isOverSize) {
+                            request.setStatus(TranslationStatus.WARNING);
+                            request.setMessage("Translated text is truncated");
+                        } else {
+                            request.setStatus(TranslationStatus.READY);
+                        }
                     } else {
-                        request.setStatus(TranslationStatus.READY);
-                        request.setTranslatedText(bt.joinAllDstsWithLineSeparator());
+                        request.setStatus(TranslationStatus.WARNING);
+                        request.setTranslationLines(null);
                     }
                 }
             } catch (IOException ex) {

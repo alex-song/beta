@@ -15,8 +15,8 @@
  */
 package alex.beta.onlinetranslation.controllers;
 
-import alex.beta.onlinetranslation.models.TranslationError;
-import alex.beta.onlinetranslation.models.TranslationResult;
+import alex.beta.onlinetranslation.models.TranslationErrorModel;
+import alex.beta.onlinetranslation.models.TranslationModel;
 import alex.beta.onlinetranslation.services.TranslationService;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 @Controller
 @RestController
 @Validated
-@Api(value = "Online Translation API")
+@Api(value = "Alex Online Translation API")
 public class TranslationRestEndpoint {
     private static final Logger logger = LoggerFactory.getLogger(TranslationRestEndpoint.class);
     private static final List<String> availableLanguages = Arrays.asList(
@@ -98,8 +98,8 @@ public class TranslationRestEndpoint {
 
     @ApiOperation(value = "Submit a translation request. Max. 2000 characters.", consumes = MediaType.TEXT_PLAIN_VALUE)
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Translation request is successfully submitted.", response = TranslationResult.class),
-            @ApiResponse(code = 400, message = "Invalid parameters.", response = TranslationError.class)
+            @ApiResponse(code = 200, message = "Translation request is successfully submitted.", response = TranslationModel.class),
+            @ApiResponse(code = 400, message = "Invalid parameters.", response = TranslationErrorModel.class)
     })
     @PostMapping(value = "/translate", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity translate(
@@ -114,10 +114,10 @@ public class TranslationRestEndpoint {
         }
 
         if (content.trim().isEmpty()) {
-            return ResponseEntity.ok(TranslationResult.NOTHING_TO_TRANSLATE);
+            return ResponseEntity.ok(TranslationModel.NOTHING_TO_TRANSLATE);
         } else if (content.length() > 2000) {
             return ResponseEntity.badRequest().body(
-                    new TranslationError("TranslationRestEndpoint.ContentOversize",
+                    new TranslationErrorModel("TranslationRestEndpoint.ContentOversize",
                             buildResponseErrorMessage("TranslationRestEndpoint.ContentOversize",
                                     toLanguage, String.valueOf(content.length())))
             );
@@ -126,7 +126,7 @@ public class TranslationRestEndpoint {
         String lang = Objects.requireNonNull(toLanguage).trim().toLowerCase();
         if (!availableLanguages.contains(lang)) {
             return ResponseEntity.badRequest().body(
-                    new TranslationError("TranslationRestEndpoint.UnsupportedLanguage",
+                    new TranslationErrorModel("TranslationRestEndpoint.UnsupportedLanguage",
                             buildResponseErrorMessage("TranslationRestEndpoint.UnsupportedLanguage",
                                     toLanguage, availableLanguages.stream().collect(Collectors.joining("\', \'"))))
             );
@@ -134,7 +134,7 @@ public class TranslationRestEndpoint {
             if (logger.isDebugEnabled()) {
                 logger.debug("toLanguage : {}", lang);
             }
-            TranslationResult result = translationService.submit("auto", lang, content);
+            TranslationModel result = translationService.submit("auto", lang, content);
             if (logger.isInfoEnabled()) {
                 logger.info("Translation request is successfully submitted.\n{}", result);
             }
@@ -144,8 +144,8 @@ public class TranslationRestEndpoint {
 
     @ApiOperation(value = "Get status of a translation request")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Translation request is found.", response = TranslationResult.class),
-            @ApiResponse(code = 404, message = "Translation request is not found.", response = TranslationError.class)
+            @ApiResponse(code = 200, message = "Translation request is found.", response = TranslationModel.class),
+            @ApiResponse(code = 404, message = "Translation request is not found.", response = TranslationErrorModel.class)
     })
     @GetMapping(value = "/translate/{uuid}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity translate(
@@ -154,11 +154,11 @@ public class TranslationRestEndpoint {
         if (logger.isDebugEnabled()) {
             logger.debug("Get translation according to uuid  {}", uuid);
         }
-        TranslationResult translation = translationService.getTranslation(uuid);
+        TranslationModel translation = translationService.getTranslation(uuid);
 
         if (translation == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new TranslationError("TranslationRestEndpoint.NotFound",
+                    new TranslationErrorModel("TranslationRestEndpoint.NotFound",
                             buildResponseErrorMessage("TranslationRestEndpoint.NotFound")));
         } else {
             if (logger.isInfoEnabled()) {

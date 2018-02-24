@@ -15,7 +15,7 @@
  */
 package alex.beta.onlinetranslation.services;
 
-import alex.beta.onlinetranslation.persistence.Translation;
+import alex.beta.onlinetranslation.persistence.TranslationEntity;
 import alex.beta.onlinetranslation.persistence.TranslationStatus;
 import alex.beta.onlinetranslation.services.impl.ConnectionManagerHolder;
 import org.slf4j.Logger;
@@ -25,6 +25,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 /**
@@ -49,25 +50,26 @@ public class TranslationScheduler {
      * Find and translate un-proceeded 5 (or less) requests
      * Execute once every 2 seconds
      */
-    @Async("translationJobExecutor")
+    @Async
+    @Transactional
     @Scheduled(fixedRate = 2000, initialDelay = 30000) // every 2 second, with initial delay 30 seconds
     public void executeTranslationJob() {
         if (connectionManagerHolder == null || connectionManagerHolder.getConnectionManager() == null) {
             return;
         }
         try {
-            List<Translation> requests = translationService.findRequestsToTranslate();
+            List<TranslationEntity> requests = translationService.findRequestsToTranslate();
             if (requests != null && !requests.isEmpty()) {
-                for (Translation request : requests) {
+                for (TranslationEntity request : requests) {
                     performTranslation(request);
                 }
             }
         } catch (Exception ex) {
-            logger.error("Failed to find first 5 unproceeded requests", ex);
+            logger.error("Failed to find first 5 un-proceeded requests", ex);
         }
     }
 
-    private void performTranslation(Translation request) {
+    private void performTranslation(TranslationEntity request) {
         try {
             request.setStatus(TranslationStatus.PROCESSING);
             request = translationService.updateTranslationRequest(request, 0);

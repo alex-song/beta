@@ -1,6 +1,6 @@
 /**
  * <p>
- * File Name: TranslationError.java
+ * File Name: TranslationErrorModel.java
  * </p>
  * <p>
  * Project:   beta
@@ -23,14 +23,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 
 /**
  * @author alexsong
  * @version ${project.version}
  */
-public class TranslationError implements Serializable {
-    private static final Logger logger = LoggerFactory.getLogger(TranslationError.class);
+public class TranslationErrorModel {
+    private static final Logger logger = LoggerFactory.getLogger(TranslationErrorModel.class);
 
     @JsonProperty("errorCode")
     @ApiModelProperty
@@ -41,11 +40,11 @@ public class TranslationError implements Serializable {
     @ApiModelProperty
     private String message;
 
-    public TranslationError(String errorCode) {
+    public TranslationErrorModel(String errorCode) {
         this.errorCode = errorCode;
     }
 
-    public TranslationError(String errorCode, String message) {
+    public TranslationErrorModel(String errorCode, String message) {
         this.errorCode = errorCode;
         this.message = message;
     }

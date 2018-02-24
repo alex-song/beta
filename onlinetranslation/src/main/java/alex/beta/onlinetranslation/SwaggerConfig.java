@@ -91,7 +91,7 @@ public class SwaggerConfig {
         return new ApiInfoBuilder()
                 .title(appName)
                 .description(appDescription)
-                .contact(new Contact("Online Translation", "https://songlp.ddns.net", "song_liping@hotmail.com"))
+                .contact(new Contact("Alex Online Translation", "https://songlp.ddns.net", "song_liping@hotmail.com"))
                 .version(profile + " " + appVersion)
                 .build();
     }

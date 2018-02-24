@@ -28,7 +28,7 @@ import springfox.documentation.spi.schema.contexts.ModelPropertyContext;
 /**
  * 因为Swagger UI上对Model的验证有问题，不接受allowEmptyValue，所以做了这个Plugin。
  * 当这个属性是false时（默认值），强制把这个属性置空，避免这个属性在meta里输出。
- *
+ * <p>
  * https://stackoverflow.com/questions/48379238/springfox-hide-allowemptyvalue-when-field-annotated-with-apimodelproperty
  *
  * @author alexsong

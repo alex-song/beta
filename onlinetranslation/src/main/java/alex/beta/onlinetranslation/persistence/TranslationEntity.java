@@ -1,6 +1,6 @@
 /**
  * <p>
- * File Name: Translation.java
+ * File Name: TranslationEntity.java
  * </p>
  * <p>
  * Project:   beta
@@ -15,11 +15,12 @@
  */
 package alex.beta.onlinetranslation.persistence;
 
+import com.google.gson.Gson;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author alexsong
@@ -28,7 +29,7 @@ import java.util.Date;
 @Entity
 @Table(name = "Translation",
         indexes = {@Index(columnList = "lastUpdatedOn"), @Index(columnList = "status, lastUpdatedOn")})
-public class Translation implements Serializable {
+public class TranslationEntity {
     public static final int TEXT_MAXLENGTH = 2048;
     public static final int TRANSLATED_TEXT_MAXLENGTH = 8192;
 
@@ -48,9 +49,6 @@ public class Translation implements Serializable {
     @Column(name = "text", length = TEXT_MAXLENGTH)
     private String text;
 
-    @Column(name = "translatedText", length = TRANSLATED_TEXT_MAXLENGTH)
-    private String translatedText;
-
     @Column(name = "fromLanguage", length = 8)
     private String fromLanguage;
 
@@ -63,11 +61,16 @@ public class Translation implements Serializable {
     @Column(name = "lastUpdatedOn")
     private Date lastUpdatedOn;
 
-    public Translation() {
+    @ElementCollection(targetClass = TranslationLineEntity.class, fetch = FetchType.LAZY)
+    @CollectionTable(name = "TranslationLine", joinColumns = {@JoinColumn(name = "translation_uuid")},
+            indexes = {@Index(columnList = "translation_uuid")})
+    private List<TranslationLineEntity> translationLines;
+
+    public TranslationEntity() {
         //default constructor
     }
 
-    public Translation(TranslationStatus status, String fromLanguage, String toLanguage, String text) {
+    public TranslationEntity(TranslationStatus status, String fromLanguage, String toLanguage, String text) {
         this.status = status;
         this.fromLanguage = fromLanguage;
         this.toLanguage = toLanguage;
@@ -109,14 +112,6 @@ public class Translation implements Serializable {
         this.text = text;
     }
 
-    public String getTranslatedText() {
-        return translatedText;
-    }
-
-    public void setTranslatedText(String translatedText) {
-        this.translatedText = translatedText;
-    }
-
     public String getFromLanguage() {
         return fromLanguage;
     }
@@ -149,28 +144,16 @@ public class Translation implements Serializable {
         this.lastUpdatedOn = lastUpdatedOn;
     }
 
+    public List<TranslationLineEntity> getTranslationLines() {
+        return translationLines;
+    }
+
+    public void setTranslationLines(List<TranslationLineEntity> translationLines) {
+        this.translationLines = translationLines;
+    }
+
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("{");
-        if (this.getUuid() != null)
-            sb.append("\"uuid\" : \"").append(this.getUuid()).append("\", ");
-        if (this.getStatus() != null)
-            sb.append("\"status\" : \"").append(this.getStatus()).append("\", ");
-        if (this.getMessage() != null)
-            sb.append("\"message\" : \"").append(this.getMessage()).append("\", ");
-        if (this.getText() != null)
-            sb.append("\"text\" : \"").append(this.getText()).append("\", ");
-        if (this.getFromLanguage() != null)
-            sb.append("\"fromLanguage\" : \"").append(this.getFromLanguage()).append("\", ");
-        if (this.getTranslatedText() != null)
-            sb.append("\"translatedText\" : \"").append(this.getTranslatedText()).append("\", ");
-        if (this.getToLanguage() != null)
-            sb.append("\"toLanguage\" : \"").append(this.getToLanguage()).append("\", ");
-        if (this.getCreatedOn() != null)
-            sb.append("\"createdOn\" : \"").append(this.getCreatedOn()).append("\", ");
-        if (this.getLastUpdatedOn() != null)
-            sb.append("\"lastUpdatedOn\" : \"").append(this.getLastUpdatedOn()).append("\"");
-        sb.append("}");
-        return sb.toString();
+        return new Gson().toJson(this);
     }
 }
