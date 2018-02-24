@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="false" scan="true" packagingData="true">
-    <contextName>onlinetranslation</contextName>
+    <!-- Specify log folder path on NAS -->
+    <property name="TOMCAT_LOGS_FOLDER" value="/volume1/@appstore/Tomcat7/src/logs" />
+    <property name="APP_NAME" value="onlinetranslation" />
+    <contextName>${APP_NAME}</contextName>
+
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>DEBUG</level>
@@ -13,10 +17,10 @@
 
     <appender name="OnlineTranslationFileLog"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <!-- Specify log file path on NAS -->
-        <file>/volume1/@appstore/Tomcat7/src/logs/onlinetranslation.log</file>
+        <file>${TOMCAT_LOGS_FOLDER}/${APP_NAME}.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>onlinetranslation.log.%d{yyyy-MM-dd}.zip</fileNamePattern>
+            <fileNamePattern>${TOMCAT_LOGS_FOLDER}/${APP_NAME}_%d{yyyy-MM-dd}.log.zip</fileNamePattern>
+            <maxHistory>7</maxHistory>
         </rollingPolicy>
 
         <encoder>

@@ -152,11 +152,18 @@ public class TranslationServiceImpl implements TranslationService {
         }
         List<TranslationEntity> requests = translationRepository.findFirst5ByStatusAndLastUpdatedOnLessThanOrderByLastUpdatedOnAsc(
                 TranslationStatus.SUBMITTED, filterDate);
-        if (logger.isInfoEnabled()) {
-            logger.info("Found {} un-proceeded translation request(s).", requests == null ? 0 : requests.size());
-        }
-        if (logger.isDebugEnabled() && requests != null && !requests.isEmpty()) {
-            logger.debug("To translate:\n{}", requests.stream().map(TranslationEntity::<String>getUuid).collect(Collectors.joining(System.lineSeparator())));
+        if (requests == null || requests.isEmpty()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Not found un-proceeded translation request.");
+            }
+        } else {
+            if (logger.isInfoEnabled()) {
+                logger.info("Found {} un-proceeded translation request(s).", requests.size());
+            }
+            if (logger.isDebugEnabled()) {
+                logger.debug("Request(s) to translate:\n{}",
+                        requests.stream().map(TranslationEntity::<String>getUuid).collect(Collectors.joining(System.lineSeparator())));
+            }
         }
         return requests;
     }
