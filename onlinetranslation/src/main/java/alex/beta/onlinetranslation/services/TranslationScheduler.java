@@ -21,6 +21,8 @@ import alex.beta.onlinetranslation.services.impl.ConnectionManagerHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -33,6 +35,7 @@ import java.util.List;
  * @version ${project.version}
  */
 @Component
+@ConditionalOnProperty(value = "TranslationJobConfiguration.enableTranslationJob", havingValue = "true")
 public class TranslationScheduler {
     private static final Logger logger = LoggerFactory.getLogger(TranslationScheduler.class);
 
@@ -40,20 +43,29 @@ public class TranslationScheduler {
 
     private ConnectionManagerHolder connectionManagerHolder;
 
+    @Value("${TranslationJobConfiguration.enableTranslationJob:true}")
+    private boolean enableTranslationJob;
+
     @Autowired
     public TranslationScheduler(TranslationService translationService, ConnectionManagerHolder connectionManagerHolder) {
         this.translationService = translationService;
         this.connectionManagerHolder = connectionManagerHolder;
+        if (logger.isWarnEnabled()) {
+            logger.warn("Translation job is enabled.");
+        }
     }
 
     /**
-     * Find and translate un-proceeded 5 (or less) requests
+     * Find and translate un-proceeded 3 (or less) requests
      * Execute once every 2 seconds
      */
     @Async
     @Transactional
     @Scheduled(fixedRate = 2000, initialDelay = 30000) // every 2 second, with initial delay 30 seconds
     public void executeTranslationJob() {
+        if (!enableTranslationJob) {
+            return;
+        }
         if (connectionManagerHolder == null || connectionManagerHolder.getConnectionManager() == null) {
             return;
         }
@@ -65,7 +77,7 @@ public class TranslationScheduler {
                 }
             }
         } catch (Exception ex) {
-            logger.error("Failed to find first 5 un-proceeded requests", ex);
+            logger.error("Failed to find un-proceeded request.", ex);
         }
     }
 
@@ -76,7 +88,7 @@ public class TranslationScheduler {
 
             translationService.performTranslation(request);
         } catch (Exception ex) {//this should not happen
-            logger.error("Unexpected error when initiating async job for request {}", request.getUuid(), ex);
+            logger.error("Unexpected error when initiating async job for request {}.", request.getUuid(), ex);
             //continue processing next request
         }
     }

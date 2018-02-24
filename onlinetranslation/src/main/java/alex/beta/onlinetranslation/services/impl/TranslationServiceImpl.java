@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -150,7 +149,7 @@ public class TranslationServiceImpl implements TranslationService {
         if (logger.isDebugEnabled()) {
             logger.debug("To find un-proceeded requests before {}.", filterDate);
         }
-        List<TranslationEntity> requests = translationRepository.findFirst5ByStatusAndLastUpdatedOnLessThanOrderByLastUpdatedOnAsc(
+        List<TranslationEntity> requests = translationRepository.findFirst3ByStatusAndLastUpdatedOnLessThanOrderByLastUpdatedOnAsc(
                 TranslationStatus.SUBMITTED, filterDate);
         if (requests == null || requests.isEmpty()) {
             if (logger.isDebugEnabled()) {
@@ -312,7 +311,6 @@ public class TranslationServiceImpl implements TranslationService {
     @Override
     @Transactional
     @Async("housekeepingJobExecutor")
-    @Scheduled(fixedRate = 12 * 60 * 60 * 1000, initialDelay = 25000) // every 12 hours, with initial delay 25 seconds
     public void performHousekeeping() {
         if (logger.isDebugEnabled()) {
             logger.debug("To start housekeeping job.");

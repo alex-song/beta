@@ -20,4 +20,5 @@ logging:
     alex: DEBUG
 
 TranslationJobConfiguration:
-  numOfThreads: 2
+  enableTranslationJob: false
+  enableHousekeepingJob: false

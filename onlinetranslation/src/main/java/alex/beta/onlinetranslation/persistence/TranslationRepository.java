@@ -25,5 +25,5 @@ import java.util.List;
  * @version ${project.version}
  */
 public interface TranslationRepository extends JpaRepository<TranslationEntity, String> {
-    List<TranslationEntity> findFirst5ByStatusAndLastUpdatedOnLessThanOrderByLastUpdatedOnAsc(TranslationStatus status, Date beforeDate);
+    List<TranslationEntity> findFirst3ByStatusAndLastUpdatedOnLessThanOrderByLastUpdatedOnAsc(TranslationStatus status, Date beforeDate);
 }

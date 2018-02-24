@@ -55,7 +55,7 @@ public interface TranslationService {
     TranslationModel getTranslation(String uuid);
 
     /**
-     * Find top 5 requests to translate, whose timestamp(lastUpdatedOn) before current time
+     * Find top 3 requests to translate, whose timestamp(lastUpdatedOn) before current time
      *
      * @return
      */
@@ -70,7 +70,6 @@ public interface TranslationService {
 
     /**
      * Remove translation request, which is older than 24 hours
-     * Execute once every 12 hours
      */
     void performHousekeeping();
 }
