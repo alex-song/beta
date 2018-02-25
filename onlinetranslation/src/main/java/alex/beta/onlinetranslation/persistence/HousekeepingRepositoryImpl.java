@@ -42,6 +42,9 @@ public class HousekeepingRepositoryImpl implements HousekeepingRepository {
     @Override
     @Transactional
     public int removeExpiredTranslationRequests(long timestamp) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Before {}.", timestamp);
+        }
         String deleteRequestsSql = "delete from Translation tsl where tsl.last_Updated_On < :lastUpdatedOn";
         Date date = new Date(timestamp);
         int deleteCount = entityManager.createNativeQuery(deleteRequestsSql).

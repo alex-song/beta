@@ -49,8 +49,8 @@ public class HousekeepingScheduler {
     /**
      * Trigger housekeeping job, every 12 hours, with initial delay 25 seconds
      */
-    @Async
-    @Scheduled(fixedRate = 12 * 60 * 60 * 1000, initialDelay = 25000)
+    @Async("housekeepingJobExecutor")
+    @Scheduled(fixedRate = 12 * 60 * 60 * 1000L, initialDelay = 25000L)
     public void executeHousekeepingJob() {
         if (!enableHousekeepingJob) {
             return;

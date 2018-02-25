@@ -17,8 +17,10 @@ package alex.beta.onlinetranslation.services;
 
 import alex.beta.onlinetranslation.Application;
 import alex.beta.onlinetranslation.models.TranslationModel;
+import alex.beta.onlinetranslation.persistence.HousekeepingRepository;
 import alex.beta.onlinetranslation.persistence.TranslationEntity;
 import alex.beta.onlinetranslation.persistence.TranslationRepository;
+import alex.beta.onlinetranslation.persistence.TranslationStatus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,6 +56,9 @@ public class TranslationServiceTest {
 
     @Autowired
     private TranslationRepository translationRepository;
+
+    @Autowired
+    private HousekeepingRepository housekeepingRepository;
 
     @Autowired
     private EntityManager entityManager;
@@ -117,7 +122,39 @@ public class TranslationServiceTest {
     }
 
     @Test
-    public void testPerformHousekeeping() {
-        //TODO
+    @Rollback
+    public void testPerformHousekeeping() throws Exception {
+        TranslationModel tm1 = translationService.submit("auto", "zh", "hello1");
+        TranslationModel tm2 = translationService.submit("auto", "zh", "hello2");
+        TranslationModel tm3 = translationService.submit("auto", "zh", "hello3");
+        TranslationModel tm4 = translationService.submit("auto", "zh", "hello4");
+        TranslationModel tm5 = translationService.submit("auto", "zh", "hello5");
+
+        TranslationEntity te2 = new TranslationEntity(tm2.getUuid());
+        te2.setLastUpdatedOn(new Date(System.currentTimeMillis() - 25 * 60 * 60 * 1000L));
+        te2 = translationService.updateTranslationRequest(te2);
+        assertTrue(System.currentTimeMillis() > te2.getLastUpdatedOn().getTime());
+
+        TranslationEntity te3 = new TranslationEntity(tm3.getUuid());
+        te3.setLastUpdatedOn(new Date(System.currentTimeMillis() - 15 * 60 * 60 * 1000L));
+        te3 = translationService.updateTranslationRequest(te3);
+        assertTrue(System.currentTimeMillis() > te3.getLastUpdatedOn().getTime());
+        assertTrue(System.currentTimeMillis() - 12 * 60 * 60 * 1000L > te3.getLastUpdatedOn().getTime());
+
+        TranslationEntity te4 = new TranslationEntity(tm4.getUuid());
+        Date oldDate = tm4.getLastUpdatedOn();
+        te4.setLastUpdatedOn(null);
+        te4.setStatus(TranslationStatus.ERROR);
+        te4 = translationService.updateTranslationRequest(te4);
+        assertTrue(te4.getLastUpdatedOn().after(oldDate));
+
+        TranslationEntity te5 = new TranslationEntity(tm5.getUuid());
+        te5.setLastUpdatedOn(new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000L - 1L));
+        te5.setStatus(TranslationStatus.READY);
+        te5 = translationService.updateTranslationRequest(te5);
+
+        translationService.performHousekeeping();
+        Number result = (Number) entityManager.createNativeQuery("select count(uuid) from translation").getSingleResult();
+        assertEquals(3, result.intValue());
     }
 }

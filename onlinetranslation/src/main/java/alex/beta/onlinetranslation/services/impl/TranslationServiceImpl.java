@@ -174,12 +174,11 @@ public class TranslationServiceImpl implements TranslationService {
 
     @Override
     @Transactional
-    @Async("housekeepingJobExecutor")
     public void performHousekeeping() {
         if (logger.isDebugEnabled()) {
             logger.debug("To start housekeeping job.");
         }
-        int deleteCount = housekeepingRepository.removeExpiredTranslationRequests(System.currentTimeMillis() - 24 * 60 * 60 * 1000);
+        int deleteCount = housekeepingRepository.removeExpiredTranslationRequests(System.currentTimeMillis() - 24 * 60 * 60 * 1000L);
         if (logger.isInfoEnabled()) {
             logger.info("Housekeeping deleted {} requests.", deleteCount);
         }
