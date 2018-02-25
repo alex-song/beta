@@ -48,5 +48,6 @@ info:
     version: 0.0.1
 
 TranslationJobConfiguration:
+  numOfThreads: 2
   enableTranslationJob: true
   enableHousekeepingJob: true

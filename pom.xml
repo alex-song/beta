@@ -45,7 +45,6 @@
 		<httpclient_version>4.5.5</httpclient_version>
 
 		<!-- build parameters -->
-        <skip.unit.tests>false</skip.unit.tests>
 		<test.failure.ignore>false</test.failure.ignore>
     </properties>
 
@@ -79,6 +78,14 @@
                 <configuration>
                     <!-- 指定编码格式，否则在DOS下运行mvn命令时当发生文件资源copy时将使用系统默认使用GBK编码 -->
                     <encoding>${compiler_encoding}</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin_version}</version>
+                <configuration>
+                    <testFailureIgnore>${test.failure.ignore}</testFailureIgnore>
                 </configuration>
             </plugin>
         </plugins>
@@ -164,7 +171,6 @@
 							</systemPropertyVariables>
 							<argLine>${argLine}</argLine>
 							<testFailureIgnore>${test.failure.ignore}</testFailureIgnore>
-							<skipTests>${skip.unit.tests}</skipTests>
 						</configuration>
 					</plugin>
 					<plugin>

@@ -149,16 +149,11 @@
 
     <build>
         <plugins>
-            <!--<plugin>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-maven-plugin</artifactId>-->
-            <!--<version>${spring-boot_version}</version>-->
-            <!--</plugin>-->
-            <!--<plugin>-->
-            <!--<groupId>org.apache.maven.plugins</groupId>-->
-            <!--<artifactId>maven-deploy-plugin</artifactId>-->
-            <!--<version>${maven-deploy-plugin_version}</version>-->
-            <!--</plugin>-->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot_version}</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -178,7 +173,7 @@
                 <filtering>true</filtering>
                 <includes>
                     <include>application.yml</include>
-                    <include>application-${profileActive}.yml</include>
+                    <include>application-*.yml</include>
                 </includes>
             </resource>
         </resources>

@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
@@ -39,6 +40,7 @@ public class TranslationJobConfiguration {
     private int numOfThreads;
 
     @Bean(name = "translationJobExecutor")
+    @ConditionalOnProperty(value = "TranslationJobConfiguration.enableTranslationJob", havingValue = "true")
     public AsyncTaskExecutor translationJobExecutor() {
         if (logger.isInfoEnabled()) {
             logger.info("Initiate ThreadPoolTaskExecutor for translation, poolSize : {}, queueCapacity : {}",
@@ -55,6 +57,7 @@ public class TranslationJobConfiguration {
     }
 
     @Bean(name = "housekeepingJobExecutor")
+    @ConditionalOnProperty(value = "TranslationJobConfiguration.enableHousekeepingJob", havingValue = "true")
     public AsyncTaskExecutor housekeepingJobExecutor() {
         if (logger.isInfoEnabled()) {
             logger.info("Initiate ThreadPoolTaskExecutor for housekeeping");

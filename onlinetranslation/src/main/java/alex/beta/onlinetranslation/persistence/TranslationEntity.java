@@ -70,6 +70,10 @@ public class TranslationEntity {
         //default constructor
     }
 
+    public TranslationEntity(String uuid) {
+        this.uuid = uuid;
+    }
+
     public TranslationEntity(TranslationStatus status, String fromLanguage, String toLanguage, String text) {
         this.status = status;
         this.fromLanguage = fromLanguage;

@@ -127,7 +127,7 @@ public class TranslationServiceImpl implements TranslationService {
                 lines.add(new TranslationLineEntity(line.getSrc(), line.getDst()));
             }
             persistedT.setTranslationLines(lines);
-        } else {
+        } else if (request.getTranslationLines() != null) {
             persistedT.setTranslationLines(null);
         }
         persistedT.setLastUpdatedOn(new Date(System.currentTimeMillis() + delay));
