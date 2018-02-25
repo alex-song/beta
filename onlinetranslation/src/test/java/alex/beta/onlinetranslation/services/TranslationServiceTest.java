@@ -32,6 +32,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
+import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -97,7 +98,9 @@ public class TranslationServiceTest {
         TranslationModel tm4 = translationService.submit("auto", "zh", "hello4");
         TranslationModel tm5 = translationService.submit("auto", "zh", "hello5");
 
-        TranslationEntity te2 = translationService.updateTranslationRequest(new TranslationEntity(tm2.getUuid()), 30 * 1000L);
+        TranslationEntity te2 = new TranslationEntity(tm2.getUuid());
+        te2.setLastUpdatedOn(new Date(System.currentTimeMillis() + 30 * 1000L));
+        te2 = translationService.updateTranslationRequest(te2);
         assertEquals("hello2", te2.getText());
         assertTrue(te2.getLastUpdatedOn().getTime() > System.currentTimeMillis());
 

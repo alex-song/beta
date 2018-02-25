@@ -40,11 +40,10 @@ public interface TranslationService {
      * <p>
      * For application internal use only
      *
-     * @param request
-     * @param delay   lastUpdatedOn = current timestamp + delay (in ms)
+     * @param request Set current datetime as the lastUpdatedOn, if the value is null in the input request
      * @return
      */
-    TranslationEntity updateTranslationRequest(TranslationEntity request, long delay);
+    TranslationEntity updateTranslationRequest(TranslationEntity request);
 
     /**
      * Get translation result according to given uuid
@@ -62,7 +61,7 @@ public interface TranslationService {
     List<TranslationEntity> findRequestsToTranslate();
 
     /**
-     * Perform translation using Baidu fanyi API
+     * Perform translation. Overwrite the lastUpdatedOn automatically.
      *
      * @param request
      */

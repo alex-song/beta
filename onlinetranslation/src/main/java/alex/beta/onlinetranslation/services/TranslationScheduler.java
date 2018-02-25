@@ -84,7 +84,8 @@ public class TranslationScheduler {
     private void performTranslation(TranslationEntity request) {
         try {
             request.setStatus(TranslationStatus.PROCESSING);
-            request = translationService.updateTranslationRequest(request, 0);
+            request.setLastUpdatedOn(null);
+            request = translationService.updateTranslationRequest(request);
 
             translationService.performTranslation(request);
         } catch (Exception ex) {//this should not happen
