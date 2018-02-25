@@ -87,7 +87,7 @@ public class TranslationScheduler {
             request.setLastUpdatedOn(null);
             request = translationService.updateTranslationRequest(request);
 
-            translationService.performTranslation(request);
+            translationService.asyncPerformTranslation(request);
         } catch (Exception ex) {//this should not happen
             logger.error("Unexpected error when initiating async job for request {}.", request.getUuid(), ex);
             //continue processing next request

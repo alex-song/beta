@@ -61,11 +61,20 @@ public interface TranslationService {
     List<TranslationEntity> findRequestsToTranslate();
 
     /**
-     * Perform translation. Overwrite the lastUpdatedOn automatically.
+     * Perform translation asynchronized. Overwrite the lastUpdatedOn automatically.
+     * This method returns immediately after sending the request, and client needs to call {@link TranslationService#getTranslation(String)} to get the result late.
      *
      * @param request
      */
-    void performTranslation(TranslationEntity request);
+    void asyncPerformTranslation(TranslationEntity request);
+
+    /**
+     * Perform translation and return the result. Overwrite the lastUpdatedOn automatically.
+     *
+     * @param request
+     * @return
+     */
+    TranslationEntity performTranslation(TranslationEntity request);
 
     /**
      * Remove translation request, which is older than 24 hours

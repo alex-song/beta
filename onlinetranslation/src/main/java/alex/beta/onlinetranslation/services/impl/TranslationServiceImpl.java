@@ -156,20 +156,28 @@ public class TranslationServiceImpl implements TranslationService {
     @Override
     @Transactional
     @Async("translationJobExecutor")
-    public void performTranslation(TranslationEntity request) {
+    public void asyncPerformTranslation(TranslationEntity request) {
+        performTranslation(request);
+    }
+
+    @Override
+    @Transactional
+    public TranslationEntity performTranslation(TranslationEntity request) {
         Objects.requireNonNull(request);
 
         //Overwrite previous lastUpdatedOn
         request.setLastUpdatedOn(null);
         //Call Baidu API and parse the response
         request = apiConnector.translate(request);
+
         if (logger.isDebugEnabled()) {
             logger.debug("Updating translation request {}.", request.getUuid());
         }
-        updateTranslationRequest(request);
+        TranslationEntity te = updateTranslationRequest(request);
         if (logger.isInfoEnabled()) {
-            logger.info("Translation request {} has updated.", request.getUuid());
+            logger.info("Translation request {} has updated.", te.getUuid());
         }
+        return te;
     }
 
     @Override
