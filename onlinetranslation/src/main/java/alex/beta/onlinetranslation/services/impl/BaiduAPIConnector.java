@@ -90,33 +90,9 @@ public class BaiduAPIConnector {
             return request;
         }
         //开始调用翻译API
-        CloseableHttpClient httpclient = null;
-        CloseableHttpResponse response = null;
-        String body = null;
+        String body;
         try {
-            httpclient = HttpClients.custom().setConnectionManager(connectionManagerHolder.getConnectionManager())
-                    .setConnectionManagerShared(true).build();
-            HttpPost httpPost = new HttpPost("https://api.fanyi.baidu.com/api/trans/vip/translate");
-            List<NameValuePair> nvps = new ArrayList<>();
-            nvps.add(new BasicNameValuePair("q", request.getText()));
-            nvps.add(new BasicNameValuePair("from", "auto"));
-            nvps.add(new BasicNameValuePair("to", request.getToLanguage()));
-            nvps.add(new BasicNameValuePair("appid", appid));
-            String salt = String.valueOf(System.currentTimeMillis());
-            nvps.add(new BasicNameValuePair("salt", salt));
-            nvps.add(new BasicNameValuePair("sign",
-                    BaiduMD5.md5(appid + request.getText() + salt + securityKey)));
-            httpPost.setEntity(new UrlEncodedFormEntity(nvps, "UTF-8"));
-            response = httpclient.execute(httpPost);
-            HttpEntity entity = response.getEntity();
-            if (entity != null) {
-                //按指定编码转换结果实体为String类型
-                body = EntityUtils.toString(entity, "UTF-8");
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Response from Baidu Fanyi, status code : {}, body : {}", response.getStatusLine().getStatusCode(), body);
-                }
-            }
-            EntityUtils.consume(entity);
+            body = callBaiduAPI(request);
         } catch (SocketTimeoutException ex) {
             logger.error("Timeout to translate request {}.", request.getUuid(), ex);
             request.setStatus(TranslationStatus.TIMEOUT);
@@ -129,18 +105,6 @@ public class BaiduAPIConnector {
             request.setMessage(ex.getMessage() != null && ex.getMessage().length() > 250 ?
                     ex.getMessage().substring(0, 250) : ex.getMessage());
             return request;
-        } finally {
-            //释放链接
-            try {
-                if (response != null) {
-                    response.close();
-                }
-                if (httpclient != null) {
-                    httpclient.close();
-                }
-            } catch (IOException ex) {
-                logger.warn("Failed to close HttpResponse.", ex);
-            }
         }
         //百度API处理结束
         //开始处理返回结果
@@ -213,5 +177,56 @@ public class BaiduAPIConnector {
             logger.info("Translated request {} using Baidu API.", request.getUuid());
         }
         return request;
+    }
+
+    /**
+     * 这个方法依赖百度的翻译API，不具有任何迁移的可能。暂时没有集成测试验证和支持。
+     *
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    public String callBaiduAPI(TranslationEntity request) throws IOException {
+        String body = null;
+        CloseableHttpClient httpclient = null;
+        CloseableHttpResponse response = null;
+        try {
+            httpclient = HttpClients.custom().setConnectionManager(connectionManagerHolder.getConnectionManager())
+                    .setConnectionManagerShared(true).build();
+            HttpPost httpPost = new HttpPost("https://api.fanyi.baidu.com/api/trans/vip/translate");
+            List<NameValuePair> nvps = new ArrayList<>();
+            nvps.add(new BasicNameValuePair("q", request.getText()));
+            nvps.add(new BasicNameValuePair("from", "auto"));
+            nvps.add(new BasicNameValuePair("to", request.getToLanguage()));
+            nvps.add(new BasicNameValuePair("appid", appid));
+            String salt = String.valueOf(System.currentTimeMillis());
+            nvps.add(new BasicNameValuePair("salt", salt));
+            nvps.add(new BasicNameValuePair("sign",
+                    BaiduMD5.md5(appid + request.getText() + salt + securityKey)));
+            httpPost.setEntity(new UrlEncodedFormEntity(nvps, "UTF-8"));
+            response = httpclient.execute(httpPost);
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                //按指定编码转换结果实体为String类型
+                body = EntityUtils.toString(entity, "UTF-8");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Response from Baidu Fanyi, status code : {}, body : {}", response.getStatusLine().getStatusCode(), body);
+                }
+            }
+            EntityUtils.consume(entity);
+            return body;
+        } finally {
+            //释放链接
+            try {
+                if (response != null) {
+                    response.close();
+                }
+                if (httpclient != null) {
+                    httpclient.close();
+                }
+            } catch (IOException ex) {
+                logger.warn("Failed to close HttpResponse.", ex);
+            }
+        }
     }
 }

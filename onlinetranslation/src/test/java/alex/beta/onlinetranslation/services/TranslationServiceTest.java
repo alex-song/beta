@@ -15,29 +15,32 @@
  */
 package alex.beta.onlinetranslation.services;
 
-import alex.beta.onlinetranslation.Application;
+import alex.beta.onlinetranslation.AbstractOnlineTranslationServerTest;
 import alex.beta.onlinetranslation.models.TranslationModel;
-import alex.beta.onlinetranslation.persistence.HousekeepingRepository;
 import alex.beta.onlinetranslation.persistence.TranslationEntity;
-import alex.beta.onlinetranslation.persistence.TranslationRepository;
+import alex.beta.onlinetranslation.persistence.TranslationLineEntity;
 import alex.beta.onlinetranslation.persistence.TranslationStatus;
+import alex.beta.onlinetranslation.services.impl.BaiduAPIConnector;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Matchers;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 
 
 /**
@@ -45,20 +48,16 @@ import static org.junit.Assert.*;
  * @version ${project.version}
  */
 
-@ActiveProfiles("test")
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = Application.class)
 @EnableAutoConfiguration
 @Transactional
-public class TranslationServiceTest {
+public class TranslationServiceTest extends AbstractOnlineTranslationServerTest {
+
     @Autowired
+    @InjectMocks
     private TranslationService translationService;
 
-    @Autowired
-    private TranslationRepository translationRepository;
-
-    @Autowired
-    private HousekeepingRepository housekeepingRepository;
+    @MockBean
+    private BaiduAPIConnector apiConnector;
 
     @Autowired
     private EntityManager entityManager;
@@ -68,6 +67,8 @@ public class TranslationServiceTest {
         //Make sure the database is clean before each test case
         Number result = (Number) entityManager.createNativeQuery("select count(uuid) from translation").getSingleResult();
         assertEquals(0, result.intValue());
+        //init mocks
+        MockitoAnnotations.initMocks(this);
     }
 
     @After
@@ -123,7 +124,7 @@ public class TranslationServiceTest {
 
     @Test
     @Rollback
-    public void testPerformHousekeeping() throws Exception {
+    public void testPerformHousekeeping() {
         TranslationModel tm1 = translationService.submit("auto", "zh", "hello1");
         TranslationModel tm2 = translationService.submit("auto", "zh", "hello2");
         TranslationModel tm3 = translationService.submit("auto", "zh", "hello3");
@@ -156,5 +157,65 @@ public class TranslationServiceTest {
         translationService.performHousekeeping();
         Number result = (Number) entityManager.createNativeQuery("select count(uuid) from translation").getSingleResult();
         assertEquals(3, result.intValue());
+    }
+
+    @Test
+    @Rollback
+    public void testPerformTranslation() {
+        //create a new request
+        TranslationModel source = translationService.submit("auto", "zh", "hello");
+        assertEquals(TranslationStatus.SUBMITTED, source.getStatus());
+        assertNotNull(source.getUuid());
+        assertNotNull(source.getLastUpdatedOn());
+        long timestamp = source.getLastUpdatedOn().getTime();
+
+        //populate test data
+        TranslationEntity input = new TranslationEntity(source.getUuid());
+        input.setText("hello");
+        input.setToLanguage("zh");
+        input.setFromLanguage("auto");
+        input.setStatus(TranslationStatus.SUBMITTED);
+        input.setCreatedOn(source.getCreatedOn());
+        input.setLastUpdatedOn(source.getLastUpdatedOn());
+        assertNotNull(input.getCreatedOn());
+
+        TranslationEntity output = new TranslationEntity(source.getUuid());
+        output.setText("hello");
+        output.setToLanguage("zh");
+        output.setFromLanguage("en");
+        output.setStatus(TranslationStatus.READY);
+        output.setCreatedOn(source.getCreatedOn());
+        List<TranslationLineEntity> tle = new ArrayList<>();
+        tle.add(new TranslationLineEntity("hello", "\u4f60\u597d"));
+        output.setTranslationLines(tle);
+
+        //mock api method
+        doReturn(output).when(apiConnector).translate(Matchers.any(TranslationEntity.class));
+
+        //perform translation
+        translationService.performTranslation(input);
+
+        //verify the mock method is called
+        verify(apiConnector).translate(Matchers.any(TranslationEntity.class));
+
+        //get result from database
+        TranslationModel result = translationService.getTranslation(source.getUuid());
+
+        //verify result
+        assertEquals(source.getUuid(), result.getUuid());
+        assertEquals(source.getCreatedOn(), result.getCreatedOn());
+        assertEquals(source.getText(), result.getText());
+        assertEquals("en", result.getFromLanguage());
+        assertEquals(TranslationStatus.READY, result.getStatus());
+        assertNotNull(result.getTranslationLines());
+        assertEquals(1, result.getTranslationLines().size());
+        assertEquals("你好", result.getTranslationLines().get(0).getDst());
+        assertTrue(result.getLastUpdatedOn().getTime() > timestamp);
+    }
+
+    @Test
+    @Rollback
+    public void testUpdateTranslationRequest() {
+        //TODO
     }
 }
