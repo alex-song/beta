@@ -24,9 +24,7 @@ import alex.beta.onlinetranslation.services.impl.BaiduAPIConnector;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Matchers;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -53,7 +51,6 @@ import static org.mockito.Mockito.verify;
 public class TranslationServiceTest extends AbstractOnlineTranslationServerTest {
 
     @Autowired
-    @InjectMocks
     private TranslationService translationService;
 
     @MockBean
@@ -67,8 +64,6 @@ public class TranslationServiceTest extends AbstractOnlineTranslationServerTest 
         //Make sure the database is clean before each test case
         Number result = (Number) entityManager.createNativeQuery("select count(uuid) from translation").getSingleResult();
         assertEquals(0, result.intValue());
-        //init mocks
-        MockitoAnnotations.initMocks(this);
     }
 
     @After
