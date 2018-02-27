@@ -33,13 +33,13 @@ import org.springframework.stereotype.Component;
 public class HousekeepingScheduler {
     private static final Logger logger = LoggerFactory.getLogger(HousekeepingScheduler.class);
 
-    private TranslationService translationService;
+    private InternalTranslationService translationService;
 
     @Value("${TranslationJobConfiguration.enableHousekeepingJob:true}")
     private boolean enableHousekeepingJob;
 
     @Autowired
-    public HousekeepingScheduler(TranslationService translationService) {
+    public HousekeepingScheduler(InternalTranslationService translationService) {
         this.translationService = translationService;
         if (logger.isWarnEnabled()) {
             logger.warn("Housekeeping job is enabled.");

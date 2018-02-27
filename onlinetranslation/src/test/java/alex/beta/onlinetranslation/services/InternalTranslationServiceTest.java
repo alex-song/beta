@@ -1,6 +1,6 @@
 /**
  * <p>
- * File Name: TranslationServiceTest.java
+ * File Name: InternalTranslationServiceTest.java
  * </p>
  * <p>
  * Project:   beta
@@ -33,6 +33,7 @@ import org.springframework.test.annotation.Rollback;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -48,10 +49,10 @@ import static org.mockito.Mockito.verify;
 
 @EnableAutoConfiguration
 @Transactional
-public class TranslationServiceTest extends AbstractOnlineTranslationServerTest {
+public class InternalTranslationServiceTest extends AbstractOnlineTranslationServerTest {
 
     @Autowired
-    private TranslationService translationService;
+    private InternalTranslationService translationService;
 
     @MockBean
     private BaiduAPIConnector apiConnector;
@@ -62,12 +63,15 @@ public class TranslationServiceTest extends AbstractOnlineTranslationServerTest 
     @Before
     public void setUp() {
         //Make sure the database is clean before each test case
-        Number result = (Number) entityManager.createNativeQuery("select count(uuid) from translation").getSingleResult();
-        assertEquals(0, result.intValue());
+        assertEquals(0, howManyRequestsNow());
     }
 
     @After
     public void tearDown() {
+    }
+
+    private int howManyRequestsNow() {
+        return ((Number) entityManager.createNativeQuery("SELECT count(uuid) FROM translation").getSingleResult()).intValue();
     }
 
     @Test
@@ -82,7 +86,7 @@ public class TranslationServiceTest extends AbstractOnlineTranslationServerTest 
         assertNotNull(tm3.getUuid());
 
 
-        List result = entityManager.createNativeQuery("select uuid from translation order by created_on ASC").getResultList();
+        List result = entityManager.createNativeQuery("SELECT uuid FROM translation ORDER BY created_on ASC").getResultList();
         assertEquals(3, result.size());
 
         assertEquals(tm1.getUuid(), result.get(0));
@@ -104,9 +108,7 @@ public class TranslationServiceTest extends AbstractOnlineTranslationServerTest 
         te2 = translationService.updateTranslationRequest(te2);
         assertEquals("hello2", te2.getText());
         assertTrue(te2.getLastUpdatedOn().getTime() > System.currentTimeMillis());
-
-        Number result = (Number) entityManager.createNativeQuery("select count(uuid) from translation").getSingleResult();
-        assertEquals(5, result.intValue());
+        assertEquals(5, howManyRequestsNow());
 
         List<TranslationEntity> tes = translationService.findRequestsToTranslate();
 
@@ -147,11 +149,13 @@ public class TranslationServiceTest extends AbstractOnlineTranslationServerTest 
         TranslationEntity te5 = new TranslationEntity(tm5.getUuid());
         te5.setLastUpdatedOn(new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000L - 1L));
         te5.setStatus(TranslationStatus.READY);
+        List<TranslationLineEntity> tles = new ArrayList<>();
+        tles.add(new TranslationLineEntity("hello5", "你好5"));
+        te5.setTranslationLines(tles);
         te5 = translationService.updateTranslationRequest(te5);
 
         translationService.performHousekeeping();
-        Number result = (Number) entityManager.createNativeQuery("select count(uuid) from translation").getSingleResult();
-        assertEquals(3, result.intValue());
+        assertEquals(3, howManyRequestsNow());
     }
 
     @Test
@@ -210,7 +214,80 @@ public class TranslationServiceTest extends AbstractOnlineTranslationServerTest 
 
     @Test
     @Rollback
-    public void testUpdateTranslationRequest() {
-        //TODO
+    public void testUpdateTranslationRequestNull() {
+        TranslationModel source1 = translationService.submit("auto", "zh", "hello");
+        long timestamp = source1.getLastUpdatedOn().getTime();
+
+        assertNotNull(source1);
+        assertNotNull(source1.getUuid());
+
+        //测试null的情况
+        TranslationEntity input1 = new TranslationEntity(source1.getUuid());
+        input1.setText("hello");
+        input1.setToLanguage("zh");
+        input1.setFromLanguage("auto");
+        input1.setStatus(TranslationStatus.SUBMITTED);
+        input1.setCreatedOn(source1.getCreatedOn());
+        input1.setLastUpdatedOn(null);
+        input1.setMessage("abc");
+        List<TranslationLineEntity> tls = new ArrayList<>();
+        tls.add(new TranslationLineEntity("hello", "你好"));
+        input1.setTranslationLines(tls);
+        input1 = translationService.updateTranslationRequest(input1);
+        long timestamp2 = input1.getLastUpdatedOn().getTime();
+
+        assertTrue(input1.getLastUpdatedOn().getTime() > timestamp);
+
+        TranslationEntity input2 = new TranslationEntity(input1.getUuid());
+        input2.setMessage(null);//null字符串
+        input2.setTranslationLines(null);//null翻译
+        input2.setLastUpdatedOn(null);//null时间戳
+        input2 = translationService.updateTranslationRequest(input2);
+
+        assertEquals("hello", input2.getText());
+        assertEquals("abc", input2.getMessage());
+        assertNotNull(input2.getTranslationLines());
+        assertEquals(1, input2.getTranslationLines().size());
+        assertEquals("hello", input2.getTranslationLines().get(0).getSrc());
+        assertEquals("你好", input2.getTranslationLines().get(0).getDst());
+        assertTrue(input2.getLastUpdatedOn().getTime() > timestamp2);
+    }
+
+    @Test
+    @Rollback
+    public void testUpdateTranslationRequestNotNull() {
+        TranslationModel source1 = translationService.submit("auto", "zh", "hello");
+        long timestamp = source1.getLastUpdatedOn().getTime();
+
+        assertNotNull(source1);
+        assertNotNull(source1.getUuid());
+
+        //测试not null的情况
+        TranslationEntity input1 = new TranslationEntity(source1.getUuid());
+        input1.setText("hello");
+        input1.setToLanguage("zh");
+        input1.setFromLanguage("auto");
+        input1.setStatus(TranslationStatus.SUBMITTED);
+        input1.setCreatedOn(source1.getCreatedOn());
+        input1.setLastUpdatedOn(null);
+        input1.setMessage("abc");
+        List<TranslationLineEntity> tls = new ArrayList<>();
+        tls.add(new TranslationLineEntity("hello", "你好"));
+        input1.setTranslationLines(tls);
+        input1 = translationService.updateTranslationRequest(input1);
+        long timestamp2 = input1.getLastUpdatedOn().getTime();
+
+        assertTrue(input1.getLastUpdatedOn().getTime() > timestamp);
+
+        TranslationEntity input2 = new TranslationEntity(input1.getUuid());
+        input2.setMessage("def");//not null字符串
+        input2.setTranslationLines(Collections.<TranslationLineEntity>emptyList());//not null翻译
+        input2.setLastUpdatedOn(new Date(timestamp2 - 60 * 60 * 1000L));//1 hour ago
+        input2 = translationService.updateTranslationRequest(input2);
+
+        assertEquals("hello", input2.getText());
+        assertEquals("def", input2.getMessage());
+        assertNull(input2.getTranslationLines());
+        assertEquals(timestamp2 - 60 * 60 * 1000L, input2.getLastUpdatedOn().getTime());
     }
 }

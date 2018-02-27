@@ -45,9 +45,16 @@ public class HousekeepingRepositoryImpl implements HousekeepingRepository {
         if (logger.isDebugEnabled()) {
             logger.debug("Before {}.", timestamp);
         }
-        String deleteRequestsSql = "delete from Translation tsl where tsl.last_Updated_On < :lastUpdatedOn";
         Date date = new Date(timestamp);
-        int deleteCount = entityManager.createNativeQuery(deleteRequestsSql).
+        String deleteTranslationLinesSql = "DELETE FROM Translation_Line WHERE translation_uuid IN (SELECT t.uuid FROM Translation t WHERE t.last_Updated_On < :lastUpdatedOn)";
+        int deleteCount = entityManager.createNativeQuery(deleteTranslationLinesSql).
+                setParameter("lastUpdatedOn", date).executeUpdate();
+        if (logger.isDebugEnabled()) {
+            logger.debug("Delete {} translation lines that is older than {}", deleteCount, date);
+        }
+
+        String deleteRequestsSql = "DELETE FROM Translation WHERE last_Updated_On < :lastUpdatedOn";
+        deleteCount = entityManager.createNativeQuery(deleteRequestsSql).
                 setParameter("lastUpdatedOn", date).executeUpdate();
         if (logger.isDebugEnabled()) {
             logger.debug("Delete {} requests that is older than {}", deleteCount, date);

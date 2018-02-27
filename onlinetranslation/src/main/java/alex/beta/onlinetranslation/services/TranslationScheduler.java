@@ -39,7 +39,7 @@ import java.util.List;
 public class TranslationScheduler {
     private static final Logger logger = LoggerFactory.getLogger(TranslationScheduler.class);
 
-    private TranslationService translationService;
+    private InternalTranslationService translationService;
 
     private ConnectionManagerHolder connectionManagerHolder;
 
@@ -47,7 +47,7 @@ public class TranslationScheduler {
     private boolean enableTranslationJob;
 
     @Autowired
-    public TranslationScheduler(TranslationService translationService, ConnectionManagerHolder connectionManagerHolder) {
+    public TranslationScheduler(InternalTranslationService translationService, ConnectionManagerHolder connectionManagerHolder) {
         this.translationService = translationService;
         this.connectionManagerHolder = connectionManagerHolder;
         if (logger.isWarnEnabled()) {
