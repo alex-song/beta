@@ -114,7 +114,7 @@ public class InternalTranslationServiceImpl extends TranslationServiceImpl imple
                 logger.info("Found {} un-proceeded translation request(s).", requests.size());
             }
             if (logger.isDebugEnabled()) {
-                logger.debug("Request(s) to translate:\n{}",
+                logger.debug("Request(s) to translate:{}{}", System.lineSeparator(),
                         requests.stream().map(TranslationEntity::<String>getUuid).collect(Collectors.joining(System.lineSeparator())));
             }
         }

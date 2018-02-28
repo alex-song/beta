@@ -112,7 +112,7 @@ public class BaiduAPIConnector {
             try {
                 if (body.startsWith("{\"error_code\"") || body.startsWith("{\"error_msg\"")) {
                     //百度返回错误消息
-                    logger.warn("Baidu Fanyi returns error.\n{}", body);
+                    logger.warn("Baidu Fanyi returns error.{}{}", System.lineSeparator(), body);
                     BaiduTranslationError baiduError = BaiduTranslationError.fromString(body);
                     if (BaiduTranslationError.INTERNAL_ERROR.equalsIgnoreCase(baiduError.getErrorCode())
                             || BaiduTranslationError.TIMEOUT.equalsIgnoreCase(baiduError.getErrorCode())
@@ -162,7 +162,7 @@ public class BaiduAPIConnector {
                 }
             } catch (IOException ex) {
                 //无法解析百度返回消息
-                logger.error("Failed to parse Baidu Fanyi response.\n{}", body, ex);
+                logger.error("Failed to parse Baidu Fanyi response.{}{}", System.lineSeparator(), body, ex);
                 request.setStatus(TranslationStatus.ERROR);
                 request.setMessage(ex.getMessage() != null && ex.getMessage().length() > 250 ?
                         ex.getMessage().substring(0, 250) : ex.getMessage());
