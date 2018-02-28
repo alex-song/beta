@@ -9,7 +9,7 @@
 	<modules>
 		<module>commons</module>
         <module>games</module>
-		<module>easypr4j</module>
+		<!--<module>easypr4j</module>-->
 		<module>onlinetranslation</module>
 	</modules>
 	<properties>

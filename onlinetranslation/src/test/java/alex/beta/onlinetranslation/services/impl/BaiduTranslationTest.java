@@ -57,6 +57,6 @@ public class BaiduTranslationTest {
 
     @Test
     public void testJoinAllDstsWithLineSeparator() {
-        assertEquals("a\nb\nc", bt.joinAllDstsWithLineSeparator());
+        assertEquals("a" + System.lineSeparator() + "b" + System.lineSeparator() + "c", bt.joinAllDstsWithLineSeparator());
     }
 }
