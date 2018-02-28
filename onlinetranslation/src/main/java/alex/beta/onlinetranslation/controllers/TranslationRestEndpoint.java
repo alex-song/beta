@@ -110,7 +110,7 @@ public class TranslationRestEndpoint {
             @Valid
             @RequestParam(value = "toLanguage", defaultValue = "zh") String toLanguage) {
         if (logger.isInfoEnabled()) {
-            logger.info("Receive translation request.\ntoLanguage : {}, text: {}", toLanguage, content);
+            logger.info("Receive translation request.{}toLanguage : {}, text: {}", System.lineSeparator(), toLanguage, content);
         }
 
         if (content.trim().isEmpty()) {
@@ -136,7 +136,7 @@ public class TranslationRestEndpoint {
             }
             TranslationModel result = translationService.submit("auto", lang, content);
             if (logger.isInfoEnabled()) {
-                logger.info("Translation request is successfully submitted.\n{}", result);
+                logger.info("Translation request is successfully submitted.{}{}", System.lineSeparator(), result);
             }
             return ResponseEntity.ok(result);
         }
@@ -162,7 +162,7 @@ public class TranslationRestEndpoint {
                             buildResponseErrorMessage("TranslationRestEndpoint.NotFound")));
         } else {
             if (logger.isInfoEnabled()) {
-                logger.info("Translation is found.\n{}", translation);
+                logger.info("Translation is found.{}{}", System.lineSeparator(), translation);
             }
             return ResponseEntity.ok(translation);
         }
