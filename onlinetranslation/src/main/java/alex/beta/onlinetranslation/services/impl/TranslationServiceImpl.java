@@ -20,8 +20,6 @@ import alex.beta.onlinetranslation.persistence.TranslationEntity;
 import alex.beta.onlinetranslation.persistence.TranslationRepository;
 import alex.beta.onlinetranslation.persistence.TranslationStatus;
 import alex.beta.onlinetranslation.services.TranslationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,8 +35,6 @@ import static alex.beta.onlinetranslation.persistence.TranslationEntity.TEXT_MAX
 
 @Service("translationService")
 public class TranslationServiceImpl implements TranslationService {
-
-    private static final Logger logger = LoggerFactory.getLogger(TranslationServiceImpl.class);
 
     protected TranslationRepository translationRepository;
 
