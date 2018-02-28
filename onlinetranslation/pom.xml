@@ -159,6 +159,27 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>${maven-war-plugin_version}</version>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>${maven-assembly-plugin_version}</version>
+                <executions>
+                    <execution>
+                        <id>assemble-plugin</id>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>src/assembly.xml</descriptor>
+                            </descriptors>
+                            <finalName>onlinetranslation</finalName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
         <resources>
             <resource>
