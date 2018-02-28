@@ -5,7 +5,7 @@
     <parent>
         <artifactId>beta</artifactId>
         <groupId>alex</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>war</packaging>
@@ -216,6 +216,18 @@
                     <artifactId>spring-boot-starter-tomcat</artifactId>
                 </dependency>
             </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <version>${maven-war-plugin_version}</version>
+                        <configuration>
+                            <classifier>tomcat</classifier>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
         <profile>
             <id>nas</id>
@@ -230,6 +242,19 @@
                     <scope>provided</scope>
                 </dependency>
             </dependencies>
+            <build>
+                <finalName>onlinetranslation</finalName>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <version>${maven-war-plugin_version}</version>
+                        <configuration>
+                            <classifier>notomcat</classifier>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

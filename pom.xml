@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>alex</groupId>
 	<artifactId>beta</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.1</version>
 	<packaging>pom</packaging>
 	<name>beta</name>
 	<modules>
@@ -19,6 +19,7 @@
 		<compiler_encoding>UTF-8</compiler_encoding>
 
         <!-- plugin versions -->
+		<maven-install-plugin_version>2.5.2</maven-install-plugin_version>
 		<maven-compiler-plugin_version>3.7.0</maven-compiler-plugin_version>
 		<maven-resources-plugin_version>3.0.2</maven-resources-plugin_version>
 		<maven-assembly-plugin_version>3.1.0</maven-assembly-plugin_version>
@@ -88,6 +89,11 @@
                     <testFailureIgnore>${test.failure.ignore}</testFailureIgnore>
                 </configuration>
             </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>${maven-install-plugin_version}</version>
+			</plugin>
         </plugins>
     </build>
 
