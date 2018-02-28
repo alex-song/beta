@@ -1,0 +1,46 @@
+{
+  "name": "Alex的在线翻译插件",
+  "version": "0.0.1",
+  "permissions": [
+    "*://*/*",
+    "activeTab",
+    "tabs",
+    "contextMenus",
+    "webRequest",
+    "webRequestBlocking",
+    "storage"
+  ],
+  "icons": 
+  { 
+    "16": "imgs/map/icon16.png",             
+    "48": "imgs/map/icon48.png",            
+    "128": "imgs/map/icon128.png" 
+  }, 
+  "background": {
+    "page": "background.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*/*", "http://*/*"],
+      "css" : ["css/trans-src.css", "css/inject-bar.css"],
+      "js": ["js/jquery-1.11.3.js", "js/htmlparser.js", "js/inject-bar.js", 
+             "js/trans-lib.js", "js/cs-main.js", "js/trans-src.js", "js/lookup.js", "js/third_party/hm.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "browser_action": {
+    "default_title": "点击进行网页翻译或文字翻译",
+	"default_icon": {
+        "19": "imgs/map/icon19.png",
+        "38": "imgs/map/icon38.png"
+    },
+    "default_popup": "popup.html"
+  },
+  "options_page": "options.html",
+  "content_security_policy": "script-src 'self' 'unsafe-eval' https://hm.baidu.com; object-src 'self'",
+  "web_accessible_resources": [
+    "imgs/map/*.png",
+    "imgs/map/sound.gif"
+  ],
+  "manifest_version": 2
+}
