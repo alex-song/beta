@@ -156,16 +156,11 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>${maven-war-plugin_version}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>${maven-assembly-plugin_version}</version>
                 <executions>
                     <execution>
-                        <id>assemble-plugin</id>
+                        <id>chrome-plugin</id>
                         <goals>
                             <goal>single</goal>
                         </goals>
@@ -223,7 +218,7 @@
                         <artifactId>maven-war-plugin</artifactId>
                         <version>${maven-war-plugin_version}</version>
                         <configuration>
-                            <classifier>tomcat</classifier>
+                            <classifier>embedded_tomcat</classifier>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -249,9 +244,6 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-war-plugin</artifactId>
                         <version>${maven-war-plugin_version}</version>
-                        <configuration>
-                            <classifier>notomcat</classifier>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>
