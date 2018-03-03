@@ -1,17 +1,14 @@
 /**
- * <p>
- * File Name: TranslationLineEntity.java
- * </p>
- * <p>
- * Project:   beta
- * </p>
- * <p>
- * Copyright: Copyright (c) 2018, All Rights Reserved
- * E-mail: song_liping@hotmail.com
- * </p>
- * <p>
- * Created on 2018/2/24 上午10:42
- * </p>
+ * @File:      TranslationLineEntity.java
+ * @Project:   onlinetranslation
+ * @Copyright: Copyright (c) 2018, All Rights Reserved
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * @Date:      2018/2/24 上午10:42
+ * @author:    <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
 package alex.beta.onlinetranslation.persistence;
 
@@ -19,7 +16,7 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 /**
- * @author alexsong
+ * @Description
  * @version ${project.version}
  */
 @Embeddable

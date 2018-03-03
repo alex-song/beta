@@ -1,17 +1,14 @@
 /**
- * <p>
- * File Name: BaiduMD5Test.java
- * </p>
- * <p>
- * Project:   beta
- * </p>
- * <p>
- * Copyright: Copyright (c) 2018, All Rights Reserved
- * E-mail: song_liping@hotmail.com
- * </p>
- * <p>
- * Created on 2018/2/23 下午5:04
- * </p>
+ * @File:      BaiduMD5Test.java
+ * @Project:   beta
+ * @Copyright: Copyright (c) 2018, All Rights Reserved
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * @Date:      2018/2/23 下午5:04
+ * @author:    <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
 package alex.beta.onlinetranslation.alex.beta.onlinetranslation.services.impl;
 
@@ -24,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 /**
- * @author alexsong
+ * @Description
  * @version ${project.version}
  */
 public class BaiduMD5Test {

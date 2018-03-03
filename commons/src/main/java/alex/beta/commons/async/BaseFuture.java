@@ -1,19 +1,15 @@
 /**
- * <p>
- * File Name: BaseFuture.java
- * </p>
- * <p>
- * Project:   commons
- * </p>
- * <p>
- * Copyright: Copyright (c) 2018, All Rights Reserved
- * E-mail: song_liping@hotmail.com
- * </p>
- * <p>
- * Created on 2018年1月28日 上午11:33:17
- * </p>
+ * @File:      BaseFuture.java
+ * @Project:   commons
+ * @Copyright: Copyright (c) 2018, All Rights Reserved
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * @Date:      2018年1月28日 上午11:33:17
+ * @author:    <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
-
 package alex.beta.commons.async;
 
 import java.util.Collection;
@@ -24,9 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
- * @author alexsong
- * @version
- * 
+ * @Description
  *          <pre>
  *  
  * 正常结束时, 若执行的结果不为null, 则result为执行结果; 若执行结果为null, 则result = {@link BaseFuture#SUCCESS_SIGNAL} 
@@ -41,6 +35,8 @@ import java.util.concurrent.TimeoutException;
  * 
  * @param <V>
  *            异步执行结果的类型
+ *
+ * @version ${project.version}
  */
 public class BaseFuture<V> implements IFuture<V> {
 	protected volatile Object result; // 需要保证其可见性
