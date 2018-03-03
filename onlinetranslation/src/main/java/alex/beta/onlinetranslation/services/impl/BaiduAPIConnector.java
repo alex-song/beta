@@ -112,7 +112,9 @@ public class BaiduAPIConnector {
             try {
                 if (body.startsWith("{\"error_code\"") || body.startsWith("{\"error_msg\"")) {
                     //百度返回错误消息
-                    logger.warn("Baidu Fanyi returns error.{}{}", System.lineSeparator(), body);
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("Baidu Fanyi returns error.{}{}", System.lineSeparator(), body);
+                    }
                     BaiduTranslationError baiduError = BaiduTranslationError.fromString(body);
                     if (BaiduTranslationError.INTERNAL_ERROR.equalsIgnoreCase(baiduError.getErrorCode())
                             || BaiduTranslationError.TIMEOUT.equalsIgnoreCase(baiduError.getErrorCode())
