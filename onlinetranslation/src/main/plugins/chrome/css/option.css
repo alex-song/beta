@@ -45,65 +45,6 @@ h2 {
     display: none;
 }
 
-/*.switch-open {
-    float: right;
-    background-color: #4395FF;
-    cursor: pointer;
-    border: none;
-    height: 27px;
-    width: 99px;
-    border-radius: 3px !important;
-    color: white;
-    font-size: 14px;
-    letter-spacing: 2px;
-    line-height: 27px;
-    font-family:"黑体"; 
-    font-weight:bold;
-}*/
-
-.switch-open {
-    float: right;
-    -webkit-tap-highlight-color: rgba(255, 255, 255, 0); 
-    -webkit-user-select: none;
-       -moz-user-select: none;
-    -moz-user-focus: none;
-}
-/*.switch-open:hover {
-    background-color: #54A0FF;;
-}*/
-
-/*.switch-open::active {
-    background-color: #0077EC;;
-}*/
-.switch-close {
-    float: right;
-}
-/*.switch-close {
-    float: right;
-    background-color: #ffffff;
-    cursor: pointer;
-    border: #cccccc 1px solid;
-    height: 27px;
-    width: 99px;
-    border-radius: 3px !important;
-    color: #999999;
-    font-size: 14px;
-    letter-spacing: 2px;
-    line-height: 27px;
-    font-family:"黑体"; 
-    font-weight:bold;
-}*/
-
-/*.switch-close:hover {
-    background-color: #ffffff;
-    color: #b2b2b2;
-}*/
-
-/*.switch-close::active {
-    background-color: #f6f6f6;
-    color: #999999;
-}*/
-
 #thead-tip {
     font-size: 14px;
     font-weight: 400;
@@ -277,11 +218,6 @@ h2 {
 
 #account-info-password-r {
     width: 186px;
-}
-
-#detect-switch-r button{
-    margin-bottom: -3px;
-    float: right;
 }
 
 #btn_switch,
