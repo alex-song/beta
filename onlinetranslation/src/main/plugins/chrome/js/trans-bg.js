@@ -34,10 +34,6 @@ chrome.webRequest.onBeforeSendHeaders.addListener(function(data) {
 */
 /* globals chrome */
 chrome.runtime.onInstalled.addListener(function () {
-    // 事件触发原因可能是安装插件、插件升级、浏览器升级，这里可以精确统计。
-	
-	trackEvent('install', 'test_install');
-	
     /* globals chrome */
     chrome.storage.local.get(null, function (items) {
         /* globals chrome */
@@ -667,8 +663,6 @@ chrome.runtime.onMessage.addListener(
 function(request, sender, sendResponse) {
     if (request.opid === 1) {
 		
-		trackEvent('translate', 'translate_page_headbar');
-		
         /* globals bridge */
         chrome.storage.local.get(null, function (items) {
             var url = 'http://openapi.baidu.com/public/2.0/translate/multi/multi';
@@ -803,6 +797,6 @@ function(request, sender, sendResponse) {
         });
         return true;
     } else if (request.opid === 3) {
-		trackEvent(request.category, request.action);
+        //
     }
 });

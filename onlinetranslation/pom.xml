@@ -170,7 +170,6 @@
                             <descriptors>
                                 <descriptor>src/assembly.xml</descriptor>
                             </descriptors>
-                            <finalName>onlinetranslation</finalName>
                         </configuration>
                     </execution>
                 </executions>

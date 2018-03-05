@@ -1,19 +1,15 @@
 /**
- * <p>
- * File Name: IFutureListenerTest.java
- * </p>
- * <p>
- * Project:   commons
- * </p>
- * <p>
- * Copyright: Copyright (c) 2018, All Rights Reserved
- * E-mail: song_liping@hotmail.com
- * </p>
- * <p>
- * Created on 2018年1月29日 下午9:53:51
- * </p>
+ * @File:      IFutureListenerTest.java
+ * @Project:   commons
+ * @Copyright: Copyright (c) 2018, All Rights Reserved
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * @Date:      2018年1月29日 下午9:53:51
+ * @author:    <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
-
 package alex.beta.commons.async;
 
 import org.junit.After;
@@ -24,7 +20,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 /**
- * @author alexsong
+ * @Description
+ * @version ${project.version}
  */
 public class IFutureListenerTest {
     private BaseFuture<String> future;

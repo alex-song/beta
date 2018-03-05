@@ -1,27 +1,23 @@
 /**
- * <p>
- * File Name: IFuture.java
- * </p>
- * <p>
- * Project:   commons
- * </p>
- * <p>
- * Copyright: Copyright (c) 2018, All Rights Reserved
- * E-mail: song_liping@hotmail.com
- * </p>
- * <p>
- * Created on 2018年1月28日 上午11:31:21
- * </p>
+ * @File:      IFuture.java
+ * @Project:   commons
+ * @Copyright: Copyright (c) 2018, All Rights Reserved
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * @Date:      2018年1月28日 上午11:31:21
+ * @author:    <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
-
 package alex.beta.commons.async;
 
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author alexsong
- * @version
+ * @Description
+ * @version ${project.version}
  */
 public interface IFuture<V> extends Future<V> {
 	/**

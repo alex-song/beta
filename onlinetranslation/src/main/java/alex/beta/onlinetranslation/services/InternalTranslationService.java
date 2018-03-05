@@ -1,17 +1,14 @@
 /**
- * <p>
- * File Name: InternalTranslationService.java
- * </p>
- * <p>
- * Project:   beta
- * </p>
- * <p>
- * Copyright: Copyright (c) 2018, All Rights Reserved
- * E-mail: song_liping@hotmail.com
- * </p>
- * <p>
- * Created on 2018/2/27 下午10:38
- * </p>
+ * @File:      InternalTranslationService.java
+ * @Project:   onlinetranslation
+ * @Copyright: Copyright (c) 2018, All Rights Reserved
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * @Date:      2018/2/27 下午10:38
+ * @author:    <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
 package alex.beta.onlinetranslation.services;
 
@@ -22,7 +19,7 @@ import java.util.List;
 /**
  * This service is for internal use only, won't expose to controller or 3rd party.
  *
- * @author alexsong
+ * @Description
  * @version ${project.version}
  */
 public interface InternalTranslationService extends TranslationService {

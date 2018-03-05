@@ -1,5 +1,3 @@
-/* 百度统计相关逻辑 */
-
 var langmap = {
     zh: '中文',
     en: '英语',
@@ -31,8 +29,6 @@ var langmap = {
 };
 var timer = null;
 
-trackPageview('/popup');
-
 $(document).ready(function() {
     var re = new RegExp(opt_sites.join('|'));
     chrome.tabs.query({
@@ -41,49 +37,10 @@ $(document).ready(function() {
         currentWindow: true
     }, function (tabs) {
         if (tabs.length > 0) {
-            var url = tabs[0].url;
-            if (url === 'chrome://newtab/') {
-                $('#translate-page').css('background', '#ccc');
-            }
-            if (re.test(url)) {
-                $('.jumbotron').append('<img src="../imgs/check-icon.png" class="check-icon">' + '<span class="checkMsg">已对该网站进行过翻译结果优化</span>');
-            }
-            /* globals bridge */
-            // 向content script发消息检查网页是否翻译过以确定翻译网页按钮状态
-            chrome.tabs.sendMessage(tabs[0].id, {
-                action: 'getDidTranslate'
-            }, function (response) {
-                // console.log('response', response);
-                if (response.didTranslate) {
-                    $('#translate-page').attr('disabled', 'true');
-                    $('#translate-page').addClass('disabled').html('已翻译该网页');
-                } else {
-                    $('#translate-page').removeAttr('disabled');
-                    $('#translate-page').removeClass('disabled').html('翻译当前网页');
-                }
-            });
+            //
         }
     });
-    $('#translate-page').click(function () {
-		
-		trackEvent('translate', 'translate_page_icon');
-		
-        // jquery-1.11.3.js js/inject-bar.js htmlparser.js js/trans-lib.js 这些脚本已经存在于content script中，不需要重新注入
-        executeScripts(null, [{
-            file: 'js/jquery-1.11.3.js'
-        }, {
-            file: 'js/inject-bar.js'
-        }, {
-            file: 'js/htmlparser.js'
-        }, {
-            file: 'js/trans-lib.js'
-        }, {
-            code: 'translateByPopup();'
-        }]);
-        setTimeout(function () {
-            window.close();
-        }, 200);
-    });
+
     $('#translate-text').click(function () {
         var query = $.trim($('#query').val());
         // query为空提示
@@ -97,8 +54,6 @@ $(document).ready(function() {
             }, 1000);
             return;
         }
-		
-		trackEvent('translate', 'translate_text_icon');
 		
         function dictTrans() {
             $.ajax({
@@ -261,8 +216,6 @@ $(document).ready(function() {
 
     $('#icon_options_setting').click(function () {
 		
-		trackEvent('guide', 'guide_options_icon');
-		
         window.open('options.html');
     });
 
@@ -271,40 +224,8 @@ $(document).ready(function() {
     }, function () {
         $('#icon_options_setting_img').attr('src', 'imgs/map/setup.png');
     });
-    /* global chrome */
-    // 控制划词按钮状态
-    chrome.storage.local.get(null, function (items) {
-        var huaci_switch = items['huaci_switch'];
-        huaciSwitchUi(huaci_switch);
-        $('#huaci_switch').click(function () {
-            if (huaci_switch) {
-                chrome.storage.local.set({
-                    huaci_switch: false
-                }, function () {
-                    huaci_switch = false;
-                    huaciSwitchUi(huaci_switch);
-                });
-            } else {
-                chrome.storage.local.set({
-                    huaci_switch: true
-                }, function () {
-                    huaci_switch = true;
-                    huaciSwitchUi(huaci_switch);
-                });
-            }
-        });
-    });
-    function huaciSwitchUi(huaci) {
-        if (huaci) {
-            $('#huaci_switch').attr('src', 'imgs/map/on.png');
-        } else {
-            $('#huaci_switch').attr('src', 'imgs/map/off.png');
-        }
-    }
 
     $('#icon_options_help').click(function () {
-		
-		trackEvent('guide', 'guide_tousu_icon');
 		
         window.open('mailto:song_liping@hotmail.com');
     });
