@@ -22,9 +22,7 @@
   "content_scripts": [
     {
       "matches": ["https://*/*", "http://*/*"],
-      "css" : ["css/trans-src.css", "css/inject-bar.css"],
-      "js": ["js/jquery-1.11.3.js", "js/htmlparser.js", "js/inject-bar.js", 
-             "js/trans-lib.js", "js/trans-src.js", "js/lookup.js"],
+      "js": ["js/jquery-1.11.3.js"],
       "run_at": "document_end"
     }
   ],

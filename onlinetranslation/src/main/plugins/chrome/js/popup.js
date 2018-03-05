@@ -30,7 +30,6 @@ var langmap = {
 var timer = null;
 
 $(document).ready(function() {
-    var re = new RegExp(opt_sites.join('|'));
     chrome.tabs.query({
         active: true,
         lastFocusedWindow: true,
@@ -146,8 +145,6 @@ $(document).ready(function() {
                 },
                 async: true
             }).done(function (data) {
-                // console.log('transData', data);
-                // var re = /[a-zA-Z]/;
                 if ($('.translate-from .selected-l-text').attr('value') === 'auto') {
                     if (data.from !== 'auto') {
                         $('.translate-from .select-inner span').removeClass('span-hover').each(function (index, el) {
