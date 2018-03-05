@@ -249,13 +249,33 @@ h2 {
     font-size: 14px;
 }
 
-#detect-switch-l {
+#account-info-l {
     height: 21px;
     line-height: 21px;
     width: 500px;
 }
 
-#detect-switch-r {
+#account-info-r {
+    width: 186px;
+}
+
+#account-info-name-l {
+    height: 21px;
+    line-height: 21px;
+    width: 500px;
+}
+
+#account-info-name-r {
+    width: 186px;
+}
+
+#account-info-password-l {
+    height: 21px;
+    line-height: 21px;
+    width: 500px;
+}
+
+#account-info-password-r {
     width: 186px;
 }
 
@@ -264,55 +284,13 @@ h2 {
     float: right;
 }
 
-#fanyi_huaci {
-    margin-top: 20px;
-    margin-bottom: 50px;
-    color: #333;
-    background: #fff;
-
-}
-#fanyi_huaci p {
-    font-size: 14px;
-}
-.fanyi_huaci_switch {
-    padding-left: 23px;
-    padding-top: 4px;
-    padding-right: 23px;
-    padding-bottom: 4px;
-}
-.fanyi_huaci_switch p {
-    margin-top: 20px;
-    margin-bottom: 21px;
-}
-#huaci_options {
-    /*margin-top: 20px;*/
-    /*background: #fff;*/
-    padding-left: 23px;
-    padding-top: 4px;
-    padding-right: 23px;
-    padding-bottom: 4px;
-    color: #333;
-    font-size: 14px;
-}
-.huaci_selections {
-    vertical-align: middle;
-    line-height: 47px;
-}
-.huaci_selections span {
-    display: inline-block;
-    height: 16px;
-}
-#huaci_options hr {
-    /*color: #eee;*/
-    border-bottom: 1px solid #eee;
-    border-top: 0 solid #eee;
-}
 #btn_switch,
 #frame_switch {
     margin-bottom: -2px;
     margin-right: 5px;
     cursor: pointer;
 }
+
 .autoTranslate-switch {
     /*margin-top: 20px;*/
     /*background: #fff;*/

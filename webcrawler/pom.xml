@@ -9,18 +9,15 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>easypr4j</artifactId>
+    <artifactId>webcrawler</artifactId>
 
     <dependencies>
-        <!-- OpenCV 3.4.0 -->
-        <!-- native lib libopencv_java340.dylib -->
         <dependency>
-            <groupId>org.opencv</groupId>
-            <artifactId>opencv</artifactId>
-            <version>3.4.0</version>
-            <systemPath>/usr/local/Cellar/opencv/3.4.0_1/share/OpenCV/java/opencv-340.jar</systemPath>
-            <scope>system</scope>
+            <groupId>edu.uci.ics</groupId>
+            <artifactId>crawler4j</artifactId>
+            <version>${crawler4j_version}</version>
         </dependency>
     </dependencies>
+
 
 </project>

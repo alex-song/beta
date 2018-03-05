@@ -16,8 +16,8 @@
 	<modules>
 		<module>commons</module>
         <module>games</module>
-		<!--<module>easypr4j</module>-->
 		<module>onlinetranslation</module>
+		<module>webcrawler</module>
 	</modules>
 	<properties>
         <!-- compile parameters -->
@@ -51,6 +51,7 @@
 		<gson_version>2.2.4</gson_version>
 		<guava_version>22.0</guava_version>
 		<httpclient_version>4.5.5</httpclient_version>
+		<crawler4j_version>4.3</crawler4j_version>
 
 		<!-- build parameters -->
 		<test.failure.ignore>false</test.failure.ignore>
