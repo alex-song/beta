@@ -27,7 +27,7 @@
     }
   ],
   "browser_action": {
-    "default_title": "点击进行网页翻译或文字翻译",
+    "default_title": "在线文字翻译",
 	"default_icon": {
         "19": "imgs/map/icon19.png",
         "38": "imgs/map/icon38.png"
@@ -35,7 +35,6 @@
     "default_popup": "popup.html"
   },
   "options_page": "options.html",
-  "content_security_policy": "script-src 'self' 'unsafe-eval' https://hm.baidu.com; object-src 'self'",
   "web_accessible_resources": [
     "imgs/map/*.png",
     "imgs/map/sound.gif"
