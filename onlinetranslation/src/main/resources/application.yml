@@ -20,6 +20,7 @@ spring:
       enabled: true
   datasource:
     driver-class-name: org.h2.Driver
+    data: classpath:db/users.sql
   jpa:
     database-platform: org.hibernate.dialect.H2Dialect
     generate-ddl: true
