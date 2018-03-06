@@ -63,12 +63,10 @@ $(document).ready(function () {
                 data: $('#query').val(),
                 async: true
             }).done(function (data) {
-                console.log("Response of translation request", data);
+                console.log("Submit translation request", data);
                 if (data['errorCode']) {
-                    console.error("Failed to submit translation request", data['message']);
                     $('#result').text(data['message']);
                 } else {
-                    console.info("Translation request is submitted", data['uuid']);
                     $('#result').text('翻译中......');
                     doTranslation(data['uuid']);
                 }
@@ -212,15 +210,12 @@ function doTranslation(uuid) {
         action: 'translate',
         uuid: uuid
     }, function (data) {
-        if (data.status === 'SUBMITTED' || data.status === 'PROCESSING') {
-            console.info("status", data.status);
-            setTimeout(function () {
-                doTranslation(uuid);
-            }, 1000);
+        console.info("server response", data);
+        if (data['errorCode']) {
+            $('#result').text(data.message);
         } else if (data.status === 'ERROR' || data.status === 'WARNING' || data.status === 'NOT_AUTHORIZED' || data.status === 'TIMEOUT') {
             $('#result').text(data.message);
         } else {
-            console.info("status", data.status);
             if ($('.translate-from .selected-l-text').attr('value') === 'auto') {
                 if (data.fromLanguage !== 'auto') {
                     $('.translate-from .select-inner span').removeClass('span-hover').each(function (index, el) {
@@ -236,29 +231,26 @@ function doTranslation(uuid) {
             if (data['toLanguage'] === 'en') {
                 $('.translate-to .selected-l-text').html('英文');
             }
-            if (data['errorCode']) {
-                $('#result').text(data.message);
-            } else {
-                var dst_text = '';
-                for (var i in data['translations']) {
-                    dst_text += (data['translations'][i]['dst'] + '<br>');
-                }
-                if (dst_text.length > 0) {
-                    $('#result').css('padding', '12px');
-                } else {
-                    $('#result').css('padding', '0px');
-                }
-                dst_text += '<p style="float:right;"><a style="text-decoration:none;" href="javascript:;" id="moreMean">更多释义 \></a></p>';
-                $('#result').html(dst_text);
-                var TransSrc = '';
-                for (var i = 0; i < data['translations'].length; i++) {
-                    TransSrc += data['translations'][i]['src'];
-                }
-                // console.log("TransSrc", TransSrc);
-                $('#moreMean').click(function () {
-                    window.open('http://fanyi.baidu.com/#' + data['from'] + '/' + data['to'] + '/' + TransSrc);
-                });
+
+            var dst_text = '';
+            for (var i in data['translations']) {
+                dst_text += (data['translations'][i]['dst'] + '<br>');
             }
+            if (dst_text.length > 0) {
+                $('#result').css('padding', '12px');
+            } else {
+                $('#result').css('padding', '0px');
+            }
+            dst_text += '<p style="float:right;"><a style="text-decoration:none;" href="javascript:;" id="moreMean">更多释义 \></a></p>';
+            $('#result').html(dst_text);
+            var TransSrc = '';
+            for (var i = 0; i < data['translations'].length; i++) {
+                TransSrc += data['translations'][i]['src'];
+            }
+            // console.log("TransSrc", TransSrc);
+            $('#moreMean').click(function () {
+                window.open('http://fanyi.baidu.com/#' + data['from'] + '/' + data['to'] + '/' + TransSrc);
+            });
         }
     });
 }
