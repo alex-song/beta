@@ -1,17 +1,14 @@
 /**
+ * @File: TranslationScheduler.java
+ * @Project: onlinetranslation
+ * @Copyright: Copyright (c) 2018, All Rights Reserved
  * <p>
- * File Name: TranslationScheduler.java
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * </p>
- * <p>
- * Project:   beta
- * </p>
- * <p>
- * Copyright: Copyright (c) 2018, All Rights Reserved
- * E-mail: song_liping@hotmail.com
- * </p>
- * <p>
- * Created on 2018/2/23 下午4:18
- * </p>
+ * @Date: 2018/2/23 下午4:18
+ * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
 package alex.beta.onlinetranslation.services;
 
@@ -31,7 +28,7 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 /**
- * @author alexsong
+ * @Description
  * @version ${project.version}
  */
 @Component
@@ -59,7 +56,7 @@ public class TranslationScheduler {
      * Find and translate un-proceeded 3 (or less) requests
      * Execute once every 2 seconds
      */
-    @Async("translationJobExecutor")
+    @Async
     @Transactional
     @Scheduled(fixedRate = 2000, initialDelay = 30000) // every 2 second, with initial delay 30 seconds
     public void executeTranslationJob() {

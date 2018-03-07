@@ -15,8 +15,8 @@ package alex.beta.onlinetranslation.services;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 public interface UserService extends UserDetailsService {
 }

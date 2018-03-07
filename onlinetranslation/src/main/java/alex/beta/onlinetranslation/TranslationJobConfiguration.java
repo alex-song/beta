@@ -1,14 +1,13 @@
 /**
- * @File:      TranslationJobConfiguration.java
- * @Project:   onlinetranslation
+ * @File: TranslationJobConfiguration.java
+ * @Project: onlinetranslation
  * @Copyright: Copyright (c) 2018, All Rights Reserved
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * @Date:      2018/2/19 下午4:32
- * @author:    <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
+ * @Date: 2018/2/19 下午4:32
+ * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
 package alex.beta.onlinetranslation;
 
@@ -20,14 +19,20 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.task.AsyncTaskExecutor;
 import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.Executor;
 
 /**
  * @Description
  * @version ${project.version}
  */
 
+@EnableAsync
+@EnableScheduling
 @Component
 @EnableAutoConfiguration
 public class TranslationJobConfiguration {
@@ -35,6 +40,11 @@ public class TranslationJobConfiguration {
 
     @Value("${TranslationJobConfiguration.numOfThreads:2}")
     private int numOfThreads;
+
+    @Bean
+    public Executor taskExecutor() {
+        return new SimpleAsyncTaskExecutor();
+    }
 
     @Bean(name = "translationJobExecutor")
     @ConditionalOnProperty(value = "TranslationJobConfiguration.enableTranslationJob", havingValue = "true")

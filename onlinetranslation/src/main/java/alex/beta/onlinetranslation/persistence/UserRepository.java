@@ -20,5 +20,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface UserRepository extends JpaRepository<UserEntity, Integer> {
 
-    UserEntity findTopByNameIgnoreCase(String name);
+    UserEntity findTopByNameIgnoreCaseOrderByIdAsc(String name);
 }
