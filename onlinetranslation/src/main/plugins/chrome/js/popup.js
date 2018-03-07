@@ -28,6 +28,7 @@ var langmap = {
     cht: '中文繁体'
 };
 var timer = null;
+var auth = null;
 
 $(document).ready(function () {
     chrome.tabs.query({
@@ -35,9 +36,16 @@ $(document).ready(function () {
         lastFocusedWindow: true,
         currentWindow: true
     }, function (tabs) {
-        if (tabs.length > 0) {
-            //
-        }
+        chrome.storage.local.get(null, function (items) {
+            //console.log('items', items);
+            account_info_name = items['account_info_name'];
+            account_info_password = items['account_info_password'];
+
+            if (account_info_name && account_info_password) {
+                auth = "Basic " + Base64.encode(account_info_name + ':' + account_info_password);
+                //console.log("auth", auth);
+            }
+        });
     });
 
     $('#translate-text').click(function () {
@@ -56,12 +64,15 @@ $(document).ready(function () {
 
         function fanyiTrans() {
             $.ajax({
-                url: 'http://songlp.ddns.net:7070/onlinetranslation/translate?toLanguage=' + $('.translate-to .selected-l-text').attr('value'),
+                url: 'http://localhost:7070/onlinetranslation/translate?toLanguage=' + $('.translate-to .selected-l-text').attr('value'),
                 method: 'POST',
                 contentType: 'application/json',
                 dataType: 'json',
                 data: $('#query').val(),
-                async: true
+                async: true,
+                beforeSend : function(req) {
+                    req.setRequestHeader('Authorization', auth);
+                }
             }).done(function (data) {
                 console.log("Submit translation request", data);
                 if (data['errorCode']) {
@@ -200,6 +211,7 @@ $(document).ready(function () {
         if ($.trim($('#query').val()).length > 0) {
             timer = setTimeout(function () {
                 $('#translate-text').click();
+                clearTimeout(timer);
             }, 1500);
         }
     });
