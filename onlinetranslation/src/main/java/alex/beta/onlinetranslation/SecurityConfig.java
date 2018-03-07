@@ -19,24 +19,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.access.AccessDecisionManager;
-import org.springframework.security.access.AccessDecisionVoter;
-import org.springframework.security.access.expression.method.ExpressionBasedPreInvocationAdvice;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
-import org.springframework.security.access.prepost.PreInvocationAuthorizationAdviceVoter;
-import org.springframework.security.access.vote.AffirmativeBased;
-import org.springframework.security.access.vote.AuthenticatedVoter;
-import org.springframework.security.access.vote.RoleHierarchyVoter;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
-import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @version ${project.version}
@@ -50,31 +39,11 @@ public class SecurityConfig {
     @Autowired
     private UserService userService;
 
-    @Configuration
-    public class RoleConfig extends GlobalMethodSecurityConfiguration {
-
-        @Override
-        protected AccessDecisionManager accessDecisionManager() {
-            List<AccessDecisionVoter<? extends Object>> decisionVoters = new ArrayList<>();
-            ExpressionBasedPreInvocationAdvice expressionAdvice = new ExpressionBasedPreInvocationAdvice();
-            expressionAdvice.setExpressionHandler(getExpressionHandler());
-            decisionVoters.add(new PreInvocationAuthorizationAdviceVoter(expressionAdvice));
-            decisionVoters.add(roleHierarchyVoter());
-            decisionVoters.add(new AuthenticatedVoter());
-            return new AffirmativeBased(decisionVoters);
-        }
-
-        @Bean
-        public RoleHierarchyVoter roleHierarchyVoter() {
-            return new RoleHierarchyVoter(roleHierarchy());
-        }
-
-        @Bean
-        public RoleHierarchy roleHierarchy() {
-            RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-            roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
-            return roleHierarchy;
-        }
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+        roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
+        return roleHierarchy;
     }
 
     @Configuration
@@ -101,7 +70,6 @@ public class SecurityConfig {
             httpSecurity.headers().frameOptions().disable();
             httpSecurity.csrf().disable();
         }
-
 
         @Autowired
         public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {

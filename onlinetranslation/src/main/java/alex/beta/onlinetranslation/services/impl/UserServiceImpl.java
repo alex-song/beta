@@ -45,26 +45,6 @@ public class UserServiceImpl implements UserService {
         this.userRepository = userRepository;
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Load user by name \'{}\'.", username);
-        }
-        Objects.requireNonNull(username);
-        UserEntity userEntity = userRepository.findTopByNameIgnoreCase(username);
-        if (userEntity != null) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("User found, id: {}", userEntity.getId());
-            }
-            return new User(userEntity.getName(), userEntity.getPassword(), roles2Authorities(userEntity.getRoles()));
-        } else {
-            if (logger.isInfoEnabled()) {
-                logger.info("User \'{}\' does not exist.", username);
-            }
-            throw new UsernameNotFoundException("User \'" + username + "\' does not exist.");
-        }
-    }
-
     private static List<GrantedAuthority> roles2Authorities(List<String> roles) {
         if (roles == null || roles.isEmpty()) {
             return Collections.<GrantedAuthority>emptyList();
@@ -77,5 +57,25 @@ public class UserServiceImpl implements UserService {
             }
         }
         return grantedAuthorities;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Load user by name \'{}\'.", username);
+        }
+        Objects.requireNonNull(username);
+        UserEntity userEntity = userRepository.findTopByNameIgnoreCaseOrderByIdAsc(username);
+        if (userEntity != null) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("User found, id: {}", userEntity.getId());
+            }
+            return new User(userEntity.getName(), userEntity.getPassword(), roles2Authorities(userEntity.getRoles()));
+        } else {
+            if (logger.isInfoEnabled()) {
+                logger.info("User \'{}\' does not exist.", username);
+            }
+            throw new UsernameNotFoundException("User \'" + username + "\' does not exist.");
+        }
     }
 }
