@@ -18,8 +18,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 public interface TranslationRepository extends JpaRepository<TranslationEntity, String> {
     List<TranslationEntity> findFirst3ByStatusAndLastUpdatedOnLessThanOrderByLastUpdatedOnAsc(TranslationStatus status, Date beforeDate);

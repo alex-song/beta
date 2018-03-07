@@ -1,17 +1,14 @@
 /**
+ * @File: TranslationErrorModel.java
+ * @Project: onlinetranslation
+ * @Copyright: Copyright (c) 2018, All Rights Reserved
  * <p>
- * File Name: TranslationErrorModel.java
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * </p>
- * <p>
- * Project:   beta
- * </p>
- * <p>
- * Copyright: Copyright (c) 2018, All Rights Reserved
- * E-mail: song_liping@hotmail.com
- * </p>
- * <p>
- * Created on 2018/2/19 下午2:01
- * </p>
+ * @Date: 2018/2/19 下午2:01
+ * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
 package alex.beta.onlinetranslation.models;
 
@@ -25,8 +22,8 @@ import org.slf4j.LoggerFactory;
 import javax.validation.constraints.NotNull;
 
 /**
- * @author alexsong
  * @version ${project.version}
+ * @Description
  */
 public class TranslationErrorModel {
     private static final Logger logger = LoggerFactory.getLogger(TranslationErrorModel.class);

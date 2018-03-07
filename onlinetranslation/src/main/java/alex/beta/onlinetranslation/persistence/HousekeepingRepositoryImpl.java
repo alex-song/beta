@@ -21,8 +21,8 @@ import javax.transaction.Transactional;
 import java.util.Date;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 @Repository
 public class HousekeepingRepositoryImpl implements HousekeepingRepository {

@@ -15,8 +15,8 @@ package alex.beta.onlinetranslation.services;
 import alex.beta.onlinetranslation.models.TranslationModel;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 public interface TranslationService {
     /**

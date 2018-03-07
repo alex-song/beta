@@ -16,8 +16,8 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 @Embeddable
 public class TranslationLineEntity {

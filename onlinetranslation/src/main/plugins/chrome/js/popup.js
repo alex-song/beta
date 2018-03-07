@@ -29,6 +29,7 @@ var langmap = {
 };
 var timer = null;
 var auth = null;
+var host = null;
 
 $(document).ready(function () {
     chrome.tabs.query({
@@ -40,10 +41,24 @@ $(document).ready(function () {
             //console.log('items', items);
             account_info_name = items['account_info_name'];
             account_info_password = items['account_info_password'];
+            account_info_host = items['account_info_host'];
+
+            // console.log("account_info_name", account_info_name);
+            // console.log("account_info_password", account_info_password);
+            // console.log("account_info_host", account_info_host);
 
             if (account_info_name && account_info_password) {
                 auth = "Basic " + Base64.encode(account_info_name + ':' + account_info_password);
                 //console.log("auth", auth);
+            } else {
+                $('#result').text('\u8bf7\u5148\u8bbe\u7f6e\u7528\u6237\u540d\u548c\u5bc6\u7801');
+                $('#translate-text').css('visibility', 'hidden');
+            }
+            if (account_info_host) {
+                host = account_info_host;
+            } else {
+                $('#result').text('\u8bf7\u5148\u8bbe\u7f6e\u670d\u52a1\u5668\u5730\u5740');
+                $('#translate-text').css('visibility', 'hidden');
             }
         });
     });
@@ -64,7 +79,7 @@ $(document).ready(function () {
 
         function fanyiTrans() {
             $.ajax({
-                url: 'http://localhost:7070/onlinetranslation/translate?toLanguage=' + $('.translate-to .selected-l-text').attr('value'),
+                url: host + '/onlinetranslation/translate?toLanguage=' + $('.translate-to .selected-l-text').attr('value'),
                 method: 'POST',
                 contentType: 'application/json',
                 dataType: 'json',
@@ -81,8 +96,17 @@ $(document).ready(function () {
                     $('#result').text('翻译中......');
                     doTranslation(data['uuid']);
                 }
-            }).fail(function () {
-                $('#result').text('翻译请求超时了，请稍后再试。');
+            }).fail(function (jqXHR, textStatus, errorThrown) {
+                //console.log(jqXHR);
+                if (jqXHR.status == 401) {
+                    $('#result').text('用户账号无效。');
+                } else if (jqXHR.status == 400) {
+                    $('#result').text('翻译请求参数错误。');
+                } else if (jqXHR.status == 404) {
+                    $('#result').text('翻译服务地址错误。');
+                } else {
+                    $('#result').text('翻译服务内部错误。');
+                }
             }).always(function (data) {
                 if (data == null) {
                     $('#result').text('翻译请求超时了，请稍后再试。');
@@ -208,7 +232,7 @@ $(document).ready(function () {
         if (timer) {
             clearTimeout(timer);
         }
-        if ($.trim($('#query').val()).length > 0) {
+        if ($.trim($('#query').val()).length > 0 && host && auth) {
             timer = setTimeout(function () {
                 $('#translate-text').click();
                 clearTimeout(timer);
@@ -220,7 +244,9 @@ $(document).ready(function () {
 function doTranslation(uuid) {
     chrome.runtime.sendMessage({
         action: 'translate',
-        uuid: uuid
+        uuid: uuid,
+        hostAddress: host,
+        authorization: auth
     }, function (data) {
         console.info("server response", data);
         if (data['errorCode']) {

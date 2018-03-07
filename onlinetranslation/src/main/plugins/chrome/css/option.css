@@ -53,43 +53,6 @@ h2 {
     width: 500px;
 }
 
-#add {
-    font-size: 14px;
-    font-weight: bold;
-    color: #0066ff;
-    text-decoration: none;
-    float: right;
-    text-align: right;
-    width: 186px;
-}
-
-.add-table {
-    background-color: #ffffff;
-    padding-left: 23px;
-    padding-top: 25px;
-    padding-bottom: 13px;
-}
-
-.add-table .td-add-input {
-    width: 440px;
-}
-
-.add-table .td-add-button {
-    width: 123px;
-}
-
-.add-table .td-add-remove-button {
-    width: 123px;
-}
-
-.add-table input {
-    height: 27px;
-    width: 435px;
-    font-size: 14px;
-    border: 1px solid #e3e3e3;
-    padding-left: 10px;
-}
-
 .table-custom {
     font-size: 14px;
     color: #333333;
@@ -220,22 +183,12 @@ h2 {
     width: 186px;
 }
 
-#btn_switch,
-#frame_switch {
-    margin-bottom: -2px;
-    margin-right: 5px;
-    cursor: pointer;
+#account-info-host-l {
+    height: 21px;
+    line-height: 21px;
+    width: 500px;
 }
 
-.autoTranslate-switch {
-    /*margin-top: 20px;*/
-    /*background: #fff;*/
-    padding-left: 23px;
-    padding-top: 4px;
-    padding-right: 23px;
-    padding-bottom: 4px;
-    /*color: #333;*/
-}
-.autoTranslate {
-    background: #fff;
+#account-info-host-r {
+    width: 186px;
 }
