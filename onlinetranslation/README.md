@@ -11,7 +11,7 @@ baidu.key SHOULD NOT SHARED, DON'T UPLOAD IT TO GIT.
 
 ###Plan:
 >       1.不考虑安全验证，实现翻译接口。- Done
->       2.实现浏览器插件，并和后台服务集成。
+>       2.实现浏览器插件，并和后台服务集成。- Done
 >       3.加入安全验证。
 
 ###Baidu Fanyi

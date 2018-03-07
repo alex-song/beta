@@ -24,6 +24,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -93,6 +94,7 @@ public class TranslationRestEndpoint {
         response.sendRedirect("api-spec/index.html");
     }
 
+    @PreAuthorize("hasRole('USER')")
     @ApiOperation(value = "Submit a translation request. Max. 2000 characters.", consumes = MediaType.TEXT_PLAIN_VALUE)
     @ApiResponses({
             @ApiResponse(code = 200, message = "Translation request is successfully submitted.", response = TranslationModel.class),
@@ -139,6 +141,7 @@ public class TranslationRestEndpoint {
         }
     }
 
+    @PreAuthorize("hasRole('USER')")
     @ApiOperation(value = "Get status of a translation request")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Translation request is found.", response = TranslationModel.class),

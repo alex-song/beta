@@ -59,7 +59,7 @@ public class TranslationScheduler {
      * Find and translate un-proceeded 3 (or less) requests
      * Execute once every 2 seconds
      */
-    @Async
+    @Async("translationJobExecutor")
     @Transactional
     @Scheduled(fixedRate = 2000, initialDelay = 30000) // every 2 second, with initial delay 30 seconds
     public void executeTranslationJob() {
