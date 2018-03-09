@@ -1,17 +1,14 @@
 /**
+ * @File: TranslationModel.java
+ * @Project: onlinetranslation
+ * @Copyright: Copyright (c) 2018, All Rights Reserved
  * <p>
- * File Name: TranslationModel.java
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * </p>
- * <p>
- * Project:   beta
- * </p>
- * <p>
- * Copyright: Copyright (c) 2018, All Rights Reserved
- * E-mail: song_liping@hotmail.com
- * </p>
- * <p>
- * Created on 2018/2/17 下午10:03
- * </p>
+ * @Date: 2018/2/17 下午10:03
+ * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
 package alex.beta.onlinetranslation.models;
 
@@ -31,8 +28,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @author alexsong
  * @version ${project.version}
+ * @Description
  */
 public class TranslationModel {
     public static final TranslationModel NOTHING_TO_TRANSLATE = new TranslationModel("NOTHING_TO_TRANSLATE", TranslationStatus.READY);

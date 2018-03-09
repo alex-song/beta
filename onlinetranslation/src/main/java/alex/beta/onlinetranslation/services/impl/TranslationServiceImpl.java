@@ -1,17 +1,13 @@
 /**
+ * @File: TranslationServiceImpl.java
+ * @Project: onlinetranslation
+ * @Copyright: Copyright (c) 2018, All Rights Reserved
  * <p>
- * File Name: TranslationServiceImpl.java
- * </p>
- * <p>
- * Project:   beta
- * </p>
- * <p>
- * Copyright: Copyright (c) 2018, All Rights Reserved
- * E-mail: song_liping@hotmail.com
- * </p>
- * <p>
- * Created on 2018/2/19 下午3:08
- * </p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * @Date: 2018/2/19 下午3:08
+ * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
 package alex.beta.onlinetranslation.services.impl;
 
@@ -29,8 +25,8 @@ import java.util.Objects;
 import static alex.beta.onlinetranslation.persistence.TranslationEntity.TEXT_MAXLENGTH;
 
 /**
- * @author alexsong
  * @version ${project.version}
+ * @Description
  */
 
 @Service("translationService")

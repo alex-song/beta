@@ -19,8 +19,8 @@ import java.util.List;
 /**
  * This service is for internal use only, won't expose to controller or 3rd party.
  *
- * @Description
  * @version ${project.version}
+ * @Description
  */
 public interface InternalTranslationService extends TranslationService {
     /**

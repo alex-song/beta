@@ -20,8 +20,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 @Entity
 @Table(name = "Translation",

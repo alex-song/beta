@@ -6,6 +6,7 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * </p>
  * @Date: 2018/2/23 下午8:38
  * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
@@ -27,8 +28,8 @@ import springfox.documentation.spi.schema.contexts.ModelPropertyContext;
  * <p>
  * https://stackoverflow.com/questions/48379238/springfox-hide-allowemptyvalue-when-field-annotated-with-apimodelproperty
  *
- * @Description
  * @version ${project.version}
+ * @Description
  */
 @Component
 public class CustomizedModelPropertyBuilderPlugin implements ModelPropertyBuilderPlugin {

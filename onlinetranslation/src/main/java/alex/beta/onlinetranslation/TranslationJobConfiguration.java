@@ -27,8 +27,8 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.Executor;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 
 @EnableAsync

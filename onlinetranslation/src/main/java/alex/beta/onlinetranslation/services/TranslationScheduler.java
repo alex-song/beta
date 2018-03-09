@@ -28,8 +28,8 @@ import javax.transaction.Transactional;
 import java.util.List;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 @Component
 @ConditionalOnProperty(value = "TranslationJobConfiguration.enableTranslationJob", havingValue = "true")

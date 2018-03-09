@@ -13,8 +13,8 @@
 package alex.beta.onlinetranslation.persistence;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 public enum TranslationStatus {
     SUBMITTED("SUBMITTED"),
