@@ -1,14 +1,14 @@
 /**
- * @File:      InternalTranslationServiceTest.java
- * @Project:   beta
+ * @File: InternalTranslationServiceTest.java
+ * @Project: beta
  * @Copyright: Copyright (c) 2018, All Rights Reserved
  * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * </p>
- * @Date:      2018/2/24 下午10:24
- * @author:    <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
+ * @Date: 2018/2/24 下午10:24
+ * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
 package alex.beta.onlinetranslation.services;
 
@@ -73,15 +73,16 @@ public class InternalTranslationServiceTest extends AbstractOnlineTranslationSer
 
     @Test
     @Rollback
-    public void testSubmit() {
+    public void testSubmit() throws Exception {
         TranslationModel tm1 = translationService.submit("auto", "zh", "hello");
+        awaitOneMillisecond();
         TranslationModel tm2 = translationService.submit("auto", "zh", "hello");
+        awaitOneMillisecond();
         TranslationModel tm3 = translationService.submit("auto", "zh", "hello");
 
         assertNotNull(tm1.getUuid());
         assertNotNull(tm2.getUuid());
         assertNotNull(tm3.getUuid());
-
 
         List result = entityManager.createNativeQuery("SELECT uuid FROM translation ORDER BY created_on ASC").getResultList();
         assertEquals(3, result.size());
@@ -95,9 +96,13 @@ public class InternalTranslationServiceTest extends AbstractOnlineTranslationSer
     @Rollback
     public void testFindRequestsToTranslate() throws Exception {
         TranslationModel tm1 = translationService.submit("auto", "zh", "hello1");
+        awaitOneMillisecond();
         TranslationModel tm2 = translationService.submit("auto", "zh", "hello2");
+        awaitOneMillisecond();
         TranslationModel tm3 = translationService.submit("auto", "zh", "hello3");
+        awaitOneMillisecond();
         TranslationModel tm4 = translationService.submit("auto", "zh", "hello4");
+        awaitOneMillisecond();
         TranslationModel tm5 = translationService.submit("auto", "zh", "hello5");
 
         TranslationEntity te2 = new TranslationEntity(tm2.getUuid());
@@ -106,7 +111,6 @@ public class InternalTranslationServiceTest extends AbstractOnlineTranslationSer
         assertEquals("hello2", te2.getText());
         assertTrue(te2.getLastUpdatedOn().getTime() > System.currentTimeMillis());
         assertEquals(5, howManyRequestsNow());
-        Thread.sleep(1);
         List<TranslationEntity> tes = translationService.findRequestsToTranslate();
 
         assertEquals(3, tes.size());
@@ -136,12 +140,11 @@ public class InternalTranslationServiceTest extends AbstractOnlineTranslationSer
         assertTrue(System.currentTimeMillis() > te3.getLastUpdatedOn().getTime());
         assertTrue(System.currentTimeMillis() - 12 * 60 * 60 * 1000L > te3.getLastUpdatedOn().getTime());
 
-        Thread.sleep(1);
-
         TranslationEntity te4 = new TranslationEntity(tm4.getUuid());
         Date oldDate = tm4.getLastUpdatedOn();
         te4.setLastUpdatedOn(null);
         te4.setStatus(TranslationStatus.ERROR);
+        awaitOneMillisecond();
         te4 = translationService.updateTranslationRequest(te4);
         assertTrue(te4.getLastUpdatedOn().after(oldDate));
 
@@ -153,6 +156,7 @@ public class InternalTranslationServiceTest extends AbstractOnlineTranslationSer
         te5.setTranslationLines(tles);
         te5 = translationService.updateTranslationRequest(te5);
 
+        //-2, 5
         translationService.performHousekeeping();
         assertEquals(3, howManyRequestsNow());
     }
@@ -175,7 +179,6 @@ public class InternalTranslationServiceTest extends AbstractOnlineTranslationSer
         input.setStatus(TranslationStatus.SUBMITTED);
         input.setCreatedOn(source.getCreatedOn());
         input.setLastUpdatedOn(source.getLastUpdatedOn());
-        assertNotNull(input.getCreatedOn());
 
         TranslationEntity output = new TranslationEntity(source.getUuid());
         output.setText("hello");
@@ -190,7 +193,7 @@ public class InternalTranslationServiceTest extends AbstractOnlineTranslationSer
         //mock api method
         doReturn(output).when(apiConnector).translate(Matchers.any(TranslationEntity.class));
 
-        Thread.sleep(1);
+        awaitOneMillisecond();
 
         //perform translation
         translationService.performTranslation(input);
@@ -234,17 +237,16 @@ public class InternalTranslationServiceTest extends AbstractOnlineTranslationSer
         List<TranslationLineEntity> tls = new ArrayList<>();
         tls.add(new TranslationLineEntity("hello", "你好"));
         input1.setTranslationLines(tls);
-        Thread.sleep(1);
+        awaitOneMillisecond();
         input1 = translationService.updateTranslationRequest(input1);
         long timestamp2 = input1.getLastUpdatedOn().getTime();
-
         assertTrue(input1.getLastUpdatedOn().getTime() > timestamp);
 
         TranslationEntity input2 = new TranslationEntity(input1.getUuid());
         input2.setMessage(null);//null字符串
         input2.setTranslationLines(null);//null翻译
         input2.setLastUpdatedOn(null);//null时间戳
-        Thread.sleep(1);
+        awaitOneMillisecond();
         input2 = translationService.updateTranslationRequest(input2);
 
         assertEquals("hello", input2.getText());
@@ -277,7 +279,7 @@ public class InternalTranslationServiceTest extends AbstractOnlineTranslationSer
         List<TranslationLineEntity> tls = new ArrayList<>();
         tls.add(new TranslationLineEntity("hello", "你好"));
         input1.setTranslationLines(tls);
-        Thread.sleep(1);
+        awaitOneMillisecond();
         input1 = translationService.updateTranslationRequest(input1);
         long timestamp2 = input1.getLastUpdatedOn().getTime();
 
