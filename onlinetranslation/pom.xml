@@ -260,7 +260,6 @@
                 </dependency>
             </dependencies>
             <build>
-                <finalName>onlinetranslation</finalName>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -296,7 +295,7 @@
                                 <resource>
                                     <targetPath>/</targetPath>
                                     <directory>${project.build.directory}</directory>
-                                    <include>${project.build.finalName}.jar</include>
+                                    <include>${project.artifactId}-${project.version}.war</include>
                                 </resource>
                             </resources>
                         </configuration>
