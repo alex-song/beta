@@ -7,7 +7,8 @@
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="ShouldVisit">
+				<xs:element name="EntryPoints" type="xs:string" maxOccurs="unbounded"/>
+				<xs:element name="ShouldVisit" minOccurs="0">
 					<xs:complexType>
 						<xs:choice>
 							<xs:element name="Condition" type="Condition" minOccurs="0"/>
@@ -15,8 +16,10 @@
 						</xs:choice>
 					</xs:complexType>
 				</xs:element>
-				<xs:element name="Visitor"/>
+				<xs:element name="Visitor" minOccurs="0"/>
 			</xs:sequence>
+			<xs:attribute name="depth" type="xs:int" default="6"/>
+			<xs:attribute name="clawerClass" type="xs:string" use="optional"/>
 		</xs:complexType>
 	</xs:element>
 	<xs:complexType name="And">
@@ -26,8 +29,8 @@
 	</xs:complexType>
 	<xs:complexType name="Joint">
 		<xs:sequence>
-			<xs:element name="Condition" type="Condition" minOccurs="0" maxOccurs="unbounded"/>
-			<xs:element name="Subjoints" type="Joint" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Conditions" type="Condition" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Joints" type="Joint" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="value" type="xs:boolean" default="false"/>
 	</xs:complexType>
