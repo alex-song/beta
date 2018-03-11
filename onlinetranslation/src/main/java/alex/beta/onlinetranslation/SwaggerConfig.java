@@ -39,7 +39,7 @@ import java.time.LocalDateTime;
  * @Description
  */
 
-@Profile({"dev", "nas"})
+@Profile({"dev", "nas", "docker"})
 @EnableSwagger2
 @Configuration
 @EnableAutoConfiguration
