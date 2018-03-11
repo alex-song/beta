@@ -12,6 +12,11 @@
 
     <artifactId>onlinetranslation</artifactId>
 
+    <properties>
+        <springboot_classifier>springboot</springboot_classifier>
+        <nas_classifier>without_tomcat</nas_classifier>
+    </properties>
+
     <dependencies>
         <!-- spring boot -->
         <dependency>
@@ -150,11 +155,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot_version}</version>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>${maven-assembly-plugin_version}</version>
@@ -216,9 +216,22 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-war-plugin</artifactId>
                         <version>${maven-war-plugin_version}</version>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <version>${spring-boot_version}</version>
                         <configuration>
-                            <classifier>embedded_tomcat</classifier>
+                            <mainClass>alex.beta.onlinetranslation.Application</mainClass>
+                            <classifier>${springboot_classifier}</classifier>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>repackage</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -237,12 +250,96 @@
                 </dependency>
             </dependencies>
             <build>
-                <finalName>onlinetranslation</finalName>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-war-plugin</artifactId>
                         <version>${maven-war-plugin_version}</version>
+                        <configuration>
+                            <classifier>${nas_classifier}</classifier>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- mvn clean install -U -Pdocker -->
+        <!-- docker run -v /logs:/logs -p 7070:7070 onlinetranslation /bin/bash -->
+        <profile>
+            <id>docker</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </dependency>
+            </dependencies>
+            <properties>
+                <profileActive>docker</profileActive>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <version>${maven-war-plugin_version}</version>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-install-plugin</artifactId>
+                        <version>${maven-install-plugin_version}</version>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <version>${spring-boot_version}</version>
+                        <configuration>
+                            <mainClass>alex.beta.onlinetranslation.Application</mainClass>
+                            <classifier>${springboot_classifier}</classifier>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>repackage</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.spotify</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>${docker-maven-plugin_version}</version>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                            <!--<execution>-->
+                            <!--<id>push-image</id>-->
+                            <!--<phase>deploy</phase>-->
+                            <!--<goals>-->
+                            <!--<goal>push</goal>-->
+                            <!--</goals>-->
+                            <!--<configuration>-->
+                            <!--<imageName>${docker.repostory}/${docker.registry.name}/${project.artifactId}:${project.version}</imageName>-->
+                            <!--</configuration>-->
+                            <!--</execution>-->
+                        </executions>
+                        <configuration>
+                            <imageName>${project.artifactId}</imageName>
+                            <dockerDirectory>src/main/docker</dockerDirectory>
+                            <resources>
+                                <resource>
+                                    <targetPath>/</targetPath>
+                                    <directory>${project.build.directory}</directory>
+                                    <include>${project.artifactId}-${project.version}-springboot.war</include>
+                                </resource>
+                            </resources>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>

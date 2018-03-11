@@ -14,7 +14,7 @@ spring:
         format_sql: false
 
 logging:
-  config: classpath:logback/logback-nas.xml
+  config: classpath:logback/logback-docker.xml
 
 TranslationJobConfiguration:
   numOfThreads: 5
