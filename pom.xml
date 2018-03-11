@@ -38,6 +38,7 @@
         <maven-failsafe-plugin_version>2.20.1</maven-failsafe-plugin_version>
         <sonar-maven-plugin_version>3.4.0.905</sonar-maven-plugin_version>
 		<docker-maven-plugin_version>1.0.0</docker-maven-plugin_version>
+        <maven-jaxb2-plugin_version>0.13.3</maven-jaxb2-plugin_version>
 
         <!-- dependencies -->
 		<junit_version>4.12</junit_version>
