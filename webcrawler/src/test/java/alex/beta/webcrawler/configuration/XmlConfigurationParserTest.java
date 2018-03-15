@@ -15,6 +15,7 @@ package alex.beta.webcrawler.configuration;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -32,6 +33,7 @@ public class XmlConfigurationParserTest {
         //
     }
 
+    @Ignore
     @Test
     public void testConfiguration() throws Exception {
         try {
