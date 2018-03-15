@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<axs:XmlConfiguration xmlns:axs="http://songlp.ddns.net/webcrawler/schema"
+					  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					  depth="1" numberOfCrawlers="3" >
+	<EntryPoints>http://192.168.2.1/#!/login</EntryPoints>
+	<ShouldVisit>
+		<Joint xsi:type="axs:Not">
+			<Condition xsi:type="axs:EndsWith" suffix=".png" caseSensitive="false"/>
+		</Joint>
+	</ShouldVisit>
+	<Visitor visitorClass="String"/>
+</axs:XmlConfiguration>
