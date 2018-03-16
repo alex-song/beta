@@ -8,7 +8,7 @@
 
     <jxb:bindings schemaLocation="../xsd/configuration.xsd">
         <jxb:bindings node="//xs:complexType[@name='Configuration']">
-            <inheritance:implements>alex.beta.webcrawler.configuration.IConfiguration</inheritance:implements>
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IConfiguration</inheritance:implements>
         </jxb:bindings>
     </jxb:bindings>
 

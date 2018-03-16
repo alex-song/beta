@@ -12,6 +12,7 @@
  */
 package alex.beta.webcrawler.configuration;
 
+import alex.beta.webcrawler.configuration.api.IConfiguration;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
 import org.junit.After;
 import org.junit.Before;

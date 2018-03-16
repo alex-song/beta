@@ -12,6 +12,7 @@
  */
 package alex.beta.webcrawler.configuration;
 
+import alex.beta.webcrawler.configuration.api.IConfiguration;
 import com.google.common.io.Resources;
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.crawler.CrawlController;

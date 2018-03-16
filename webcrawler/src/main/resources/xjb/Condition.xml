@@ -8,8 +8,42 @@
 
     <jxb:bindings schemaLocation="../xsd/configuration.xsd">
         <jxb:bindings node="//xs:complexType[@name='Condition']">
-            <inheritance:implements>alex.beta.webcrawler.configuration.ICondition</inheritance:implements>
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.ICondition</inheritance:implements>
         </jxb:bindings>
     </jxb:bindings>
-
+    <jxb:bindings schemaLocation="../xsd/configuration.xsd">
+        <jxb:bindings node="//xs:complexType[@name='StartsWith']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IStartsWith</inheritance:implements>
+        </jxb:bindings>
+    </jxb:bindings>
+    <jxb:bindings schemaLocation="../xsd/configuration.xsd">
+        <jxb:bindings node="//xs:complexType[@name='EndsWith']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IEndsWith</inheritance:implements>
+        </jxb:bindings>
+    </jxb:bindings>
+    <jxb:bindings schemaLocation="../xsd/configuration.xsd">
+        <jxb:bindings node="//xs:complexType[@name='InTheListOf']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IInTheListOf</inheritance:implements>
+        </jxb:bindings>
+    </jxb:bindings>
+    <jxb:bindings schemaLocation="../xsd/configuration.xsd">
+        <jxb:bindings node="//xs:complexType[@name='Contains']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IContains</inheritance:implements>
+        </jxb:bindings>
+    </jxb:bindings>
+    <jxb:bindings schemaLocation="../xsd/configuration.xsd">
+        <jxb:bindings node="//xs:complexType[@name='RegexMatches']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IRegexMatches</inheritance:implements>
+        </jxb:bindings>
+    </jxb:bindings>
+    <jxb:bindings schemaLocation="../xsd/configuration.xsd">
+        <jxb:bindings node="//xs:complexType[@name='Equals']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IEquals</inheritance:implements>
+        </jxb:bindings>
+    </jxb:bindings>
+    <jxb:bindings schemaLocation="../xsd/configuration.xsd">
+        <jxb:bindings node="//xs:complexType[@name='Exists']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IExists</inheritance:implements>
+        </jxb:bindings>
+    </jxb:bindings>
 </jxb:bindings>

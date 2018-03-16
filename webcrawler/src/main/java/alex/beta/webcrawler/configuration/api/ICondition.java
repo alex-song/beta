@@ -10,7 +10,7 @@
  * @Date: 2018/3/14 22:30
  * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
-package alex.beta.webcrawler.configuration;
+package alex.beta.webcrawler.configuration.api;
 
 /**
  * @version ${project.version}
@@ -19,9 +19,5 @@ package alex.beta.webcrawler.configuration;
 public interface ICondition {
     boolean isValue();
 
-    void setValue(Boolean value);
-
     String getConditionClass();
-
-    void setConditionClass(String conditionClass);
 }
