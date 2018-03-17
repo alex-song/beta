@@ -28,4 +28,8 @@ public interface IConfiguration {
     String getClawerClass();
 
     String getCrawlStorageFolder();
+
+    IShouldVisit getShouldVisit();
+
+    AbstractVisitor getVisitor();
 }

@@ -5,32 +5,27 @@
 	<xs:complexType name="Configuration">
 		<xs:sequence>
 			<xs:element name="EntryPoints" type="xs:string" maxOccurs="unbounded"/>
-			<xs:element name="ShouldVisit" minOccurs="0">
-				<xs:complexType>
-					<xs:choice>
-						<xs:element name="Condition" type="axs:Condition" minOccurs="0"/>
-						<xs:element name="Joint" type="axs:Joint" minOccurs="0"/>
-					</xs:choice>
-					<xs:attribute name="shouldVisitClass" type="xs:string" use="optional"/>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="Visitor" minOccurs="0">
-				<xs:complexType>
-					<xs:attribute name="visitorClass" type="xs:string" use="optional"/>
-				</xs:complexType>
-			</xs:element>
+			<xs:element name="ShouldVisit" type="axs:ShouldVisit" minOccurs="0"/>
+			<xs:element name="Visitor" type="axs:Visitor" minOccurs="0"/>
 		</xs:sequence>
 		<xs:attribute name="depth" type="xs:int" use="optional" default="6"/>
 		<xs:attribute name="clawerClass" type="xs:string" use="optional"/>
 		<xs:attribute name="crawlStorageFolder" type="xs:string" use="optional"/>
 		<xs:attribute name="numberOfCrawlers" type="xs:int" use="optional" default="3"/>
 	</xs:complexType>
+	<xs:complexType name="ShouldVisit">
+		<xs:choice>
+			<xs:element name="Condition" type="axs:Condition" minOccurs="0"/>
+			<xs:element name="Joint" type="axs:Joint" minOccurs="0"/>
+		</xs:choice>
+		<xs:attribute name="shouldVisitClass" type="xs:string" use="optional"/>
+	</xs:complexType>
 	<xs:complexType name="Joint" abstract="true">
 		<xs:sequence>
 			<xs:element name="Conditions" type="axs:Condition" minOccurs="0" maxOccurs="unbounded"/>
 			<xs:element name="Joints" type="axs:Joint" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
-		<xs:attribute name="value" type="xs:boolean" default="false"/>
+		<xs:attribute name="jointClass" type="xs:string" use="optional"/>
 	</xs:complexType>
 	<xs:complexType name="And">
 		<xs:complexContent>
@@ -48,12 +43,7 @@
 		</xs:complexContent>
 	</xs:complexType>
 	<xs:complexType name="Condition" abstract="true">
-		<xs:attribute name="value" type="xs:boolean" use="optional" default="false"/>
-		<xs:attribute name="conditionClass" type="xs:string" use="optional">
-			<xs:annotation>
-				<xs:documentation>The Java class that implements ICondition interface, and implements the getValue() method. It will overrides XML configuration, if the condition class presents.</xs:documentation>
-			</xs:annotation>
-		</xs:attribute>
+		<xs:attribute name="conditionClass" type="xs:string" use="optional"/>
 	</xs:complexType>
 	<xs:complexType name="StartsWith">
 		<xs:complexContent>
@@ -112,5 +102,8 @@
 				<xs:attribute name="text" type="xs:string" use="required"/>
 			</xs:extension>
 		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="Visitor">
+		<xs:attribute name="visitorClass" type="xs:string" use="optional"/>
 	</xs:complexType>
 </xs:schema>
