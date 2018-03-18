@@ -87,12 +87,51 @@ public class JointEvaluator {
     }
 
     private boolean evaluateOr(IOr or, String url) throws ConfigurationException {
-        //TODO
-        return true;
+        List<? extends ICondition> conditions = or.getConditions();
+        List<? extends IJoint> joints = or.getJoints();
+        if ((conditions == null || conditions.isEmpty()) && (joints == null || joints.isEmpty())) {
+            return false;
+        } else {
+            boolean flag = false;
+            if (conditions != null && !conditions.isEmpty()) {
+                for (ICondition c : conditions) {
+                    flag = flag || c.evaluate(url);
+                    if (flag) {
+                        return true;
+                    }
+                }
+            }
+            if (joints != null && !joints.isEmpty()) {
+                for (IJoint j : joints) {
+                    flag = flag || j.evaluate(url);
+                    if (flag) {
+                        return true;
+                    }
+                }
+            }
+            return flag;
+        }
     }
 
     private boolean evaluateNot(INot not, String url) throws ConfigurationException {
-        //TODO
-        return true;
+        List<? extends ICondition> conditions = not.getConditions();
+        List<? extends IJoint> joints = not.getJoints();
+        if ((conditions == null || conditions.isEmpty()) && (joints == null || joints.isEmpty())) {
+            return false;
+        } else if ((conditions != null && !conditions.isEmpty()) && (joints != null && !joints.isEmpty())) {
+            throw new ConfigurationException("Only one Condition or Joint can be defined in Not.");
+        } else if (conditions != null && !conditions.isEmpty()) {
+            if (conditions.size() > 1) {
+                throw new ConfigurationException("Only one Condition can be defined in Not.");
+            } else {
+                return !conditions.get(0).evaluate(url);
+            }
+        } else {
+            if (joints.size() > 1) {
+                throw new ConfigurationException("Only one Joint can be defined in Not.");
+            } else {
+                return !joints.get(0).evaluate(url);
+            }
+        }
     }
 }
