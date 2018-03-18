@@ -13,6 +13,8 @@
 package alex.beta.webcrawler.configuration.api;
 
 import alex.beta.webcrawler.configuration.ConfigurationException;
+import alex.beta.webcrawler.configuration.xmlbeans.JointEvaluator;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @version ${project.version}
@@ -20,11 +22,12 @@ import alex.beta.webcrawler.configuration.ConfigurationException;
  */
 public abstract class AbstractJoint implements IJoint {
 
-    public abstract String getJointClass();
-
     @Override
     public boolean evaluate(String url) throws ConfigurationException {
-        //TODO this
-        return true;
+        if (StringUtils.isEmpty(url)) {
+            return false;
+        } else {
+            return JointEvaluator.getInstance().evaluate(this, url);
+        }
     }
 }

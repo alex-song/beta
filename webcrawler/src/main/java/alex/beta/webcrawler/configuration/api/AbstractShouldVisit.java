@@ -12,6 +12,7 @@
  */
 package alex.beta.webcrawler.configuration.api;
 
+import alex.beta.webcrawler.configuration.ClassUtils;
 import alex.beta.webcrawler.configuration.ConfigurationException;
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.url.WebURL;
@@ -57,13 +58,8 @@ public abstract class AbstractShouldVisit implements IShouldVisit {
                 throw new ConfigurationException("Illegal configuration of ShouldVisit node. Must provide one of shouldVisitClass, Condition or Joint.");
             }
         } else {
-            try {
-                IShouldVisit customizedShouldVisit = (IShouldVisit) Class.forName(this.getShouldVisitClass()).newInstance();
-                return customizedShouldVisit.shouldVisit(url);
-            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-                logger.error("Cannot create instance of {}", this.getShouldVisitClass(), ex);
-                throw new ConfigurationException(this.getShouldVisitClass(), ex);
-            }
+            IShouldVisit customizedShouldVisit = ClassUtils.customizedShouldVisit(this.getShouldVisitClass());
+            return customizedShouldVisit.shouldVisit(url);
         }
     }
 }

@@ -12,6 +12,7 @@
  */
 package alex.beta.webcrawler.configuration.xmlbeans;
 
+import alex.beta.webcrawler.configuration.ClassUtils;
 import alex.beta.webcrawler.configuration.ConfigurationException;
 import alex.beta.webcrawler.configuration.api.*;
 import org.apache.commons.lang.StringUtils;
@@ -36,14 +37,9 @@ public class ConditionEvaluator {
     }
 
     public boolean evaluate(ICondition condition, String url) throws ConfigurationException {
-        if (!StringUtils.isEmpty(condition.getConditionClass())) {
+        if (StringUtils.isEmpty(condition.getConditionClass())) {
             if (logger.isDebugEnabled()) {
-                logger.debug("Evaluating {} using customized condition {}", url, condition.getConditionClass());
-            }
-            return instantiate(condition.getConditionClass()).evaluate(url);
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Evaluating {} using condition {}", url, condition.getClass().getSimpleName());
+                logger.debug("Evaluating {} using Condition {}", url, condition.getClass().getSimpleName());
             }
             if (condition instanceof IContains) {
                 return evaluateContains((IContains) condition, url);
@@ -51,8 +47,6 @@ public class ConditionEvaluator {
                 return evaluateEndsWith((IEndsWith) condition, url);
             } else if (condition instanceof IEquals) {
                 return evaluateEquals((IEquals) condition, url);
-            } else if (condition instanceof IExists) {
-                return evaluateExists((IExists) condition, url);
             } else if (condition instanceof IInTheListOf) {
                 return evaluateInTheListOf((IInTheListOf) condition, url);
             } else if (condition instanceof IRegexMatches) {
@@ -60,8 +54,13 @@ public class ConditionEvaluator {
             } else if (condition instanceof IStartsWith) {
                 return evaluateStartsWith((IStartsWith) condition, url);
             } else {
-                throw new ConfigurationException("Unsupported condition " + condition.getClass().getSimpleName());
+                throw new ConfigurationException("Unsupported Condition " + condition.getClass().getSimpleName());
             }
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Evaluating {} using customized Condition {}", url, condition.getConditionClass());
+            }
+            return ClassUtils.customizedCondition(condition.getConditionClass()).evaluate(url);
         }
     }
 
@@ -84,42 +83,53 @@ public class ConditionEvaluator {
             if (endsWith.isCaseSensitive()) {
                 return url.endsWith(endsWith.getSuffix());
             } else {
-                return url.toLowerCase().contains(endsWith.getSuffix().toLowerCase());
+                return url.toLowerCase().endsWith(endsWith.getSuffix().toLowerCase());
             }
         }
     }
 
-    private boolean evaluateEquals(IEquals equals, String url) {
-        //TODO
-        return true;
+    private boolean evaluateEquals(IEquals equals, String url) throws ConfigurationException {
+        if (StringUtils.isEmpty(equals.getText())) {
+            throw new ConfigurationException("Text is not specified in Equals");
+        } else {
+            if (equals.isCaseSensitive()) {
+                return url.equals(equals.getText());
+            } else {
+                return url.equalsIgnoreCase(equals.getText());
+            }
+        }
     }
 
-    private boolean evaluateExists(IExists exists, String url) {
-        //TODO
-        return true;
+    private boolean evaluateInTheListOf(IInTheListOf inTheListOf, String url) throws ConfigurationException {
+        if (inTheListOf.getUrl() == null || inTheListOf.getUrl().isEmpty()) {
+            throw new ConfigurationException("Url is not specified in InTheListOf");
+        } else {
+            for (String tmp : inTheListOf.getUrl()) {
+                if (url.equals(tmp)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
-    private boolean evaluateInTheListOf(IInTheListOf inTheListOf, String url) {
-        //TODO
-        return true;
+    private boolean evaluateRegexMatches(IRegexMatches regexMatches, String url) throws ConfigurationException {
+        if (StringUtils.isEmpty(regexMatches.getRegex())) {
+            throw new ConfigurationException("Regex is not specified in RegexMatches");
+        } else {
+            return url.matches(regexMatches.getRegex());
+        }
     }
 
-    private boolean evaluateRegexMatches(IRegexMatches regexMatches, String url) {
-        //TODO
-        return true;
-    }
-
-    private boolean evaluateStartsWith(IStartsWith startsWith, String url) {
-        //TODO
-        return true;
-    }
-
-    private ICondition instantiate(String clazz) throws ConfigurationException {
-        try {
-            return (ICondition) Class.forName(clazz).newInstance();
-        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException ex) {
-            logger.error("Cannot instantiate {}", clazz, ex);
-            throw new ConfigurationException("Cannot instantiate " + clazz, ex);
+    private boolean evaluateStartsWith(IStartsWith startsWith, String url) throws ConfigurationException {
+        if (StringUtils.isEmpty(startsWith.getPrefix())) {
+            throw new ConfigurationException("Prefix is not specified in StartsWith");
+        } else {
+            if (startsWith.isCaseSensitive()) {
+                return url.startsWith(startsWith.getPrefix());
+            } else {
+                return url.toLowerCase().startsWith(startsWith.getPrefix().toLowerCase());
+            }
         }
     }
 }

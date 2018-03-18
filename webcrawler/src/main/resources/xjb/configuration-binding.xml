@@ -40,13 +40,19 @@
         <jxb:bindings node="//xs:complexType[@name='Equals']">
             <inheritance:implements>alex.beta.webcrawler.configuration.api.IEquals</inheritance:implements>
         </jxb:bindings>
-        <jxb:bindings node="//xs:complexType[@name='Exists']">
-            <inheritance:implements>alex.beta.webcrawler.configuration.api.IExists</inheritance:implements>
-        </jxb:bindings>
 
         <jxb:bindings node="//xs:complexType[@name='Joint']">
             <inheritance:extends>alex.beta.webcrawler.configuration.api.AbstractJoint</inheritance:extends>
             <inheritance:implements>alex.beta.webcrawler.configuration.api.IJoint</inheritance:implements>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='And']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IAnd</inheritance:implements>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='Or']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IOr</inheritance:implements>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='Not']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.INot</inheritance:implements>
         </jxb:bindings>
     </jxb:bindings>
 </jxb:bindings>

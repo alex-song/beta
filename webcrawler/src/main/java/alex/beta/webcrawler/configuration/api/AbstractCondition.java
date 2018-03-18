@@ -22,8 +22,6 @@ import org.apache.commons.lang.StringUtils;
  */
 public abstract class AbstractCondition implements ICondition {
 
-    public abstract String getConditionClass();
-
     @Override
     public boolean evaluate(String url) throws ConfigurationException {
         if (StringUtils.isEmpty(url)) {
