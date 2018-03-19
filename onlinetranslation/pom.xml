@@ -16,6 +16,8 @@
         <springboot_classifier>springboot</springboot_classifier>
         <nas_classifier>without_tomcat</nas_classifier>
         <mini_classifier>mini</mini_classifier>
+
+        <docker-image-prefix>alexsong</docker-image-prefix>
     </properties>
 
     <dependencies>
@@ -289,8 +291,15 @@
                 </plugins>
             </build>
         </profile>
-        <!-- mvn clean install -U -Pdocker -->
-        <!-- docker run -v /logs:/logs -p 7070:7070 onlinetranslation /bin/bash -->
+        <!-- run following command to build docker image -->
+        <!-- mvn clean package docker:build -Pdocker -->
+
+        <!-- run following command to start the image service in docker -->
+        <!-- docker run -v /devlogs:/devlogs -p 7070:7070 alexsong/onlinetranslation:0.0.1 -->
+        <!-- http://192.168.99.100:7070/onlinetranslation -->
+
+        <!-- run following command to push ht eimage to docker hub (define the server in settings.xml first) -->
+        <!-- mvn clean package docker:build -DpushImage -Pdocker -->
         <profile>
             <id>docker</id>
             <dependencies>
@@ -338,26 +347,12 @@
                         <groupId>com.spotify</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
                         <version>${docker-maven-plugin_version}</version>
-                        <executions>
-                            <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>build</goal>
-                                </goals>
-                            </execution>
-                            <!--<execution>-->
-                            <!--<id>push-image</id>-->
-                            <!--<phase>deploy</phase>-->
-                            <!--<goals>-->
-                            <!--<goal>push</goal>-->
-                            <!--</goals>-->
-                            <!--<configuration>-->
-                            <!--<imageName>${docker.repostory}/${docker.registry.name}/${project.artifactId}:${project.version}</imageName>-->
-                            <!--</configuration>-->
-                            <!--</execution>-->
-                        </executions>
                         <configuration>
-                            <imageName>${project.artifactId}</imageName>
+                            <imageName>${docker-image-prefix}/${project.artifactId}</imageName>
+                            <imageTags>
+                                <imageTag>${project.version}</imageTag>
+                                <imageTag>latest</imageTag>
+                            </imageTags>
                             <dockerDirectory>src/main/docker</dockerDirectory>
                             <resources>
                                 <resource>
@@ -366,6 +361,8 @@
                                     <include>${project.artifactId}-${project.version}-springboot.war</include>
                                 </resource>
                             </resources>
+                            <serverId>docker-hub</serverId>
+                            <registryUrl>https://registry-1.docker.io/v2/</registryUrl>
                         </configuration>
                     </plugin>
                 </plugins>
