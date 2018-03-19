@@ -15,6 +15,7 @@
     <properties>
         <springboot_classifier>springboot</springboot_classifier>
         <nas_classifier>without_tomcat</nas_classifier>
+        <mini_classifier>mini</mini_classifier>
     </properties>
 
     <dependencies>
@@ -257,6 +258,32 @@
                         <version>${maven-war-plugin_version}</version>
                         <configuration>
                             <classifier>${nas_classifier}</classifier>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>mini</id>
+            <properties>
+                <profileActive>mini</profileActive>
+                <maven.test.skip>true</maven.test.skip>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <version>${maven-war-plugin_version}</version>
+                        <configuration>
+                            <classifier>${mini_classifier}</classifier>
                         </configuration>
                     </plugin>
                 </plugins>
