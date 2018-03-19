@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<jxb:bindings version="1.0"
+              xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+              xmlns:xs="http://www.w3.org/2001/XMLSchema"
+              xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+              xmlns:inheritance="http://jaxb2-commons.dev.java.net/basic/inheritance"
+              jxb:extensionBindingPrefixes="xjc">
+
+    <jxb:bindings schemaLocation="../xsd/configuration.xsd">
+        <jxb:bindings node="//xs:complexType[@name='Configuration']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IConfiguration</inheritance:implements>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='ShouldVisit']">
+            <inheritance:extends>alex.beta.webcrawler.configuration.api.AbstractShouldVisit</inheritance:extends>
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IShouldVisit</inheritance:implements>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='Visitor']">
+            <inheritance:extends>alex.beta.webcrawler.configuration.api.AbstractVisitor</inheritance:extends>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xs:complexType[@name='Condition']">
+            <inheritance:extends>alex.beta.webcrawler.configuration.api.AbstractCondition</inheritance:extends>
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.ICondition</inheritance:implements>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='StartsWith']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IStartsWith</inheritance:implements>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='EndsWith']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IEndsWith</inheritance:implements>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='InTheListOf']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IInTheListOf</inheritance:implements>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='Contains']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IContains</inheritance:implements>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='RegexMatches']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IRegexMatches</inheritance:implements>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='Equals']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IEquals</inheritance:implements>
+        </jxb:bindings>
+
+        <jxb:bindings node="//xs:complexType[@name='Joint']">
+            <inheritance:extends>alex.beta.webcrawler.configuration.api.AbstractJoint</inheritance:extends>
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IJoint</inheritance:implements>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='And']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IAnd</inheritance:implements>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='Or']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IOr</inheritance:implements>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='Not']">
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.INot</inheritance:implements>
+        </jxb:bindings>
+    </jxb:bindings>
+</jxb:bindings>

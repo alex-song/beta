@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2013 (http://www.altova.com) by  () -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:axs="http://songlp.ddns.net/webcrawler/schema" targetNamespace="http://songlp.ddns.net/webcrawler/schema" elementFormDefault="unqualified" attributeFormDefault="unqualified">
+	<xs:element name="XmlConfiguration" type="axs:Configuration"/>
+	<xs:complexType name="Configuration">
+		<xs:sequence>
+			<xs:element name="EntryPoints" type="xs:string" maxOccurs="unbounded"/>
+			<xs:element name="ShouldVisit" type="axs:ShouldVisit" minOccurs="0"/>
+			<xs:element name="Visitor" type="axs:Visitor" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="depth" type="xs:int" use="optional" default="6"/>
+		<xs:attribute name="clawerClass" type="xs:string" use="optional"/>
+		<xs:attribute name="crawlStorageFolder" type="xs:string" use="optional"/>
+		<xs:attribute name="numberOfCrawlers" type="xs:int" use="optional" default="3"/>
+	</xs:complexType>
+	<xs:complexType name="ShouldVisit">
+		<xs:choice>
+			<xs:element name="Condition" type="axs:Condition" minOccurs="0"/>
+			<xs:element name="Joint" type="axs:Joint" minOccurs="0"/>
+		</xs:choice>
+		<xs:attribute name="shouldVisitClass" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="Joint" abstract="true">
+		<xs:sequence>
+			<xs:element name="Conditions" type="axs:Condition" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Joints" type="axs:Joint" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+		<xs:attribute name="jointClass" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="And">
+		<xs:complexContent>
+			<xs:extension base="axs:Joint"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="Or">
+		<xs:complexContent>
+			<xs:extension base="axs:Joint"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="Not">
+		<xs:complexContent>
+			<xs:extension base="axs:Joint"/>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="Condition" abstract="true">
+		<xs:attribute name="conditionClass" type="xs:string" use="optional"/>
+	</xs:complexType>
+	<xs:complexType name="StartsWith">
+		<xs:complexContent>
+			<xs:extension base="axs:Condition">
+				<xs:attribute name="prefix" type="xs:string" use="required"/>
+				<xs:attribute name="caseSensitive" type="xs:boolean" use="optional" default="false"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="EndsWith">
+		<xs:complexContent>
+			<xs:extension base="axs:Condition">
+				<xs:attribute name="suffix" type="xs:string" use="required"/>
+				<xs:attribute name="caseSensitive" type="xs:boolean" use="optional" default="false"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="InTheListOf">
+		<xs:complexContent>
+			<xs:extension base="axs:Condition">
+				<xs:sequence>
+					<xs:element name="Url" type="xs:string" maxOccurs="unbounded"/>
+				</xs:sequence>
+				<xs:attribute name="caseSensitive" type="xs:boolean" default="false"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="Contains">
+		<xs:complexContent>
+			<xs:extension base="axs:Condition">
+				<xs:attribute name="text" type="xs:string" use="required"/>
+				<xs:attribute name="caseSensitive" type="xs:boolean" default="false"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="RegexMatches">
+		<xs:complexContent>
+			<xs:extension base="axs:Condition">
+				<xs:attribute name="regex" type="xs:string" use="required"/>
+				<xs:attribute name="toLowerCase" type="xs:boolean" default="false"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="Equals">
+		<xs:complexContent>
+			<xs:extension base="axs:Condition">
+				<xs:attribute name="caseSensitive" type="xs:boolean" default="false"/>
+				<xs:attribute name="text" type="xs:string" use="required"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:complexType name="Visitor">
+		<xs:attribute name="visitorClass" type="xs:string" use="optional"/>
+	</xs:complexType>
+</xs:schema>
