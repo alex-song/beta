@@ -96,6 +96,6 @@
 		</xs:complexContent>
 	</xs:complexType>
 	<xs:complexType name="Visitor">
-		<xs:attribute name="visitorClass" type="xs:string" use="optional"/>
+		<xs:attribute name="visitorClass" type="xs:string" use="required"/>
 	</xs:complexType>
 </xs:schema>

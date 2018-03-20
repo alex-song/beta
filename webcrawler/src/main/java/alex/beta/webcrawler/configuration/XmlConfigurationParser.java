@@ -16,10 +16,12 @@ import alex.beta.webcrawler.configuration.api.IConfiguration;
 import com.google.common.io.Resources;
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
+import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.fetcher.PageFetcher;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
+import edu.uci.ics.crawler4j.url.WebURL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,8 +103,32 @@ public class XmlConfigurationParser {
 
         @Override
         public WebCrawler newInstance() throws Exception {
-            //TODO
-            return new WebCrawler();
+
+            return new WebCrawler() {
+                @Override
+                public boolean shouldVisit(Page referringPage, WebURL url) {
+                    if (configuration.getShouldVisit() == null) {
+                        return false;
+                    }
+                    try {
+                        return configuration.getShouldVisit().shouldVisit(referringPage, url);
+                    } catch (ConfigurationException ex) {
+                        logger.error("Cannot evaluate shouldVisit method on {}", url, ex);
+                        return false;
+                    }
+                }
+
+                @Override
+                public void visit(Page page) {
+                    if (configuration.getVisitor() != null) {
+                        try {
+                            ClassUtils.customizedVisitor(configuration.getVisitor().getVisitorClass()).visit(page);
+                        } catch (ConfigurationException ex) {
+                            logger.error("Failed to visit page {}", page.getWebURL().getURL(), ex);
+                        }
+                    }
+                }
+            };
         }
     }
 }
