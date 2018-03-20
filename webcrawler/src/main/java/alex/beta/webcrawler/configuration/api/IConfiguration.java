@@ -31,5 +31,5 @@ public interface IConfiguration {
 
     IShouldVisit getShouldVisit();
 
-    AbstractVisitor getVisitor();
+    IVisitor getVisitor();
 }

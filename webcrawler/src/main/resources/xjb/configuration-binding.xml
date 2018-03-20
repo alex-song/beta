@@ -15,7 +15,7 @@
             <inheritance:implements>alex.beta.webcrawler.configuration.api.IShouldVisit</inheritance:implements>
         </jxb:bindings>
         <jxb:bindings node="//xs:complexType[@name='Visitor']">
-            <inheritance:extends>alex.beta.webcrawler.configuration.api.AbstractVisitor</inheritance:extends>
+            <inheritance:extends>alex.beta.webcrawler.configuration.api.IVisitor.LoggerVisitor</inheritance:extends>
         </jxb:bindings>
 
         <jxb:bindings node="//xs:complexType[@name='Condition']">
