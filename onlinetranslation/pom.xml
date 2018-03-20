@@ -295,7 +295,7 @@
         <!-- mvn clean package docker:build -Pdocker -->
 
         <!-- run following command to start the image service in docker -->
-        <!-- docker run -v /devlogs:/devlogs -p 7070:7070 alexsong/onlinetranslation:0.0.1 -->
+        <!-- docker run -v /Volumes/MyData/devlogs:/devlogs -p 31001:7070 -d alexsong/onlinetranslation -->
         <!-- http://192.168.99.100:7070/onlinetranslation -->
 
         <!-- run following command to push ht eimage to docker hub (define the server in settings.xml first) -->
