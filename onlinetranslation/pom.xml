@@ -300,6 +300,8 @@
 
         <!-- run following command to push ht eimage to docker hub (define the server in settings.xml first) -->
         <!-- mvn clean package docker:build -DpushImage -Pdocker -->
+
+        <!-- docker exec -it <containerid> /bin/sh -->
         <profile>
             <id>docker</id>
             <dependencies>

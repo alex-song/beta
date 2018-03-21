@@ -114,7 +114,7 @@
         -Dsonar.organization=${sonar.organization} \
         -Dsonar.login=${sonar.login}
 
-    mvn -Psonarcloud clean install sonar:sonar
+    mvn -Psonarcloud clean verify sonar:sonar
     -->
 	<profiles>
 		<profile>
@@ -131,10 +131,6 @@
                 <sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
                 <sonar.jacoco.reportPath>${project.build.directory}/coverage-reports/jacoco-ut.exec</sonar.jacoco.reportPath>
                 <sonar.junit.reportsPath>${project.build.directory}/surefire-reports</sonar.junit.reportsPath>
-                <!-- using Sonar@Cloud -->
-                <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-                <sonar.organization>alex-song-github</sonar.organization>
-                <sonar.login>9576693595388b350683a354afa778c37cc42c76</sonar.login>
             </properties>
 			<build>
 				<plugins>
