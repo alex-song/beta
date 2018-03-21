@@ -13,8 +13,8 @@
 package alex.beta.webcrawler.configuration.api;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 public interface IAnd extends IJoint {
 }

@@ -127,10 +127,14 @@ public class JointEvaluator {
                 return !conditions.get(0).evaluate(url);
             }
         } else {
-            if (joints.size() > 1) {
-                throw new ConfigurationException("Only one Joint can be defined in Not.");
+            if (joints == null) {
+                return false;
             } else {
-                return !joints.get(0).evaluate(url);
+                if (joints.size() > 1) {
+                    throw new ConfigurationException("Only one Joint can be defined in Not.");
+                } else {
+                    return !joints.get(0).evaluate(url);
+                }
             }
         }
     }

@@ -15,12 +15,13 @@ package alex.beta.webcrawler.configuration;
 import alex.beta.webcrawler.configuration.api.ICondition;
 import alex.beta.webcrawler.configuration.api.IJoint;
 import alex.beta.webcrawler.configuration.api.IShouldVisit;
+import alex.beta.webcrawler.configuration.api.IVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 public class ClassUtils {
 
@@ -50,6 +51,15 @@ public class ClassUtils {
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException ex) {
             logger.error("Cannot instantiate ShouldVisit of {}", clazz, ex);
             throw new ConfigurationException("Cannot instantiate ShouldVisit of " + clazz, ex);
+        }
+    }
+
+    public static IVisitor customizedVisitor(String clazz) throws ConfigurationException {
+        try {
+            return (IVisitor) Class.forName(clazz).newInstance();
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException ex) {
+            logger.error("Cannot instantiate Visitor of {}", clazz, ex);
+            throw new ConfigurationException("Cannot instantiate Visitor of " + clazz, ex);
         }
     }
 }

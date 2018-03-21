@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration debug="false" scan="true" packagingData="true">
-    <!-- Specify log folder path in docker -->
-    <property name="LOGS_FOLDER" value="/devlogs" />
+    <!-- Specify log folder path on NAS -->
+    <property name="DEVLOGS_FOLDER" value="/devlogs" />
     <property name="APP_NAME" value="onlinetranslation" />
     <contextName>${APP_NAME}</contextName>
 
@@ -17,9 +17,9 @@
 
     <appender name="OnlineTranslationFileLog"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOGS_FOLDER}/${APP_NAME}.log</file>
+        <file>${DEVLOGS_FOLDER}/${APP_NAME}.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOGS_FOLDER}/${APP_NAME}_%d{yyyy-MM-dd}.log.zip</fileNamePattern>
+            <fileNamePattern>${DEVLOGS_FOLDER}/${APP_NAME}_%d{yyyy-MM-dd}.log.zip</fileNamePattern>
             <maxHistory>7</maxHistory>
         </rollingPolicy>
 

@@ -1,0 +1,20 @@
+endpoints:
+  enabled: false
+  info:
+    enabled: true
+  health:
+    enabled: true
+
+spring:
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: false
+
+logging:
+  config: classpath:logback/logback-mini.xml
+
+TranslationJobConfiguration:
+  numOfThreads: 5

@@ -57,7 +57,7 @@ public class SecurityConfig {
         }
     }
 
-    @Profile({"dev", "nas", "docker"})
+    @Profile({"dev", "nas", "docker", "mini"})
     @Configuration
     @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER - 1)
     class ApplicationSecurity extends WebSecurityConfigurerAdapter {
