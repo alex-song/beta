@@ -1,5 +1,5 @@
 /**
- * @File: ICondition.java
+ * @File: DummyCondition.java
  * @Project: beta
  * @Copyright: Copyright (c) 2018, All Rights Reserved
  * <p>
@@ -7,19 +7,25 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * </p>
- * @Date: 2018/3/17 9:23
+ * @Date: 2018/3/21 下午9:25
  * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
-package alex.beta.webcrawler.configuration.api;
+package alex.beta.webcrawler.configuration;
 
-import alex.beta.webcrawler.configuration.ConfigurationException;
+import alex.beta.webcrawler.configuration.api.AbstractCondition;
 
 /**
  * @version ${project.version}
  * @Description
  */
-public interface ICondition extends XPathNode {
-    String getConditionClass();
+public class DummyCondition extends AbstractCondition {
 
-    boolean evaluate(String url) throws ConfigurationException;
+    public String getConditionClass() {
+        return null;
+    }
+
+    @Override
+    public boolean evaluate(String url) {
+        return true;
+    }
 }

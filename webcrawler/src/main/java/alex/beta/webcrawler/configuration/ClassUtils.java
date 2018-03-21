@@ -27,6 +27,10 @@ public class ClassUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(ClassUtils.class);
 
+    private ClassUtils() {
+        //hide default public constructor
+    }
+
     public static ICondition customizedCondition(String clazz) throws ConfigurationException {
         try {
             return (ICondition) Class.forName(clazz).newInstance();

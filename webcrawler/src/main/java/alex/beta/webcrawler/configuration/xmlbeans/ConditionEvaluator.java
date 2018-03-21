@@ -36,100 +36,162 @@ public class ConditionEvaluator {
         return ourInstance;
     }
 
-    public boolean evaluate(ICondition condition, String url) throws ConfigurationException {
-        if (StringUtils.isEmpty(condition.getConditionClass())) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Evaluating {} using Condition {}", url, condition.getClass().getSimpleName());
-            }
-            if (condition instanceof IContains) {
-                return evaluateContains((IContains) condition, url);
-            } else if (condition instanceof IEndsWith) {
-                return evaluateEndsWith((IEndsWith) condition, url);
-            } else if (condition instanceof IEquals) {
-                return evaluateEquals((IEquals) condition, url);
-            } else if (condition instanceof IInTheListOf) {
-                return evaluateInTheListOf((IInTheListOf) condition, url);
-            } else if (condition instanceof IRegexMatches) {
-                return evaluateRegexMatches((IRegexMatches) condition, url);
-            } else if (condition instanceof IStartsWith) {
-                return evaluateStartsWith((IStartsWith) condition, url);
-            } else {
-                throw new ConfigurationException("Unsupported Condition " + condition.getClass().getSimpleName());
-            }
-        } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Evaluating {} using customized Condition {}", url, condition.getConditionClass());
-            }
-            return ClassUtils.customizedCondition(condition.getConditionClass()).evaluate(url);
+    private static void startLog(String url, XPathNode node) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Evaluating \'{}\' at {}.", url, node.getPath());
         }
     }
 
+    private static void endLog(String url, XPathNode node, boolean value) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Evaluated \'{}\' at \'{}\', and result is {}.", url, node.getPath(), value);
+        }
+    }
+
+    public boolean evaluate(ICondition condition, String url) throws ConfigurationException {
+        boolean value;
+        if (StringUtils.isEmpty(condition.getConditionClass())) {
+            if (condition instanceof IContains) {
+                value = evaluateContains((IContains) condition, url);
+            } else if (condition instanceof IEndsWith) {
+                value = evaluateEndsWith((IEndsWith) condition, url);
+            } else if (condition instanceof IEquals) {
+                value = evaluateEquals((IEquals) condition, url);
+            } else if (condition instanceof IInTheListOf) {
+                value = evaluateInTheListOf((IInTheListOf) condition, url);
+            } else if (condition instanceof IRegexMatches) {
+                value = evaluateRegexMatches((IRegexMatches) condition, url);
+            } else if (condition instanceof IStartsWith) {
+                value = evaluateStartsWith((IStartsWith) condition, url);
+            } else {
+                if (logger.isErrorEnabled()) {
+                    logger.error("Unsupported Condition \'{}\' at {}", condition.getClass().getSimpleName(), condition.getPath());
+                }
+                throw new ConfigurationException("Unsupported Condition \'"
+                        + condition.getClass().getSimpleName() + "\' at " + condition.getPath());
+            }
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Evaluating \'{}\' using customized Condition class \'{}\' at {}", url, condition.getConditionClass(), condition.getPath());
+            }
+            value = ClassUtils.customizedCondition(condition.getConditionClass()).evaluate(url);
+            endLog(url, condition, value);
+        }
+        return value;
+    }
+
     private boolean evaluateContains(IContains contains, String url) throws ConfigurationException {
+        startLog(url, contains);
+
         if (StringUtils.isEmpty(contains.getText())) {
+            if (logger.isErrorEnabled()) {
+                logger.error("Text is not specified in Contains at \'{}\'", contains.getPath());
+            }
             throw new ConfigurationException("Text is not specified in Contains");
         } else {
+            boolean value;
             if (contains.isCaseSensitive()) {
-                return url.contains(contains.getText());
+                value = url.contains(contains.getText());
             } else {
-                return url.toLowerCase().contains(contains.getText().toLowerCase());
+                value = url.toLowerCase().contains(contains.getText().toLowerCase());
             }
+            endLog(url, contains, value);
+            return value;
         }
     }
 
     private boolean evaluateEndsWith(IEndsWith endsWith, String url) throws ConfigurationException {
+        startLog(url, endsWith);
+
         if (StringUtils.isEmpty(endsWith.getSuffix())) {
+            if (logger.isErrorEnabled()) {
+                logger.error("Suffix is not specified in EndsWith at \'{}\'", endsWith.getPath());
+            }
             throw new ConfigurationException("Suffix is not specified in EndsWith");
         } else {
+            boolean value;
             if (endsWith.isCaseSensitive()) {
-                return url.endsWith(endsWith.getSuffix());
+                value = url.endsWith(endsWith.getSuffix());
             } else {
-                return url.toLowerCase().endsWith(endsWith.getSuffix().toLowerCase());
+                value = url.toLowerCase().endsWith(endsWith.getSuffix().toLowerCase());
             }
+            endLog(url, endsWith, value);
+            return value;
         }
     }
 
     private boolean evaluateEquals(IEquals equals, String url) throws ConfigurationException {
+        startLog(url, equals);
+
         if (StringUtils.isEmpty(equals.getText())) {
+            if (logger.isErrorEnabled()) {
+                logger.error("Text is not specified in Equals at \'{}\'", equals.getPath());
+            }
             throw new ConfigurationException("Text is not specified in Equals");
         } else {
+            boolean value;
             if (equals.isCaseSensitive()) {
-                return url.equals(equals.getText());
+                value = url.equals(equals.getText());
             } else {
-                return url.equalsIgnoreCase(equals.getText());
+                value = url.equalsIgnoreCase(equals.getText());
             }
+            endLog(url, equals, value);
+            return value;
         }
     }
 
     private boolean evaluateInTheListOf(IInTheListOf inTheListOf, String url) throws ConfigurationException {
+        startLog(url, inTheListOf);
+
         if (inTheListOf.getUrl() == null || inTheListOf.getUrl().isEmpty()) {
+            if (logger.isErrorEnabled()) {
+                logger.error("Url is not specified in InTheListOf at \'{}\'", inTheListOf.getPath());
+            }
             throw new ConfigurationException("Url is not specified in InTheListOf");
         } else {
             for (String tmp : inTheListOf.getUrl()) {
                 if (url.equals(tmp)) {
+                    endLog(url, inTheListOf, true);
                     return true;
                 }
             }
         }
+        endLog(url, inTheListOf, false);
         return false;
     }
 
     private boolean evaluateRegexMatches(IRegexMatches regexMatches, String url) throws ConfigurationException {
+        startLog(url, regexMatches);
+
         if (StringUtils.isEmpty(regexMatches.getRegex())) {
+            if (logger.isErrorEnabled()) {
+                logger.error("Regex is not specified in RegexMatches at \'{}\'", regexMatches.getPath());
+            }
             throw new ConfigurationException("Regex is not specified in RegexMatches");
         } else {
-            return url.matches(regexMatches.getRegex());
+            boolean value = url.matches(regexMatches.getRegex());
+            endLog(url, regexMatches, value);
+            return value;
         }
     }
 
     private boolean evaluateStartsWith(IStartsWith startsWith, String url) throws ConfigurationException {
+        startLog(url, startsWith);
+
         if (StringUtils.isEmpty(startsWith.getPrefix())) {
+            if (logger.isErrorEnabled()) {
+                logger.error("Prefix is not specified in StartsWith at \'{}\'", startsWith.getPath());
+            }
             throw new ConfigurationException("Prefix is not specified in StartsWith");
         } else {
+            boolean value;
             if (startsWith.isCaseSensitive()) {
-                return url.startsWith(startsWith.getPrefix());
+                value = url.startsWith(startsWith.getPrefix());
             } else {
-                return url.toLowerCase().startsWith(startsWith.getPrefix().toLowerCase());
+                value = url.toLowerCase().startsWith(startsWith.getPrefix().toLowerCase());
             }
+            endLog(url, startsWith, value);
+            return value;
         }
     }
 }
