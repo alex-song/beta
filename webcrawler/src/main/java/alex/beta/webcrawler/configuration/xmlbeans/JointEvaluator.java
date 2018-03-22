@@ -12,10 +12,8 @@
  */
 package alex.beta.webcrawler.configuration.xmlbeans;
 
-import alex.beta.webcrawler.configuration.ClassUtils;
 import alex.beta.webcrawler.configuration.ConfigurationException;
 import alex.beta.webcrawler.configuration.api.*;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +31,7 @@ class JointEvaluator {
     private JointEvaluator() {
     }
 
-    public static JointEvaluator getInstance() {
+    static JointEvaluator getInstance() {
         return ourInstance;
     }
 
@@ -55,29 +53,22 @@ class JointEvaluator {
         }
     }
 
-    public boolean evaluate(IJoint joint, String url) throws ConfigurationException {
+    boolean evaluate(IJoint joint, String url) throws ConfigurationException {
         boolean value;
-        if (StringUtils.isEmpty(joint.getJointClass())) {
-            if (joint instanceof IAnd) {
-                value = evaluateAnd((IAnd) joint, url);
-            } else if (joint instanceof IOr) {
-                value = evaluateOr((IOr) joint, url);
-            } else if (joint instanceof INot) {
-                value = evaluateNot((INot) joint, url);
-            } else {
-                if (logger.isErrorEnabled()) {
-                    logger.error("Unsupported Joint \'{}\' at {}", joint.getClass().getSimpleName(), joint.getPath());
-                }
-                throw new ConfigurationException("Unsupported Joint \'"
-                        + joint.getClass().getSimpleName() + "\' at " + joint.getPath());
-            }
+        if (joint instanceof IAnd) {
+            value = evaluateAnd((IAnd) joint, url);
+        } else if (joint instanceof IOr) {
+            value = evaluateOr((IOr) joint, url);
+        } else if (joint instanceof INot) {
+            value = evaluateNot((INot) joint, url);
         } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Evaluating \'{}\' using customized Joint class \'{}\' at {}", url, joint.getJointClass(), joint.getPath());
+            if (logger.isErrorEnabled()) {
+                logger.error("Unsupported Joint \'{}\' at {}", joint.getClass().getSimpleName(), joint.getPath());
             }
-            value = ClassUtils.customizedJoint(joint.getJointClass()).evaluate(url);
-            endLog(url, joint, value);
+            throw new ConfigurationException("Unsupported Joint \'"
+                    + joint.getClass().getSimpleName() + "\' at " + joint.getPath());
         }
+
         return value;
     }
 

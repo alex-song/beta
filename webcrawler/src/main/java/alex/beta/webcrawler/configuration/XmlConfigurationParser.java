@@ -80,6 +80,8 @@ public class XmlConfigurationParser {
         } else {
             config.setCrawlStorageFolder(System.getProperty("java.io.tmpdir"));
         }
+        config.setShutdownOnEmptyQueue(configuration.isShutOnEmpty());
+        config.setPolitenessDelay(configuration.getPolitenessDelayInMS());
         // 设置爬虫深度
         config.setMaxDepthOfCrawling(configuration.getDepth());
 

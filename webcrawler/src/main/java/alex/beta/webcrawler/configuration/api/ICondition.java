@@ -19,7 +19,5 @@ import alex.beta.webcrawler.configuration.ConfigurationException;
  * @Description
  */
 public interface ICondition extends PathSupport {
-    String getConditionClass();
-
     boolean evaluate(String url) throws ConfigurationException;
 }

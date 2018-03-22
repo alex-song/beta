@@ -1,5 +1,5 @@
 /**
- * @File: XmlConfigurationParserTest.java
+ * @File: AbstractConfigurationParserTest.java
  * @Project: beta
  * @Copyright: Copyright (c) 2018, All Rights Reserved
  * <p>
@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
  * @version ${project.version}
  * @Description
  */
-public class XmlConfigurationParserTest {
+public class AbstractConfigurationParserTest {
     @Before
     public void setUp() {
         //
@@ -41,7 +41,7 @@ public class XmlConfigurationParserTest {
         IConfiguration configuration = XmlConfigurationParser.parse("XmlConfigurationParserTest-1.xml");
         assertNotNull(configuration);
 
-        IShouldVisit sv = configuration.getShouldVisit();
+        IShouldVisit.InnerShouldVisit sv = configuration.getShouldVisit();
         assertNotNull(sv);
 
         assertNull(sv.getCondition());

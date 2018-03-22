@@ -8,7 +8,6 @@
     InTheListOf
     And
         StartsWith
-        alex.beta.webcrawler.configuration.DummyCondition
         Not
             Equals (ignore case)
         And
@@ -27,7 +26,6 @@
             </Condition>
             <Joint xsi:type="axs:And">
                 <Condition xsi:type="axs:StartsWith" prefix="Qw3r"/>
-                <Condition xsi:type="axs:Contains" conditionClass="alex.beta.webcrawler.configuration.DummyCondition" text=""/>
                 <Joint xsi:type="axs:Not">
                     <Condition xsi:type="axs:Equals" text="Qw3rAAASSS123" caseSensitive="false"/>
                 </Joint>
