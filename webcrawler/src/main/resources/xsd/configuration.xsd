@@ -22,8 +22,8 @@
 	</xs:complexType>
 	<xs:complexType name="Joint" abstract="true">
 		<xs:sequence>
-			<xs:element name="Conditions" type="axs:Condition" minOccurs="0" maxOccurs="unbounded"/>
-			<xs:element name="Joints" type="axs:Joint" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Condition" type="axs:Condition" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Joint" type="axs:Joint" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
 		<xs:attribute name="jointClass" type="xs:string" use="optional"/>
 	</xs:complexType>
@@ -67,7 +67,7 @@
 				<xs:sequence>
 					<xs:element name="Url" type="xs:string" maxOccurs="unbounded"/>
 				</xs:sequence>
-				<xs:attribute name="caseSensitive" type="xs:boolean" default="false"/>
+				<xs:attribute name="caseSensitive" type="xs:boolean" use="optional" default="false"/>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
@@ -75,7 +75,7 @@
 		<xs:complexContent>
 			<xs:extension base="axs:Condition">
 				<xs:attribute name="text" type="xs:string" use="required"/>
-				<xs:attribute name="caseSensitive" type="xs:boolean" default="false"/>
+				<xs:attribute name="caseSensitive" type="xs:boolean" use="optional" default="false"/>
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
@@ -90,7 +90,7 @@
 	<xs:complexType name="Equals">
 		<xs:complexContent>
 			<xs:extension base="axs:Condition">
-				<xs:attribute name="caseSensitive" type="xs:boolean" default="false"/>
+				<xs:attribute name="caseSensitive" type="xs:boolean" use="optional" default="false"/>
 				<xs:attribute name="text" type="xs:string" use="required"/>
 			</xs:extension>
 		</xs:complexContent>

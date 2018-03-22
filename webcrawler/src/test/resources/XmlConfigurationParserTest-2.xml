@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<axs:XmlConfiguration xmlns:axs="http://songlp.ddns.net/webcrawler/schema"
+					  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					  depth="1" numberOfCrawlers="3" >
+	<EntryPoints>http://192.168.2.1/#!/login</EntryPoints>
+	<!--
+	And
+    InTheListOf
+    And
+        StartsWith
+        alex.beta.webcrawler.configuration.DummyCondition
+        Not
+            Equals (ignore case)
+        And
+            EndsWith
+            Contains (ignore case)
+        Not
+            RegexMatches (toLowerCase)
+	-->
+	<ShouldVisit>
+		<Joint xsi:type="axs:And">
+            <Condition xsi:type="axs:InTheListOf">
+                <Url>Qw3rAAASSS123</Url>
+                <!-- expected result -->
+                <Url>Qw3rTyUiOp</Url>
+                <Url>1Qaz@wsx#edC</Url>
+            </Condition>
+            <Joint xsi:type="axs:And">
+                <Condition xsi:type="axs:StartsWith" prefix="Qw3r"/>
+                <Condition xsi:type="axs:Contains" conditionClass="alex.beta.webcrawler.configuration.DummyCondition" text=""/>
+                <Joint xsi:type="axs:Not">
+                    <Condition xsi:type="axs:Equals" text="Qw3rAAASSS123" caseSensitive="false"/>
+                </Joint>
+                <Joint xsi:type="axs:And">
+                    <Condition xsi:type="axs:EndsWith" suffix="Op" caseSensitive="true"/>
+                    <Condition xsi:type="axs:Contains" text="yui" caseSensitive="false"/>
+                </Joint>
+                <Joint xsi:type="axs:Not">
+                    <Condition xsi:type="axs:RegexMatches" regex="[0-9]*" toLowerCase="true"/>
+                </Joint>
+            </Joint>
+		</Joint>
+	</ShouldVisit>
+	<Visitor visitorClass="String"/>
+</axs:XmlConfiguration>

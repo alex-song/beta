@@ -62,4 +62,14 @@ public abstract class AbstractShouldVisit implements IShouldVisit {
             return customizedShouldVisit.shouldVisit(url);
         }
     }
+
+    @Override
+    public XPathNode getParent() {
+        return XPathNode.ROOT;
+    }
+
+    @Override
+    public String getPath() {
+        return XPathNode.ROOT.getPath() + "/ShouldVisit";
+    }
 }

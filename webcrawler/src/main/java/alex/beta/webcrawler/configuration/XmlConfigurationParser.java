@@ -42,22 +42,28 @@ public class XmlConfigurationParser {
 
     private static final Logger logger = LoggerFactory.getLogger(XmlConfigurationParser.class);
 
+    private static final String XML_CONFIGURATION_BEAN = "alex.beta.webcrawler.configuration.xmlbeans.Configuration";
+
+    private XmlConfigurationParser() {
+        //Hide default public constructor
+    }
+
     public static IConfiguration parse(String filePath) throws ConfigurationException {
         Objects.requireNonNull(filePath);
         try {
-            Class rootElementClass = Class.forName("alex.beta.webcrawler.configuration.xmlbeans.Configuration");
+            Class<? extends IConfiguration> rootElementClass = Class.forName(XML_CONFIGURATION_BEAN).asSubclass(IConfiguration.class);
             JAXBContext jaxbContext = JAXBContext.newInstance(rootElementClass);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(Resources.getResource(filePath).openStream());
-            return (IConfiguration) jaxbUnmarshaller.unmarshal(reader, rootElementClass).getValue();
+            return jaxbUnmarshaller.unmarshal(reader, rootElementClass).getValue();
         } catch (IOException | XMLStreamException e1) {
-            logger.error("Failed to read configuration XML file, {}", filePath, e1);
+            logger.error("Failed to read configuration XML file, {}.", filePath, e1);
             throw new ConfigurationException(filePath, e1);
         } catch (ClassNotFoundException e2) {
-            logger.error("{} not found", "alex.beta.webcrawler.configuration.xmlbeans.Configuration", e2);
-            throw new InternalError("alex.beta.webcrawler.configuration.xmlbeans.Configuration", e2);
+            logger.error("{} is not found.", XML_CONFIGURATION_BEAN, e2);
+            throw new InternalError(XML_CONFIGURATION_BEAN, e2);
         } catch (JAXBException e3) {
-            logger.error("Cannot bind XML {} with Configuration bean", filePath, e3);
+            logger.error("Cannot bind XML {} with Configuration bean.", filePath, e3);
             throw new ConfigurationException(filePath, e3);
         }
     }
@@ -113,7 +119,7 @@ public class XmlConfigurationParser {
                     try {
                         return configuration.getShouldVisit().shouldVisit(referringPage, url);
                     } catch (ConfigurationException ex) {
-                        logger.error("Cannot evaluate shouldVisit method on {}", url, ex);
+                        logger.error("Cannot evaluate shouldVisit method on {}.", url, ex);
                         return false;
                     }
                 }
@@ -124,7 +130,7 @@ public class XmlConfigurationParser {
                         try {
                             ClassUtils.customizedVisitor(configuration.getVisitor().getVisitorClass()).visit(page);
                         } catch (ConfigurationException ex) {
-                            logger.error("Failed to visit page {}", page.getWebURL().getURL(), ex);
+                            logger.error("Failed to visit page {}.", page.getWebURL().getURL(), ex);
                         }
                     }
                 }

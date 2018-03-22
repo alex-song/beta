@@ -16,18 +16,43 @@ import alex.beta.webcrawler.configuration.ConfigurationException;
 import alex.beta.webcrawler.configuration.xmlbeans.JointEvaluator;
 import org.apache.commons.lang.StringUtils;
 
+import javax.xml.bind.Unmarshaller;
+
 /**
  * @version ${project.version}
  * @Description
  */
 public abstract class AbstractJoint implements IJoint {
 
+    private XPathNode parent;
+
     @Override
     public boolean evaluate(String url) throws ConfigurationException {
-        if (StringUtils.isEmpty(url)) {
-            return false;
+        return !StringUtils.isEmpty(url) && JointEvaluator.getInstance().evaluate(this, url);
+    }
+
+    @Override
+    public XPathNode getParent() {
+        return this.parent;
+    }
+
+    @Override
+    public String getPath() {
+        if (this instanceof IAnd) {
+            return this.parent.getPath() + "/And";
+        } else if (this instanceof IOr) {
+            return this.parent.getPath() + "/Or";
+        } else if (this instanceof INot) {
+            return this.parent.getPath() + "/Not";
         } else {
-            return JointEvaluator.getInstance().evaluate(this, url);
+            return this.parent.getPath() + "/UnknownJoint";
+        }
+    }
+
+    @SuppressWarnings("squid:S1172")
+    public void afterUnmarshal(Unmarshaller u, Object parent) {
+        if (parent instanceof XPathNode) {
+            this.parent = (XPathNode) parent;
         }
     }
 }

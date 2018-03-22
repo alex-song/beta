@@ -20,12 +20,12 @@ import java.util.List;
  * @version ${project.version}
  * @Description
  */
-public interface IJoint {
+public interface IJoint extends XPathNode {
     String getJointClass();
 
-    List<? extends ICondition> getConditions();
+    List<? extends ICondition> getCondition();
 
-    List<? extends IJoint> getJoints();
+    List<? extends IJoint> getJoint();
 
     boolean evaluate(String url) throws ConfigurationException;
 }

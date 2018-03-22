@@ -12,12 +12,14 @@
  */
 package alex.beta.webcrawler.configuration;
 
-import alex.beta.webcrawler.configuration.api.IConfiguration;
-import edu.uci.ics.crawler4j.crawler.CrawlController;
+import alex.beta.webcrawler.configuration.api.*;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * @version ${project.version}
@@ -34,20 +36,32 @@ public class XmlConfigurationParserTest {
         //
     }
 
-    @Ignore
     @Test
-    public void testConfiguration() throws Exception {
-        try {
-            IConfiguration configuration = XmlConfigurationParser.parse("XmlConfigurationParserTest-1.xml");
-            CrawlController controller = XmlConfigurationParser.getCrawlController(configuration);
-            controller.start(XmlConfigurationParser.getWebCrawlerFactory(configuration), configuration.getDepth());
+    public void testParse() throws Exception {
+        IConfiguration configuration = XmlConfigurationParser.parse("XmlConfigurationParserTest-1.xml");
+        assertNotNull(configuration);
 
-            /**
-             * 启动爬虫，爬虫从此刻开始执行爬虫任务，根据以上配置
-             */
-            controller.start(XmlConfigurationParser.getWebCrawlerFactory(configuration), configuration.getNumberOfCrawlers());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        IShouldVisit sv = configuration.getShouldVisit();
+        assertNotNull(sv);
+
+        assertNull(sv.getCondition());
+        IJoint j = sv.getJoint();
+        assertNotNull(j);
+        assertTrue(j instanceof INot);
+
+        List<? extends ICondition> c = j.getCondition();
+        assertNotNull(c);
+        assertEquals(1, c.size());
+        assertTrue(c.get(0) instanceof IEndsWith);
+    }
+
+    @Test
+    public void testEvaluator() throws Exception {
+        IConfiguration configuration = XmlConfigurationParser.parse("XmlConfigurationParserTest-2.xml");
+        assertNotNull(configuration);
+
+        IShouldVisit sv = configuration.getShouldVisit();
+        boolean result = sv.shouldVisit("Qw3rTyUiOp");
+        assertTrue(result);
     }
 }
