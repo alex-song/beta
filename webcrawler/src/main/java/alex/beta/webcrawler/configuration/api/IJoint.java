@@ -20,7 +20,7 @@ import java.util.List;
  * @version ${project.version}
  * @Description
  */
-public interface IJoint extends XPathNode {
+public interface IJoint extends PathSupport {
     String getJointClass();
 
     List<? extends ICondition> getCondition();

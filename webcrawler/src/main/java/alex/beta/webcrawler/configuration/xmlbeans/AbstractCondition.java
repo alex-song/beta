@@ -10,10 +10,10 @@
  * @Date: 2018/3/17 9:13
  * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
-package alex.beta.webcrawler.configuration.api;
+package alex.beta.webcrawler.configuration.xmlbeans;
 
 import alex.beta.webcrawler.configuration.ConfigurationException;
-import alex.beta.webcrawler.configuration.xmlbeans.ConditionEvaluator;
+import alex.beta.webcrawler.configuration.api.*;
 import org.apache.commons.lang.StringUtils;
 
 import javax.xml.bind.Unmarshaller;
@@ -24,16 +24,11 @@ import javax.xml.bind.Unmarshaller;
  */
 public abstract class AbstractCondition implements ICondition {
 
-    private XPathNode parent;
+    private PathSupport parent;
 
     @Override
     public boolean evaluate(String url) throws ConfigurationException {
         return !StringUtils.isEmpty(url) && ConditionEvaluator.getInstance().evaluate(this, url);
-    }
-
-    @Override
-    public XPathNode getParent() {
-        return this.parent;
     }
 
     @Override
@@ -57,8 +52,8 @@ public abstract class AbstractCondition implements ICondition {
 
     @SuppressWarnings("squid:S1172")
     public void afterUnmarshal(Unmarshaller u, Object parent) {
-        if (parent instanceof XPathNode) {
-            this.parent = (XPathNode) parent;
+        if (parent instanceof PathSupport) {
+            this.parent = (PathSupport) parent;
         }
     }
 }

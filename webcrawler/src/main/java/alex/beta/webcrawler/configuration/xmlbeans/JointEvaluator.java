@@ -25,7 +25,7 @@ import java.util.List;
  * @version ${project.version}
  * @Description
  */
-public class JointEvaluator {
+class JointEvaluator {
     private static final Logger logger = LoggerFactory.getLogger(JointEvaluator.class);
 
     private static JointEvaluator ourInstance = new JointEvaluator();
@@ -37,19 +37,19 @@ public class JointEvaluator {
         return ourInstance;
     }
 
-    private static void startLog(String url, XPathNode node) {
+    private static void startLog(String url, PathSupport node) {
         if (logger.isDebugEnabled()) {
             logger.debug("Evaluating \'{}\' at {}", url, node.getPath());
         }
     }
 
-    private static void endLog(String url, XPathNode node, boolean value) {
+    private static void endLog(String url, PathSupport node, boolean value) {
         if (logger.isDebugEnabled()) {
             logger.debug("Evaluated \'{}\' at \'{}\', and result is {}.", url, node.getPath(), value);
         }
     }
 
-    private static void invalidJointLog(String url, XPathNode node) {
+    private static void invalidJointLog(String url, PathSupport node) {
         if (logger.isWarnEnabled()) {
             logger.warn("Evaluated \'{}\' at \'{}\', and result is false. Because there is no condition or joint inside.", url, node.getPath());
         }

@@ -10,10 +10,12 @@
  * @Date: 2018/3/17 9:00
  * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
-package alex.beta.webcrawler.configuration.api;
+package alex.beta.webcrawler.configuration.xmlbeans;
 
 import alex.beta.webcrawler.configuration.ClassUtils;
 import alex.beta.webcrawler.configuration.ConfigurationException;
+import alex.beta.webcrawler.configuration.api.IShouldVisit;
+import alex.beta.webcrawler.configuration.api.PathSupport;
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.url.WebURL;
 import org.apache.commons.lang.StringUtils;
@@ -64,12 +66,7 @@ public abstract class AbstractShouldVisit implements IShouldVisit {
     }
 
     @Override
-    public XPathNode getParent() {
-        return XPathNode.ROOT;
-    }
-
-    @Override
     public String getPath() {
-        return XPathNode.ROOT.getPath() + "/ShouldVisit";
+        return XmlConfiguration.ROOT.getPath() + "/ShouldVisit";
     }
 }

@@ -12,7 +12,7 @@
  */
 package alex.beta.webcrawler.configuration;
 
-import alex.beta.webcrawler.configuration.api.AbstractCondition;
+import alex.beta.webcrawler.configuration.xmlbeans.AbstractCondition;
 
 /**
  * @version ${project.version}

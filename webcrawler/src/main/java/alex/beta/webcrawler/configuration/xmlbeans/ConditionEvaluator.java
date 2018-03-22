@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  * @version ${project.version}
  * @Description
  */
-public class ConditionEvaluator {
+class ConditionEvaluator {
 
     private static final Logger logger = LoggerFactory.getLogger(ConditionEvaluator.class);
 
@@ -36,13 +36,13 @@ public class ConditionEvaluator {
         return ourInstance;
     }
 
-    private static void startLog(String url, XPathNode node) {
+    private static void startLog(String url, PathSupport node) {
         if (logger.isDebugEnabled()) {
             logger.debug("Evaluating \'{}\' at {}.", url, node.getPath());
         }
     }
 
-    private static void endLog(String url, XPathNode node, boolean value) {
+    private static void endLog(String url, PathSupport node, boolean value) {
         if (logger.isDebugEnabled()) {
             logger.debug("Evaluated \'{}\' at \'{}\', and result is {}.", url, node.getPath(), value);
         }

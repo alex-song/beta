@@ -18,7 +18,7 @@ import alex.beta.webcrawler.configuration.ConfigurationException;
  * @version ${project.version}
  * @Description
  */
-public interface ICondition extends XPathNode {
+public interface ICondition extends PathSupport {
     String getConditionClass();
 
     boolean evaluate(String url) throws ConfigurationException;
