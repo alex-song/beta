@@ -82,9 +82,32 @@ public class WebCrawlerBuilder {
         return this;
     }
 
+    public void startNonBlocking() {
+        start(false);
+    }
+
     public void start(boolean blocking) {
-        controller.startNonBlocking(factory, configuration.getNumberOfCrawlers());
-        //TODO
+        if (blocking) {
+            if (configuration.getTimeout() <= 0) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Crawler is running in blocking mode, and no timeout {} is given.", configuration.getTimeout());
+                }
+            } else {
+                new Thread(new CrawlerMonitor()).start();
+            }
+            // blocking current thread
+            controller.start(factory, configuration.getNumberOfCrawlers());
+        } else {
+            if (configuration.getTimeout() <= 0) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("Crawler is running in nonblocking mode, and no timeout {} is given.", configuration.getTimeout());
+                }
+            } else {
+                new Thread(new CrawlerMonitor()).start();
+            }
+            // nonblocking
+            controller.startNonBlocking(factory, configuration.getNumberOfCrawlers());
+        }
     }
 
     public CrawlController getController() {
@@ -101,6 +124,26 @@ public class WebCrawlerBuilder {
 
     public void setFactory(CrawlController.WebCrawlerFactory factory) {
         this.factory = factory;
+    }
+
+    private class CrawlerMonitor implements Runnable {
+        public void run() {
+            long start = System.currentTimeMillis();
+            do {
+                try {
+                    Thread.currentThread().sleep(1000);
+                } catch (InterruptedException ex) {
+                    logger.error("Monitor thread is interrupted.", ex);
+                    controller.shutdown();
+                    logger.info("Crawler is shutdown.");
+                    Thread.currentThread().interrupt();
+                }
+            } while (System.currentTimeMillis() - start < configuration.getTimeout()
+                    && !controller.isShuttingDown() && !controller.isFinished());
+            controller.shutdown();
+            logger.info("Crawler is shutdown.");
+            controller.waitUntilFinish();
+        }
     }
 
     static class XmlWebCrawlerFactory implements CrawlController.WebCrawlerFactory {
