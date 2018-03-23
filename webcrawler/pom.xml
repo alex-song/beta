@@ -23,6 +23,12 @@
             <version>${wiremock_version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>alex</groupId>
+            <artifactId>commons</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

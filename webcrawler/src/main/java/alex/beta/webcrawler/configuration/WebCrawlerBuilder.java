@@ -24,6 +24,9 @@ import edu.uci.ics.crawler4j.url.WebURL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @version ${project.version}
  * @Description
@@ -74,6 +77,18 @@ public class WebCrawlerBuilder {
             this.controller.addSeed(seed);
         }
 
+        return this;
+    }
+
+    public WebCrawlerBuilder addEntryPoints(String... entry) {
+        if (entry != null && entry.length > 0) {
+            List<String> entries = configuration.getEntryPoints();
+            for (String e : entry) {
+                if (!entries.contains(e)) {
+                    entries.add(e);
+                }
+            }
+        }
         return this;
     }
 
