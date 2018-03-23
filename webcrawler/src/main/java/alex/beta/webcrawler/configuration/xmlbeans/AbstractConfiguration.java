@@ -1,5 +1,5 @@
 /**
- * @File: DummyCondition.java
+ * @File: AbstractConfiguration.java
  * @Project: beta
  * @Copyright: Copyright (c) 2018, All Rights Reserved
  * <p>
@@ -7,25 +7,19 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * </p>
- * @Date: 2018/3/21 下午9:25
+ * @Date: 2018/3/22 10:31
  * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
-package alex.beta.webcrawler.configuration;
+package alex.beta.webcrawler.configuration.xmlbeans;
 
-import alex.beta.webcrawler.configuration.xmlbeans.AbstractCondition;
+import alex.beta.webcrawler.configuration.api.IConfiguration;
 
 /**
  * @version ${project.version}
  * @Description
  */
-public class DummyCondition extends AbstractCondition {
-
-    public String getConditionClass() {
-        return null;
-    }
-
-    @Override
-    public boolean evaluate(String url) {
-        return true;
+public abstract class AbstractConfiguration implements IConfiguration {
+    public String getPath() {
+        return "//CrawlerConfig";
     }
 }

@@ -21,8 +21,6 @@ import java.util.List;
  * @Description
  */
 public interface IJoint extends PathSupport {
-    String getJointClass();
-
     List<? extends ICondition> getCondition();
 
     List<? extends IJoint> getJoint();

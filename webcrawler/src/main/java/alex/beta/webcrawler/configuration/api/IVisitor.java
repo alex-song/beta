@@ -12,19 +12,16 @@
  */
 package alex.beta.webcrawler.configuration.api;
 
-import alex.beta.webcrawler.configuration.xmlbeans.XmlConfiguration;
 import edu.uci.ics.crawler4j.crawler.Page;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.UnsupportedEncodingException;
 
 /**
  * @version ${project.version}
  * @Description
  */
-public interface IVisitor extends PathSupport {
-    String getVisitorClass();
-
+public interface IVisitor {
     void visit(Page page);
+
+    interface InnerVisitor extends PathSupport {
+        String getVisitorClass();
+    }
 }

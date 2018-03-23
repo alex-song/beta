@@ -22,13 +22,17 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.Unmarshaller;
+
 /**
  * @version ${project.version}
  * @Description
  */
-public abstract class AbstractShouldVisit implements IShouldVisit {
+public abstract class AbstractShouldVisit implements IShouldVisit.InnerShouldVisit {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractShouldVisit.class);
+
+    private PathSupport parent;
 
     public abstract String getShouldVisitClass();
 
@@ -65,8 +69,15 @@ public abstract class AbstractShouldVisit implements IShouldVisit {
         }
     }
 
+    @SuppressWarnings("squid:S1172")
+    public void afterUnmarshal(Unmarshaller u, Object parent) {
+        if (parent instanceof PathSupport) {
+            this.parent = (PathSupport) parent;
+        }
+    }
+
     @Override
     public String getPath() {
-        return XmlConfiguration.ROOT.getPath() + "/ShouldVisit";
+        return this.parent.getPath() + "/ShouldVisit";
     }
 }

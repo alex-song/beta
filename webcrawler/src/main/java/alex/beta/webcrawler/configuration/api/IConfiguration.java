@@ -18,18 +18,22 @@ import java.util.List;
  * @version ${project.version}
  * @Description
  */
-public interface IConfiguration {
+public interface IConfiguration extends PathSupport {
     List<String> getEntryPoints();
 
     int getDepth();
 
     int getNumberOfCrawlers();
 
-    String getClawerClass();
+    int getTimeout();
+
+    boolean isShutOnEmpty();
+
+    int getPolitenessDelayInMS();
 
     String getCrawlStorageFolder();
 
-    IShouldVisit getShouldVisit();
+    IShouldVisit.InnerShouldVisit getShouldVisit();
 
-    IVisitor getVisitor();
+    IVisitor.InnerVisitor getVisitor();
 }
