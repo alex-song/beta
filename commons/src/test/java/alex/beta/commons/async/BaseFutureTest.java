@@ -1,14 +1,13 @@
 /**
- * @File:      AbstractFutureTest.java
- * @Project:   commons
+ * @File: AbstractFutureTest.java
+ * @Project: commons
  * @Copyright: Copyright (c) 2018, All Rights Reserved
- *
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * @Date:      2018年1月28日 下午12:02:04
- * @author:    <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
+ * @Date: 2018年1月28日 下午12:02:04
+ * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
 package alex.beta.commons.async;
 
@@ -20,10 +19,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
-public class BaseFutureTest {
+public class BaseFutureTest extends AbstractFutureTest {
     private BaseFuture<String> future;
     private String initialStr1;
 
@@ -44,7 +43,7 @@ public class BaseFutureTest {
         this.initialStr1 += "a";
         new Thread(() -> {
             try {
-                Thread.sleep(200);
+                delayInMilliSeconds(200);
                 initialStr1 += "b";
                 future.setSuccess(initialStr1);
             } catch (InterruptedException e) {

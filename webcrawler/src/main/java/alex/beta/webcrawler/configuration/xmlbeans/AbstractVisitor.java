@@ -14,8 +14,6 @@ package alex.beta.webcrawler.configuration.xmlbeans;
 
 import alex.beta.webcrawler.configuration.api.IVisitor;
 import alex.beta.webcrawler.configuration.api.PathSupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.Unmarshaller;
 
@@ -24,8 +22,6 @@ import javax.xml.bind.Unmarshaller;
  * @Description
  */
 public abstract class AbstractVisitor implements IVisitor.InnerVisitor {
-
-    private static final Logger logger = LoggerFactory.getLogger(AbstractVisitor.class);
 
     private PathSupport parent;
 

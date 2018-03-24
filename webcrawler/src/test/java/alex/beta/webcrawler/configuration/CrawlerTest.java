@@ -65,6 +65,7 @@ public class CrawlerTest {
     @After
     public void tearDown() {
         removeAllMappings();
+        AssertionErrorBus.getInstance().remove(serverPort);
     }
 
     @Test
@@ -72,6 +73,9 @@ public class CrawlerTest {
         WebCrawlerBuilder builder = WebCrawlerBuilder.newInstance("CrawlerTest-1.xml");
         builder.buildController().addEntryPoints("http://localhost:" + serverPort + "/1.html")
                 .buildCrawlerFactory().start(true);
-
+        AssertionError error = AssertionErrorBus.getInstance().get(serverPort);
+        if (error != null) {
+            throw error;
+        }
     }
 }

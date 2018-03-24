@@ -1,5 +1,5 @@
 /**
- * @File: AbstractConfigurationParserTest.java
+ * @File: XmlConfigurationParserTest.java
  * @Project: beta
  * @Copyright: Copyright (c) 2018, All Rights Reserved
  * <p>
@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
  * @version ${project.version}
  * @Description
  */
-public class AbstractConfigurationParserTest {
+public class XmlConfigurationParserTest {
     @Before
     public void setUp() {
         //

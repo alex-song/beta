@@ -37,7 +37,7 @@ public class WebCrawlerBuilder {
 
     private CrawlController controller;
 
-    private CrawlController.WebCrawlerFactory factory;
+    private CrawlController.WebCrawlerFactory<WebCrawler> factory;
 
     private WebCrawlerBuilder() {
         //hide default public constructor
@@ -134,11 +134,11 @@ public class WebCrawlerBuilder {
         return factory;
     }
 
-    public void setFactory(CrawlController.WebCrawlerFactory factory) {
+    public void setFactory(CrawlController.WebCrawlerFactory<WebCrawler> factory) {
         this.factory = factory;
     }
 
-    static class XmlWebCrawlerFactory implements CrawlController.WebCrawlerFactory {
+    static class XmlWebCrawlerFactory implements CrawlController.WebCrawlerFactory<WebCrawler> {
 
         private IConfiguration configuration;
 
@@ -182,7 +182,7 @@ public class WebCrawlerBuilder {
             long start = System.currentTimeMillis();
             do {
                 try {
-                    Thread.currentThread().sleep(1000);
+                    Thread.sleep(1000);
                 } catch (InterruptedException ex) {
                     logger.error("Monitor thread is interrupted.", ex);
                     controller.shutdown();

@@ -29,7 +29,8 @@ public class SocketUtils {
     public static final int PORT_RANGE_MAX = 65535;
     private static final Random random = new Random(System.currentTimeMillis());
 
-    public SocketUtils() {
+    private SocketUtils() {
+        //hide default public constructor
     }
 
     public static int findAvailableTcpPort() {
@@ -72,7 +73,13 @@ public class SocketUtils {
         return SocketUtils.SocketType.UDP.findAvailablePorts(numRequested, minPort, maxPort);
     }
 
-    private static enum SocketType {
+    private static void isTrue(boolean expression, String message) {
+        if (!expression) {
+            throw new IllegalArgumentException(message);
+        }
+    }
+
+    private enum SocketType {
         TCP {
             protected boolean isPortAvailable(int port) {
                 try {
@@ -117,7 +124,9 @@ public class SocketUtils {
             do {
                 ++searchCounter;
                 if (searchCounter > portRange) {
-                    throw new IllegalStateException(String.format("Could not find an available %s port in the range [%d, %d] after %d attempts", new Object[]{this.name(), Integer.valueOf(minPort), Integer.valueOf(maxPort), Integer.valueOf(searchCounter)}));
+                    throw new IllegalStateException(
+                            String.format("Could not find an available %s port in the range [%d, %d] after %d attempts",
+                                    this.name(), minPort, maxPort, searchCounter));
                 }
 
                 candidatePort = this.findRandomPort(minPort, maxPort);
@@ -132,27 +141,23 @@ public class SocketUtils {
             isTrue(maxPort <= '\uffff', "\'maxPort\' must be less than or equal to 65535");
             isTrue(numRequested > 0, "\'numRequested\' must be greater than 0");
             isTrue(maxPort - minPort >= numRequested, "\'numRequested\' must not be greater than \'maxPort\' - \'minPort\'");
-            TreeSet availablePorts = new TreeSet();
+            TreeSet<Integer> availablePorts = new TreeSet<>();
             int attemptCount = 0;
 
             while (true) {
                 ++attemptCount;
                 if (attemptCount > numRequested + 100 || availablePorts.size() >= numRequested) {
                     if (availablePorts.size() != numRequested) {
-                        throw new IllegalStateException(String.format("Could not find %d available %s ports in the range [%d, %d]", new Object[]{Integer.valueOf(numRequested), this.name(), Integer.valueOf(minPort), Integer.valueOf(maxPort)}));
+                        throw new IllegalStateException(
+                                String.format("Could not find %d available %s ports in the range [%d, %d]",
+                                        numRequested, this.name(), minPort, maxPort));
                     } else {
                         return availablePorts;
                     }
                 }
 
-                availablePorts.add(Integer.valueOf(this.findAvailablePort(minPort, maxPort)));
+                availablePorts.add(this.findAvailablePort(minPort, maxPort));
             }
-        }
-    }
-
-    private static void isTrue(boolean expression, String message) {
-        if (!expression) {
-            throw new IllegalArgumentException(message);
         }
     }
 }
