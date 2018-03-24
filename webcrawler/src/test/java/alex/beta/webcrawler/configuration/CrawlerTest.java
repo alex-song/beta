@@ -16,7 +16,10 @@ import alex.beta.commons.util.SocketUtils;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.common.io.Resources;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,15 +28,15 @@ import java.io.IOException;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 public class CrawlerTest {
 
     private static final Logger logger = LoggerFactory.getLogger(CrawlerTest.class);
 
     private static final String[] resources = new String[]{
-            "1.html", "11.html", "12.html",
+            "1.html", "11.html", "12.html", "1.js", "1.css",
             "2.html"};
 
     private final int serverPort = SocketUtils.findAvailableTcpPort(49152, 65535);
@@ -45,9 +48,12 @@ public class CrawlerTest {
     public void setUp() {
         logger.info("Mock server is listening on port {}.", serverPort);
 
+        stubFor(get(urlEqualTo("/robots.txt")).willReturn(
+                aResponse().withStatus(404)));
+
         for (String res : resources) {
             try {
-                stubFor(get(urlEqualTo(res)).willReturn(
+                stubFor(get(urlEqualTo("/" + res)).willReturn(
                         aResponse().withStatus(200).withLogNormalRandomDelay(90, 0.1)
                                 .withBody(Resources.toByteArray(Resources.getResource(res)))));
             } catch (IOException | IllegalArgumentException ex) {
@@ -63,6 +69,9 @@ public class CrawlerTest {
 
     @Test
     public void testParse() throws Exception {
-        //TODO
+        WebCrawlerBuilder builder = WebCrawlerBuilder.newInstance("CrawlerTest-1.xml");
+        builder.buildController().addEntryPoints("http://localhost:" + serverPort + "/1.html")
+                .buildCrawlerFactory().start(true);
+
     }
 }

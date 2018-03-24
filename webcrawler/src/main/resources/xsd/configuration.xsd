@@ -4,7 +4,7 @@
 	<xs:element name="CrawlerConfig" type="axs:Configuration"/>
 	<xs:complexType name="Configuration">
 		<xs:sequence>
-			<xs:element name="EntryPoints" type="xs:string" maxOccurs="unbounded"/>
+			<xs:element name="EntryPoints" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 			<xs:element name="ShouldVisit" type="axs:ShouldVisit" minOccurs="0"/>
 			<xs:element name="Visitor" type="axs:Visitor" minOccurs="0"/>
 		</xs:sequence>

@@ -24,8 +24,7 @@ import edu.uci.ics.crawler4j.url.WebURL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * @version ${project.version}
@@ -81,12 +80,10 @@ public class WebCrawlerBuilder {
     }
 
     public WebCrawlerBuilder addEntryPoints(String... entry) {
+        Objects.requireNonNull(controller, "Build controller before adding new entry points.");
         if (entry != null && entry.length > 0) {
-            List<String> entries = configuration.getEntryPoints();
             for (String e : entry) {
-                if (!entries.contains(e)) {
-                    entries.add(e);
-                }
+                this.controller.addSeed(e);
             }
         }
         return this;
@@ -141,26 +138,6 @@ public class WebCrawlerBuilder {
         this.factory = factory;
     }
 
-    private class CrawlerMonitor implements Runnable {
-        public void run() {
-            long start = System.currentTimeMillis();
-            do {
-                try {
-                    Thread.currentThread().sleep(1000);
-                } catch (InterruptedException ex) {
-                    logger.error("Monitor thread is interrupted.", ex);
-                    controller.shutdown();
-                    logger.info("Crawler is shutdown.");
-                    Thread.currentThread().interrupt();
-                }
-            } while (System.currentTimeMillis() - start < configuration.getTimeout()
-                    && !controller.isShuttingDown() && !controller.isFinished());
-            controller.shutdown();
-            logger.info("Crawler is shutdown.");
-            controller.waitUntilFinish();
-        }
-    }
-
     static class XmlWebCrawlerFactory implements CrawlController.WebCrawlerFactory {
 
         private IConfiguration configuration;
@@ -197,6 +174,26 @@ public class WebCrawlerBuilder {
                     }
                 }
             };
+        }
+    }
+
+    private class CrawlerMonitor implements Runnable {
+        public void run() {
+            long start = System.currentTimeMillis();
+            do {
+                try {
+                    Thread.currentThread().sleep(1000);
+                } catch (InterruptedException ex) {
+                    logger.error("Monitor thread is interrupted.", ex);
+                    controller.shutdown();
+                    logger.info("Crawler is shutdown.");
+                    Thread.currentThread().interrupt();
+                }
+            } while (System.currentTimeMillis() - start < configuration.getTimeout()
+                    && !controller.isShuttingDown() && !controller.isFinished());
+            controller.shutdown();
+            logger.info("Crawler is shutdown.");
+            controller.waitUntilFinish();
         }
     }
 }
