@@ -12,7 +12,6 @@
  */
 package alex.beta.webcrawler.configuration.xmlbeans;
 
-import alex.beta.webcrawler.configuration.ClassUtils;
 import alex.beta.webcrawler.configuration.ConfigurationException;
 import alex.beta.webcrawler.configuration.api.*;
 import org.apache.commons.lang.StringUtils;
@@ -23,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * @version ${project.version}
  * @Description
  */
-public class ConditionEvaluator {
+class ConditionEvaluator {
 
     private static final Logger logger = LoggerFactory.getLogger(ConditionEvaluator.class);
 
@@ -32,50 +31,42 @@ public class ConditionEvaluator {
     private ConditionEvaluator() {
     }
 
-    public static ConditionEvaluator getInstance() {
+    static ConditionEvaluator getInstance() {
         return ourInstance;
     }
 
-    private static void startLog(String url, XPathNode node) {
+    private static void startLog(String url, PathSupport node) {
         if (logger.isDebugEnabled()) {
             logger.debug("Evaluating \'{}\' at {}.", url, node.getPath());
         }
     }
 
-    private static void endLog(String url, XPathNode node, boolean value) {
+    private static void endLog(String url, PathSupport node, boolean value) {
         if (logger.isDebugEnabled()) {
             logger.debug("Evaluated \'{}\' at \'{}\', and result is {}.", url, node.getPath(), value);
         }
     }
 
-    public boolean evaluate(ICondition condition, String url) throws ConfigurationException {
+    boolean evaluate(ICondition condition, String url) throws ConfigurationException {
         boolean value;
-        if (StringUtils.isEmpty(condition.getConditionClass())) {
-            if (condition instanceof IContains) {
-                value = evaluateContains((IContains) condition, url);
-            } else if (condition instanceof IEndsWith) {
-                value = evaluateEndsWith((IEndsWith) condition, url);
-            } else if (condition instanceof IEquals) {
-                value = evaluateEquals((IEquals) condition, url);
-            } else if (condition instanceof IInTheListOf) {
-                value = evaluateInTheListOf((IInTheListOf) condition, url);
-            } else if (condition instanceof IRegexMatches) {
-                value = evaluateRegexMatches((IRegexMatches) condition, url);
-            } else if (condition instanceof IStartsWith) {
-                value = evaluateStartsWith((IStartsWith) condition, url);
-            } else {
-                if (logger.isErrorEnabled()) {
-                    logger.error("Unsupported Condition \'{}\' at {}", condition.getClass().getSimpleName(), condition.getPath());
-                }
-                throw new ConfigurationException("Unsupported Condition \'"
-                        + condition.getClass().getSimpleName() + "\' at " + condition.getPath());
-            }
+        if (condition instanceof IContains) {
+            value = evaluateContains((IContains) condition, url);
+        } else if (condition instanceof IEndsWith) {
+            value = evaluateEndsWith((IEndsWith) condition, url);
+        } else if (condition instanceof IEquals) {
+            value = evaluateEquals((IEquals) condition, url);
+        } else if (condition instanceof IInTheListOf) {
+            value = evaluateInTheListOf((IInTheListOf) condition, url);
+        } else if (condition instanceof IRegexMatches) {
+            value = evaluateRegexMatches((IRegexMatches) condition, url);
+        } else if (condition instanceof IStartsWith) {
+            value = evaluateStartsWith((IStartsWith) condition, url);
         } else {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Evaluating \'{}\' using customized Condition class \'{}\' at {}", url, condition.getConditionClass(), condition.getPath());
+            if (logger.isErrorEnabled()) {
+                logger.error("Unsupported Condition \'{}\' at {}", condition.getClass().getSimpleName(), condition.getPath());
             }
-            value = ClassUtils.customizedCondition(condition.getConditionClass()).evaluate(url);
-            endLog(url, condition, value);
+            throw new ConfigurationException("Unsupported Condition \'"
+                    + condition.getClass().getSimpleName() + "\' at " + condition.getPath());
         }
         return value;
     }

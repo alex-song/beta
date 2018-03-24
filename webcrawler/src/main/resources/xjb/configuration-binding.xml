@@ -8,18 +8,20 @@
 
     <jxb:bindings schemaLocation="../xsd/configuration.xsd">
         <jxb:bindings node="//xs:complexType[@name='Configuration']">
+            <inheritance:extends>alex.beta.webcrawler.configuration.xmlbeans.AbstractConfiguration</inheritance:extends>
             <inheritance:implements>alex.beta.webcrawler.configuration.api.IConfiguration</inheritance:implements>
         </jxb:bindings>
         <jxb:bindings node="//xs:complexType[@name='ShouldVisit']">
-            <inheritance:extends>alex.beta.webcrawler.configuration.api.AbstractShouldVisit</inheritance:extends>
-            <inheritance:implements>alex.beta.webcrawler.configuration.api.IShouldVisit</inheritance:implements>
+            <inheritance:extends>alex.beta.webcrawler.configuration.xmlbeans.AbstractShouldVisit</inheritance:extends>
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IShouldVisit.InnerShouldVisit</inheritance:implements>
         </jxb:bindings>
         <jxb:bindings node="//xs:complexType[@name='Visitor']">
-            <inheritance:extends>alex.beta.webcrawler.configuration.api.IVisitor.LoggerVisitor</inheritance:extends>
+            <inheritance:extends>alex.beta.webcrawler.configuration.xmlbeans.AbstractVisitor</inheritance:extends>
+            <inheritance:implements>alex.beta.webcrawler.configuration.api.IVisitor.InnerVisitor</inheritance:implements>
         </jxb:bindings>
 
         <jxb:bindings node="//xs:complexType[@name='Condition']">
-            <inheritance:extends>alex.beta.webcrawler.configuration.api.AbstractCondition</inheritance:extends>
+            <inheritance:extends>alex.beta.webcrawler.configuration.xmlbeans.AbstractCondition</inheritance:extends>
             <inheritance:implements>alex.beta.webcrawler.configuration.api.ICondition</inheritance:implements>
         </jxb:bindings>
         <jxb:bindings node="//xs:complexType[@name='StartsWith']">
@@ -42,7 +44,7 @@
         </jxb:bindings>
 
         <jxb:bindings node="//xs:complexType[@name='Joint']">
-            <inheritance:extends>alex.beta.webcrawler.configuration.api.AbstractJoint</inheritance:extends>
+            <inheritance:extends>alex.beta.webcrawler.configuration.xmlbeans.AbstractJoint</inheritance:extends>
             <inheritance:implements>alex.beta.webcrawler.configuration.api.IJoint</inheritance:implements>
         </jxb:bindings>
         <jxb:bindings node="//xs:complexType[@name='And']">

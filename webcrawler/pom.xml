@@ -17,6 +17,18 @@
             <artifactId>crawler4j</artifactId>
             <version>${crawler4j_version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.tomakehurst</groupId>
+            <artifactId>wiremock</artifactId>
+            <version>${wiremock_version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>alex</groupId>
+            <artifactId>commons</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

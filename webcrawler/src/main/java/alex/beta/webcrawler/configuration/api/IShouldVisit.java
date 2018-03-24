@@ -20,12 +20,14 @@ import edu.uci.ics.crawler4j.url.WebURL;
  * @version ${project.version}
  * @Description
  */
-public interface IShouldVisit extends XPathNode {
-    ICondition getCondition();
-
-    IJoint getJoint();
-
+public interface IShouldVisit {
     boolean shouldVisit(String url) throws ConfigurationException;
 
     boolean shouldVisit(Page referringPage, WebURL url) throws ConfigurationException;
+
+    interface InnerShouldVisit extends IShouldVisit, PathSupport {
+        ICondition getCondition();
+
+        IJoint getJoint();
+    }
 }

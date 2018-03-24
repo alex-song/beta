@@ -13,47 +13,15 @@
 package alex.beta.webcrawler.configuration.api;
 
 import edu.uci.ics.crawler4j.crawler.Page;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.UnsupportedEncodingException;
 
 /**
  * @version ${project.version}
  * @Description
  */
-public interface IVisitor extends XPathNode {
-    String getVisitorClass();
-
+public interface IVisitor {
     void visit(Page page);
 
-    class LoggerVisitor implements IVisitor {
-
-        private static final Logger logger = LoggerFactory.getLogger(LoggerVisitor.class);
-
-        public String getVisitorClass() {
-            return null;
-        }
-
-        public void visit(Page page) {
-            logger.info("Visisting {}", page.getWebURL().getURL());
-            logger.info("Response code: {}", page.getStatusCode());
-            if (logger.isDebugEnabled()) {
-                try {
-                    logger.debug("Response data: {}{}", System.lineSeparator(), new String(page.getContentData(),
-                            (page.getContentCharset() == null ? "UTF-8" : page.getContentCharset())));
-                } catch (UnsupportedEncodingException ex) {
-                    logger.error("Unsupported page charset {}", page.getContentCharset(), ex);
-                }
-            }
-        }
-
-        public XPathNode getParent() {
-            return XPathNode.ROOT;
-        }
-
-        public String getPath() {
-            return XPathNode.ROOT.getPath() + "/Visitor";
-        }
+    interface InnerVisitor extends PathSupport {
+        String getVisitorClass();
     }
 }

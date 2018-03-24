@@ -10,23 +10,29 @@
  * @Date: 2018/3/17 9:00
  * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
-package alex.beta.webcrawler.configuration.api;
+package alex.beta.webcrawler.configuration.xmlbeans;
 
 import alex.beta.webcrawler.configuration.ClassUtils;
 import alex.beta.webcrawler.configuration.ConfigurationException;
+import alex.beta.webcrawler.configuration.api.IShouldVisit;
+import alex.beta.webcrawler.configuration.api.PathSupport;
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.url.WebURL;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.Unmarshaller;
+
 /**
  * @version ${project.version}
  * @Description
  */
-public abstract class AbstractShouldVisit implements IShouldVisit {
+public abstract class AbstractShouldVisit implements IShouldVisit.InnerShouldVisit {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractShouldVisit.class);
+
+    private PathSupport parent;
 
     public abstract String getShouldVisitClass();
 
@@ -63,13 +69,15 @@ public abstract class AbstractShouldVisit implements IShouldVisit {
         }
     }
 
-    @Override
-    public XPathNode getParent() {
-        return XPathNode.ROOT;
+    @SuppressWarnings("squid:S1172")
+    public void afterUnmarshal(Unmarshaller u, Object parent) {
+        if (parent instanceof PathSupport) {
+            this.parent = (PathSupport) parent;
+        }
     }
 
     @Override
     public String getPath() {
-        return XPathNode.ROOT.getPath() + "/ShouldVisit";
+        return this.parent.getPath() + "/ShouldVisit";
     }
 }

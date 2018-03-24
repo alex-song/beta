@@ -1,5 +1,5 @@
 /**
- * @File: XPathNode.java
+ * @File: PathSupport.java
  * @Project: beta
  * @Copyright: Copyright (c) 2018, All Rights Reserved
  * <p>
@@ -16,18 +16,6 @@ package alex.beta.webcrawler.configuration.api;
  * @version ${project.version}
  * @Description
  */
-public interface XPathNode {
-    XPathNode ROOT = new XPathNode() {
-        public XPathNode getParent() {
-            return null;
-        }
-
-        public String getPath() {
-            return "//XmlConfiguration";
-        }
-    };
-
-    XPathNode getParent();
-
+public interface PathSupport {
     String getPath();
 }
