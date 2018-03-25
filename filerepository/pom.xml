@@ -68,14 +68,12 @@
             <artifactId>springfox-swagger2</artifactId>
             <version>${springfox-swagger2_version}</version>
         </dependency>
-
         <!-- The JCR API -->
         <dependency>
             <groupId>javax.jcr</groupId>
             <artifactId>jcr</artifactId>
             <version>${jcr_version}</version>
         </dependency>
-
         <!-- Jackrabbit content repository -->
         <dependency>
             <groupId>org.apache.jackrabbit</groupId>
@@ -87,7 +85,12 @@
             <artifactId>jackrabbit-webapp</artifactId>
             <version>${jackrabbit_version}</version>
         </dependency>
-
+        <!-- Persistence -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgresql_version}</version>
+        </dependency>
         <!-- find bugs -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>

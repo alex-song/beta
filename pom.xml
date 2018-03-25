@@ -60,6 +60,7 @@
 		<jsr305_version>3.0.2</jsr305_version>
         <jcr_version>2.0</jcr_version>
         <jackrabbit_version>2.17.1</jackrabbit_version>
+		<postgresql_version>42.2.2</postgresql_version>
 
 		<!-- build parameters -->
 		<test.failure.ignore>false</test.failure.ignore>
