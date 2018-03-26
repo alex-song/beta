@@ -19,12 +19,15 @@
 		<module>onlinetranslation</module>
 		<module>webcrawler</module>
         <module>filerepository</module>
-    </modules>
+		<module>postgres</module>
+	</modules>
 	<properties>
         <!-- compile parameters -->
 		<compiler_source>1.8</compiler_source>
 		<compiler_target>1.8</compiler_target>
 		<compiler_encoding>UTF-8</compiler_encoding>
+
+		<docker-image-prefix>alexsong</docker-image-prefix>
 
         <!-- plugin versions -->
 		<maven-install-plugin_version>2.5.2</maven-install-plugin_version>
@@ -60,6 +63,7 @@
 		<jsr305_version>3.0.2</jsr305_version>
         <jcr_version>2.0</jcr_version>
         <jackrabbit_version>2.17.1</jackrabbit_version>
+		<postgresql_version>42.2.2</postgresql_version>
 
 		<!-- build parameters -->
 		<test.failure.ignore>false</test.failure.ignore>
