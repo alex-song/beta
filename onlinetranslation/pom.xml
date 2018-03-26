@@ -16,8 +16,6 @@
         <springboot_classifier>springboot</springboot_classifier>
         <nas_classifier>without_tomcat</nas_classifier>
         <mini_classifier>mini</mini_classifier>
-
-        <docker-image-prefix>alexsong</docker-image-prefix>
     </properties>
 
     <dependencies>

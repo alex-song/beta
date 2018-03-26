@@ -19,12 +19,15 @@
 		<module>onlinetranslation</module>
 		<module>webcrawler</module>
         <module>filerepository</module>
-    </modules>
+		<module>postgres</module>
+	</modules>
 	<properties>
         <!-- compile parameters -->
 		<compiler_source>1.8</compiler_source>
 		<compiler_target>1.8</compiler_target>
 		<compiler_encoding>UTF-8</compiler_encoding>
+
+		<docker-image-prefix>alexsong</docker-image-prefix>
 
         <!-- plugin versions -->
 		<maven-install-plugin_version>2.5.2</maven-install-plugin_version>
