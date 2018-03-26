@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<axs:CrawlerConfig xmlns:axs="http://songlp.ddns.net/webcrawler/schema"
+                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      depth="3" numberOfCrawlers="3">
+    <ShouldVisit>
+        <Joint xsi:type="axs:And">
+            <Condition xsi:type="axs:StartsWith" prefix="http://localhost" caseSensitive="false"/>
+            <Joint xsi:type="axs:Not">
+                <Condition xsi:type="axs:EndsWith" suffix="12.html"/>
+            </Joint>
+            <Joint xsi:type="axs:Not">
+                <Joint xsi:type="axs:Or">
+                    <Condition xsi:type="axs:EndsWith" suffix=".js" caseSensitive="false"/>
+                    <Condition xsi:type="axs:EndsWith" suffix=".css" caseSensitive="false"/>
+                    <Condition xsi:type="axs:EndsWith" suffix=".jpg" caseSensitive="false"/>
+                    <Condition xsi:type="axs:EndsWith" suffix=".ico" caseSensitive="false"/>
+                    <Condition xsi:type="axs:EndsWith" suffix=".png" caseSensitive="false"/>
+                    <Condition xsi:type="axs:EndsWith" suffix=".gif" caseSensitive="false"/>
+                </Joint>
+            </Joint>
+        </Joint>
+    </ShouldVisit>
+    <Visitor visitorClass="alex.beta.webcrawler.configuration.CrawlerTestVisitor"/>
+</axs:CrawlerConfig>

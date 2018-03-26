@@ -24,6 +24,8 @@ import edu.uci.ics.crawler4j.url.WebURL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @version ${project.version}
  * @Description
@@ -35,7 +37,7 @@ public class WebCrawlerBuilder {
 
     private CrawlController controller;
 
-    private CrawlController.WebCrawlerFactory factory;
+    private CrawlController.WebCrawlerFactory<WebCrawler> factory;
 
     private WebCrawlerBuilder() {
         //hide default public constructor
@@ -74,6 +76,16 @@ public class WebCrawlerBuilder {
             this.controller.addSeed(seed);
         }
 
+        return this;
+    }
+
+    public WebCrawlerBuilder addEntryPoints(String... entry) {
+        Objects.requireNonNull(controller, "Build controller before adding new entry points.");
+        if (entry != null && entry.length > 0) {
+            for (String e : entry) {
+                this.controller.addSeed(e);
+            }
+        }
         return this;
     }
 
@@ -122,31 +134,11 @@ public class WebCrawlerBuilder {
         return factory;
     }
 
-    public void setFactory(CrawlController.WebCrawlerFactory factory) {
+    public void setFactory(CrawlController.WebCrawlerFactory<WebCrawler> factory) {
         this.factory = factory;
     }
 
-    private class CrawlerMonitor implements Runnable {
-        public void run() {
-            long start = System.currentTimeMillis();
-            do {
-                try {
-                    Thread.currentThread().sleep(1000);
-                } catch (InterruptedException ex) {
-                    logger.error("Monitor thread is interrupted.", ex);
-                    controller.shutdown();
-                    logger.info("Crawler is shutdown.");
-                    Thread.currentThread().interrupt();
-                }
-            } while (System.currentTimeMillis() - start < configuration.getTimeout()
-                    && !controller.isShuttingDown() && !controller.isFinished());
-            controller.shutdown();
-            logger.info("Crawler is shutdown.");
-            controller.waitUntilFinish();
-        }
-    }
-
-    static class XmlWebCrawlerFactory implements CrawlController.WebCrawlerFactory {
+    static class XmlWebCrawlerFactory implements CrawlController.WebCrawlerFactory<WebCrawler> {
 
         private IConfiguration configuration;
 
@@ -182,6 +174,26 @@ public class WebCrawlerBuilder {
                     }
                 }
             };
+        }
+    }
+
+    private class CrawlerMonitor implements Runnable {
+        public void run() {
+            long start = System.currentTimeMillis();
+            do {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    logger.error("Monitor thread is interrupted.", ex);
+                    controller.shutdown();
+                    logger.info("Crawler is shutdown.");
+                    Thread.currentThread().interrupt();
+                }
+            } while (System.currentTimeMillis() - start < configuration.getTimeout()
+                    && !controller.isShuttingDown() && !controller.isFinished());
+            controller.shutdown();
+            logger.info("Crawler is shutdown.");
+            controller.waitUntilFinish();
         }
     }
 }
