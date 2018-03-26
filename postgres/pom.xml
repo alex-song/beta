@@ -12,6 +12,16 @@
     <artifactId>postgres</artifactId>
     <version>10.3</version>
 
+    <!-- run following command to build docker image -->
+    <!-- mvn clean package docker:build -->
+
+    <!-- run following command to start the postgres service in docker -->
+    <!-- docker run -e POSTGRES_PASSWORD=Asd123 -d -p 5432:5432 -v /Volumes/MyData/pgdata:/var/lib/postgresql/data alexsong/postgres:10.3 -->
+
+    <!-- run following command to push ht eimage to docker hub (define the server in settings.xml first) -->
+    <!-- mvn clean package docker:build -DpushImage -->
+
+    <!-- docker exec -it <containerid> /bin/sh -->
     <build>
         <plugins>
             <plugin>
