@@ -19,7 +19,6 @@
 		<module>onlinetranslation</module>
 		<module>webcrawler</module>
         <module>filerepository</module>
-		<module>postgres</module>
 	</modules>
 	<properties>
         <!-- compile parameters -->
