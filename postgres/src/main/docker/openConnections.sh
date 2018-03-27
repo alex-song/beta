@@ -9,6 +9,5 @@ set -e
 #	echo "host    all    all        ::0/0         password"
 #} >> "$PGDATA/pg_hba.conf"
 
-#mv -f $PGDATA/pg_hba.conf $PGDATA/pg_hba_org.conf
-#cp /pg_hba.conf $PGDATA/
-cp -f /pg_hba_alex.conf $PGDATA/pg_hba.conf
+mv -f $PGDATA/pg_hba.conf $PGDATA/pg_hba_org.conf
+cp -f /pg_hba.conf $PGDATA/pg_hba.conf
