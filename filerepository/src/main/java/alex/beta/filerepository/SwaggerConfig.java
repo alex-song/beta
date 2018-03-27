@@ -36,8 +36,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 @Profile({"dev", "docker"})
 @EnableSwagger2

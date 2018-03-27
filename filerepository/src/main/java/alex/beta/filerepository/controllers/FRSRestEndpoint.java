@@ -26,8 +26,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 @Controller
 @RestController
