@@ -10,4 +10,5 @@ set -e
 #} >> "$PGDATA/pg_hba.conf"
 
 mv -f $PGDATA/pg_hba.conf $PGDATA/pg_hba_org.conf
-cp /pg_hba.conf $PGDATA/
+#cp /pg_hba.conf $PGDATA/
+mv -f $PGDATA/pg_hba_alex.conf $PGDATA/pg_hba.conf
