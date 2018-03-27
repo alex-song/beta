@@ -11,4 +11,4 @@ set -e
 
 #mv -f $PGDATA/pg_hba.conf $PGDATA/pg_hba_org.conf
 #cp /pg_hba.conf $PGDATA/
-cp -f /pg_hba.conf $PGDATA/pg_hba.conf
+cp -f /pg_hba.conf $PGDATA
