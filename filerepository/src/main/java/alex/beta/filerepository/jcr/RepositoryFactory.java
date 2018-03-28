@@ -52,7 +52,7 @@ public class RepositoryFactory {
 
     @Profile("dev")
     @Bean(name = "frsRepository")
-    public RepositoryImpl devRepository() throws RepositoryException {
+    public Repository devRepository() throws RepositoryException {
         if (this.repoHomePath == null) {
             if (logger.isWarnEnabled()) {
                 logger.warn("repository.home is not set, and use java.io.tmpdir ({}) in dev profile.", System.getProperty("java.io.tmpdir"));
@@ -64,11 +64,11 @@ public class RepositoryFactory {
 
     @Profile("dock")
     @Bean(name = "frsRepository")
-    public RepositoryImpl dockRepository() throws RepositoryException {
+    public Repository dockRepository() throws RepositoryException {
         return repository();
     }
 
-    private RepositoryImpl repository() throws RepositoryException {
+    private Repository repository() throws RepositoryException {
         File repoHome;
         try {
             repoHome = (new File(this.repoHomePath)).getCanonicalFile();
@@ -108,7 +108,7 @@ public class RepositoryFactory {
         }
     }
 
-    private RepositoryImpl createRepository(InputSource is, File homedir) throws RepositoryException {
+    private Repository createRepository(InputSource is, File homedir) throws RepositoryException {
         RepositoryConfig config = RepositoryConfig.create(is, homedir.getAbsolutePath());
         return RepositoryImpl.create(config);
     }

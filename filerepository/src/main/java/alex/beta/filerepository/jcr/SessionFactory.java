@@ -40,13 +40,11 @@ import java.util.Map;
 public class SessionFactory implements SessionListener {
 
     private static final Logger logger = LoggerFactory.getLogger(SessionFactory.class);
-
-    private RepositoryImpl frsRepository;
-
     private final Map<Session, Session> sessions;
+    private Repository frsRepository;
 
     @Autowired
-    public SessionFactory(RepositoryImpl frsRepository) {
+    public SessionFactory(Repository frsRepository) {
         this.frsRepository = frsRepository;
         this.sessions = new ReferenceMap(2, 2);
     }
@@ -87,10 +85,10 @@ public class SessionFactory implements SessionListener {
             session.logout();
         }
 
-        if (this.frsRepository != null) {
-            this.frsRepository.shutdown();
-            logger.info("frsRepository shut down");
+        if (this.frsRepository != null && this.frsRepository instanceof RepositoryImpl) {
+            ((RepositoryImpl) this.frsRepository).shutdown();
         }
+        logger.info("frsRepository shut down");
         frsRepository = null;
     }
 
