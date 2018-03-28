@@ -104,12 +104,24 @@
         -->
 
         <!--org.apache.jackrabbit.core.persistence.pool.PostgreSQLPersistenceManager-->
-        <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.MySqlPersistenceManager">
-            <param name="url" value="jdbc:mysql://127.0.0.1:3306/jackrabbit"/>
-            <param name="user" value="jackrabbit" />
-            <param name="password" value="jackrabbit" />
-            <param name="schema" value="mysql"/>
-            <param name="schemaObjectPrefix" value="pm_ws_${wsp.name}_"/>
+        <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.H2PersistenceManager">
+            <param name="bundleCacheSize" value="8"/>
+            <param name="consistencyCheck" value="false"/>
+            <param name="minBlobSize" value="16384"/>
+            <param name="driver" value="org.h2.Driver"/>
+            <param name="url" value="jdbc:h2:file:${wsp.home}/db/itemState"/>
+            <param name="schemaObjectPrefix" value="${wsp.name}_"/>
+            <param name="user" value="sa"/>
+            <param name="password" value="sa"/>
+            <param name="schema" value="h2"/>
+            <param name="errorHandling" value=""/>
+            <param name="lockTimeout" value="10000"/>
+
+            <!--<param name="url" value="jdbc:mysql://127.0.0.1:3306/jackrabbit"/>-->
+            <!--<param name="user" value="jackrabbit" />-->
+            <!--<param name="password" value="jackrabbit" />-->
+            <!--<param name="schema" value="mysql"/>-->
+            <!--<param name="schemaObjectPrefix" value="pm_ws_${wsp.name}_"/>-->
         </PersistenceManager>
 
         <!--
@@ -147,12 +159,24 @@
                 </PersistenceManager>
         -->
 
-        <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.MySqlPersistenceManager">
-            <param name="url" value="jdbc:mysql://127.0.0.1:3306/jackrabbit"/>
-            <param name="user" value="jackrabbit" />
-            <param name="password" value="jackrabbit" />
-            <param name="schema" value="mysql"/>
-            <param name="schemaObjectPrefix" value="pm_vs_"/>
+        <PersistenceManager class="org.apache.jackrabbit.core.persistence.pool.H2PersistenceManager">
+            <param name="bundleCacheSize" value="8"/>
+            <param name="consistencyCheck" value="false"/>
+            <param name="minBlobSize" value="16384"/>
+            <param name="driver" value="org.h2.Driver"/>
+            <param name="url" value="jdbc:h2:file:${rep.home}/version/db/itemState"/>
+            <param name="schemaObjectPrefix" value="version_"/>
+            <param name="user" value="sa"/>
+            <param name="password" value="sa"/>
+            <param name="schema" value="h2"/>
+            <param name="errorHandling" value=""/>
+            <param name="lockTimeout" value="10000"/>
+
+            <!--<param name="url" value="jdbc:mysql://127.0.0.1:3306/jackrabbit"/>-->
+            <!--<param name="user" value="jackrabbit" />-->
+            <!--<param name="password" value="jackrabbit" />-->
+            <!--<param name="schema" value="mysql"/>-->
+            <!--<param name="schemaObjectPrefix" value="pm_vs_"/>-->
         </PersistenceManager>
     </Versioning>
 

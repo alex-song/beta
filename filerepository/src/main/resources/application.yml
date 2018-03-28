@@ -3,14 +3,13 @@ server:
   contextPath: /filerepository/
 
 endpoints:
-  enabled: true
+  enabled: false
 
 spring:
   profiles:
     active: @profileActive@
   messages:
     basename: l10n/exceptions
-
 
 springfox:
   documentation:
@@ -24,24 +23,6 @@ info:
     description: Alex File Repository Service, which is built on top of Apache Jackrabbit.
     version: @project.version@
 
-logging:
-  file: ./logs/filerepository.log
-  level:
-    Root: WARN
-    alex: DEBUG
-
 repository:
-  home: /Users/alexsong/Development/workspace/beta/filerepository/repo_home
-  config: classpath:repository.xml
   name: frs
 
-
-#java.naming.factory.initial=org.apache.jackrabbit.core.jndi.provider.DummyInitialContextFactory
-#repository.home=/opt/jackrabbit
-#rmi.enabled=true
-#repository.config=/opt/jackrabbit/repository.xml
-#repository.name=jackrabbit.repository
-#rmi.host=localhost
-#java.naming.provider.url=http\://www.apache.org/jackrabbit
-#jndi.enabled=true
-#rmi.port=0
