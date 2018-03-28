@@ -1,5 +1,5 @@
 /**
- * @File: RepositoryConfiguration.java
+ * @File: RepositoryFactory.java
  * @Project: beta
  * @Copyright: Copyright (c) 2018, All Rights Reserved
  * <p>
@@ -10,7 +10,7 @@
  * @Date: 2018/3/25 下午1:50
  * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
-package alex.beta.filerepository;
+package alex.beta.filerepository.jcr;
 
 import org.apache.jackrabbit.core.RepositoryImpl;
 import org.apache.jackrabbit.core.config.ConfigurationException;
@@ -37,9 +37,9 @@ import java.io.*;
 
 @Component
 @EnableAutoConfiguration
-public class RepositoryConfiguration {
+public class RepositoryFactory {
 
-    private static final Logger logger = LoggerFactory.getLogger(RepositoryConfiguration.class);
+    private static final Logger logger = LoggerFactory.getLogger(RepositoryFactory.class);
 
     @Value("${repository.home:#{null}}")
     private String repoHomePath;

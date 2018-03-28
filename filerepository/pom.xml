@@ -102,7 +102,11 @@
             <artifactId>jsr305</artifactId>
             <version>${jsr305_version}</version>
         </dependency>
-
+        <!-- Transaction -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+        </dependency>
         <!-- test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
