@@ -61,10 +61,9 @@
 		<wiremock_version>2.15.0</wiremock_version>
 		<jsr305_version>3.0.2</jsr305_version>
         <jcr_version>2.0</jcr_version>
-        <!--<jackrabbit_version>2.17.1</jackrabbit_version>-->
+        <jackrabbit_version>2.17.1</jackrabbit_version>
 		<oak-jcr_version>1.8.2</oak-jcr_version>
-		<mongo-java-driver_version>2.7.1</mongo-java-driver_version>
-		<!--<oak-segment_version>1.6.9</oak-segment_version>-->
+		<mongo-java-driver_version>3.6.3</mongo-java-driver_version>
 		<postgresql_version>42.2.2</postgresql_version>
 
 		<!-- build parameters -->
