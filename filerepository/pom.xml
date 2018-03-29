@@ -77,35 +77,36 @@
         <!-- Jackrabbit content repository -->
         <dependency>
             <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>jackrabbit-core</artifactId>
-            <version>${jackrabbit_version}</version>
+            <artifactId>oak-jcr</artifactId>
+            <version>${oak-jcr_version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>jackrabbit-webapp</artifactId>
-            <version>${jackrabbit_version}</version>
+            <artifactId>oak-core</artifactId>
+            <version>${oak-jcr_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.jackrabbit</groupId>
+            <artifactId>oak-segment-tar</artifactId>
+            <version>${oak-jcr_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.jackrabbit</groupId>
+            <artifactId>oak-store-document</artifactId>
+            <version>${oak-jcr_version}</version>
         </dependency>
         <!-- Persistence -->
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${h2_version}</version>
+            <groupId>com.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>${mongo-java-driver_version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${postgresql_version}</version>
-        </dependency>
+
         <!-- find bugs -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>jsr305</artifactId>
             <version>${jsr305_version}</version>
-        </dependency>
-        <!-- Transaction -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
         </dependency>
         <!-- test -->
         <dependency>
