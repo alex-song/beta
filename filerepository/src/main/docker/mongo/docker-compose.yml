@@ -1,9 +1,10 @@
 version: '3'
 services:
-  image: "mongo:3.6"
-  ports:
-    - "27017:27017"
-  volumes:
-    - /Volumes/MyData/mongodata:/data/db
-    - ./mongo-entrypoint:/docker-entrypoint-initdb.d
-  command: [--auth]
+  mongo:
+    image: mongo:3.6
+    ports:
+      - "27017:27017"
+    volumes:
+      - /Volumes/MyData/mongodata:/data/db
+      - ./mongo-entrypoint:/docker-entrypoint-initdb.d
+    command: [--auth]
