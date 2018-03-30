@@ -1,5 +1,5 @@
 version: '3'
-mongo-container:
+services:
   image: mongo:3.6
   ports:
     - "27017:27017"
