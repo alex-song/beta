@@ -23,6 +23,4 @@ info:
     description: Alex File Repository Service, which is built on top of Apache Jackrabbit.
     version: @project.version@
 
-repository:
-  name: frs
 

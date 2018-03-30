@@ -7,10 +7,4 @@ logging:
     Root: WARN
     alex: DEBUG
 
-repository:
-  mongo:
-    host: songlp.ddns.net
-    port: 27017
-  config: classpath:repository/repository-dev.xml
-
 
