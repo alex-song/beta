@@ -21,6 +21,7 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
  * @version ${project.version}
  * @Description
  */
+
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer {
     public static void main(String[] args) {

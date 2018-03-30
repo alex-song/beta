@@ -1,0 +1,10 @@
+endpoints:
+  enabled: true
+
+logging:
+  file: ./logs/filerepository.log
+  level:
+    Root: WARN
+    alex: DEBUG
+
+
