@@ -10,6 +10,18 @@ spring:
     active: @profileActive@
   messages:
     basename: l10n/exceptions
+  data:
+    mongodb:
+      authentication-database:
+      database: frs
+      grid-fs-database: frs-grid
+      host: songlp.ddns.net
+      port: 27017
+      username:
+      password:
+      repositories:
+        enabled: true
+
 
 springfox:
   documentation:

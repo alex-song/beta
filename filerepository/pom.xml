@@ -68,83 +68,18 @@
             <artifactId>springfox-swagger2</artifactId>
             <version>${springfox-swagger2_version}</version>
         </dependency>
-        <!-- The JCR API -->
-        <dependency>
-            <groupId>javax.jcr</groupId>
-            <artifactId>jcr</artifactId>
-            <version>${jcr_version}</version>
-        </dependency>
-        <!-- Jackrabbit content repository -->
-        <dependency>
-            <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>oak-jcr</artifactId>
-            <version>${oak-jcr_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>oak-core</artifactId>
-            <version>${oak-jcr_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>oak-segment-tar</artifactId>
-            <version>${oak-jcr_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>oak-store-document</artifactId>
-            <version>${oak-jcr_version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.codahale.metrics</groupId>
-            <artifactId>metrics-core</artifactId>
-            <version>3.0.2</version>
-        </dependency>
-
-        <!--<dependency>-->
-            <!--<groupId>org.apache.jackrabbit</groupId>-->
-            <!--<artifactId>oak-pojosr</artifactId>-->
-            <!--<version>${project.version}</version>-->
-        <!--</dependency>-->
-        <dependency>
-            <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>jackrabbit-jcr-server</artifactId>
-            <version>${jackrabbit_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>jackrabbit-jcr-servlet</artifactId>
-            <version>${jackrabbit_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>jackrabbit-jcr-rmi</artifactId>
-            <version>${jackrabbit_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>oak-lucene</artifactId>
-            <version>${oak-jcr_version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jackrabbit</groupId>
-            <artifactId>oak-store-composite</artifactId>
-            <version>${oak-jcr_version}</version>
-        </dependency>
-
 
         <!-- Persistence -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
             <version>${mongo-java-driver_version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${h2_version}</version>
-        </dependency>
+
         <!-- find bugs -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
@@ -172,11 +107,6 @@
                 <version>${spring-boot_version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.jackrabbit</groupId>
-                <artifactId>oak-parent</artifactId>
-                <version>${oak-jcr_version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
