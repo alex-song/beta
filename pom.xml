@@ -1,81 +1,82 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>alex</groupId>
-	<artifactId>beta</artifactId>
-	<version>0.0.1</version>
-	<packaging>pom</packaging>
-	<name>beta</name>
-	<licenses>
-		<license>
-			<name>Apache License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
-	<modules>
-		<module>commons</module>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>alex</groupId>
+    <artifactId>beta</artifactId>
+    <version>0.0.1</version>
+    <packaging>pom</packaging>
+    <name>beta</name>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <modules>
+        <module>commons</module>
         <module>games</module>
-		<module>onlinetranslation</module>
-		<module>webcrawler</module>
+        <module>onlinetranslation</module>
+        <module>webcrawler</module>
         <module>filerepository</module>
-	</modules>
-	<properties>
+    </modules>
+    <properties>
         <!-- compile parameters -->
-		<compiler_source>1.8</compiler_source>
-		<compiler_target>1.8</compiler_target>
-		<compiler_encoding>UTF-8</compiler_encoding>
+        <compiler_source>1.8</compiler_source>
+        <compiler_target>1.8</compiler_target>
+        <compiler_encoding>UTF-8</compiler_encoding>
 
-		<docker-image-prefix>alexsong</docker-image-prefix>
+        <docker-image-prefix>alexsong</docker-image-prefix>
 
         <!-- plugin versions -->
-		<maven-install-plugin_version>2.5.2</maven-install-plugin_version>
-		<maven-compiler-plugin_version>3.7.0</maven-compiler-plugin_version>
-		<maven-resources-plugin_version>3.0.2</maven-resources-plugin_version>
-		<maven-assembly-plugin_version>3.1.0</maven-assembly-plugin_version>
-		<maven-deploy-plugin_version>2.8.2</maven-deploy-plugin_version>
-		<maven-war-plugin_version>3.2.0</maven-war-plugin_version>
+        <maven-install-plugin_version>2.5.2</maven-install-plugin_version>
+        <maven-compiler-plugin_version>3.7.0</maven-compiler-plugin_version>
+        <maven-resources-plugin_version>3.0.2</maven-resources-plugin_version>
+        <maven-assembly-plugin_version>3.1.0</maven-assembly-plugin_version>
+        <maven-deploy-plugin_version>2.8.2</maven-deploy-plugin_version>
+        <maven-war-plugin_version>3.2.0</maven-war-plugin_version>
         <exec-maven-plugin_version>1.6.0</exec-maven-plugin_version>
         <jacoco-maven-plugin_version>0.8.0</jacoco-maven-plugin_version>
         <maven-surefire-plugin_version>2.20.1</maven-surefire-plugin_version>
         <maven-failsafe-plugin_version>2.20.1</maven-failsafe-plugin_version>
         <sonar-maven-plugin_version>3.4.0.905</sonar-maven-plugin_version>
-		<docker-maven-plugin_version>1.0.0</docker-maven-plugin_version>
+        <docker-maven-plugin_version>1.0.0</docker-maven-plugin_version>
         <maven-jaxb2-plugin_version>0.13.3</maven-jaxb2-plugin_version>
-		<jaxb2-basics_version>0.11.1</jaxb2-basics_version>
+        <jaxb2-basics_version>0.11.1</jaxb2-basics_version>
 
         <!-- dependencies -->
-		<junit_version>4.12</junit_version>
-		<slf4j-api_version>1.7.25</slf4j-api_version>
-		<logback_version>1.2.3</logback_version>
-		<commons-lang3_version>3.7</commons-lang3_version>
-		<spring-boot_version>1.5.10.RELEASE</spring-boot_version>
-		<springfox-swagger2_version>2.8.0</springfox-swagger2_version>
-		<h2_version>1.4.195</h2_version>
-		<hibernate-core_version>5.2.10.Final</hibernate-core_version>
-		<querydsl-jpa_version>4.1.4</querydsl-jpa_version>
-		<gson_version>2.2.4</gson_version>
-		<guava_version>22.0</guava_version>
-		<httpclient_version>4.5.5</httpclient_version>
-		<crawler4j_version>4.3</crawler4j_version>
-		<wiremock_version>2.15.0</wiremock_version>
-		<jsr305_version>3.0.2</jsr305_version>
-		<mongo-java-driver_version>3.6.3</mongo-java-driver_version>
-		<postgresql_version>42.2.2</postgresql_version>
+        <junit_version>4.12</junit_version>
+        <slf4j-api_version>1.7.25</slf4j-api_version>
+        <logback_version>1.2.3</logback_version>
+        <commons-lang3_version>3.7</commons-lang3_version>
+        <spring-boot_version>1.5.10.RELEASE</spring-boot_version>
+        <springfox-swagger2_version>2.8.0</springfox-swagger2_version>
+        <h2_version>1.4.195</h2_version>
+        <hibernate-core_version>5.2.10.Final</hibernate-core_version>
+        <querydsl-jpa_version>4.1.4</querydsl-jpa_version>
+        <gson_version>2.2.4</gson_version>
+        <guava_version>22.0</guava_version>
+        <httpclient_version>4.5.5</httpclient_version>
+        <crawler4j_version>4.3</crawler4j_version>
+        <wiremock_version>2.15.0</wiremock_version>
+        <jsr305_version>3.0.2</jsr305_version>
+        <mongo-java-driver_version>3.6.3</mongo-java-driver_version>
+        <postgresql_version>42.2.2</postgresql_version>
+        <lombok_version>1.16.20</lombok_version>
 
-		<!-- build parameters -->
-		<test.failure.ignore>false</test.failure.ignore>
+        <!-- build parameters -->
+        <test.failure.ignore>false</test.failure.ignore>
     </properties>
 
-	<dependencies>
-		<!-- junit for all modules -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-			<version>${junit_version}</version>
-		</dependency>
-	</dependencies>
+    <dependencies>
+        <!-- junit for all modules -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+            <version>${junit_version}</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
@@ -107,11 +108,11 @@
                     <testFailureIgnore>${test.failure.ignore}</testFailureIgnore>
                 </configuration>
             </plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-install-plugin</artifactId>
-				<version>${maven-install-plugin_version}</version>
-			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>${maven-install-plugin_version}</version>
+            </plugin>
         </plugins>
     </build>
 
@@ -123,99 +124,100 @@
 
     mvn -Psonarcloud clean verify sonar:sonar
     -->
-	<profiles>
-		<profile>
-			<id>sonarcloud</id>
+    <profiles>
+        <profile>
+            <id>sonarcloud</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
                 <!-- overwrite parent setting, continue on failure -->
-				<test.failure.ignore>true</test.failure.ignore>
+                <test.failure.ignore>true</test.failure.ignore>
                 <!-- sonar parameters -->
                 <argLine/>
                 <sonar.language>java</sonar.language>
                 <sonar.sourceEncoding>UTF-8</sonar.sourceEncoding>
-                <sonar.jacoco.reportPath>${project.build.directory}/coverage-reports/jacoco-ut.exec</sonar.jacoco.reportPath>
+                <sonar.jacoco.reportPath>${project.build.directory}/coverage-reports/jacoco-ut.exec
+                </sonar.jacoco.reportPath>
                 <sonar.junit.reportsPath>${project.build.directory}/surefire-reports</sonar.junit.reportsPath>
             </properties>
-			<build>
-				<plugins>
-					<!-- sonar analyze -->
-					<plugin>
-						<groupId>org.sonarsource.scanner.maven</groupId>
+            <build>
+                <plugins>
+                    <!-- sonar analyze -->
+                    <plugin>
+                        <groupId>org.sonarsource.scanner.maven</groupId>
                         <artifactId>sonar-maven-plugin</artifactId>
                         <version>${sonar-maven-plugin_version}</version>
-					</plugin>
-					<!-- coverage report -->
-					<plugin>
-						<groupId>org.jacoco</groupId>
-						<artifactId>jacoco-maven-plugin</artifactId>
-						<version>${jacoco-maven-plugin_version}</version>
-						<executions>
-							<execution>
-								<id>default-instrument</id>
-								<goals>
-									<goal>instrument</goal>
-								</goals>
-							</execution>
-							<execution>
-								<id>default-restore-instrumented-classes</id>
-								<goals>
-									<goal>restore-instrumented-classes</goal>
-								</goals>
-							</execution>
-							<execution>
-								<id>report</id>
-								<phase>prepare-package</phase>
-								<goals>
-									<goal>report</goal>
-								</goals>
-								<configuration>
-									<dataFile>${sonar.jacoco.reportPath}</dataFile>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<version>${maven-surefire-plugin_version}</version>
-						<configuration>
-							<systemPropertyVariables>
-								<jacoco-agent.destfile>${sonar.jacoco.reportPath}</jacoco-agent.destfile>
-								<sonar.junit.reportsPath>${sonar.junit.reportsPath}</sonar.junit.reportsPath>
-								<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-								<sonar.binaries>target/classes</sonar.binaries>
-								<sonar.tests>src/test/java</sonar.tests>
-							</systemPropertyVariables>
-							<argLine>${argLine}</argLine>
-							<testFailureIgnore>${test.failure.ignore}</testFailureIgnore>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-failsafe-plugin</artifactId>
-						<version>${maven-failsafe-plugin_version}</version>
-						<configuration>
-							<argLine>-Xmx512m -XX:MaxPermSize=128m ${argLine}</argLine>
-							<!-- Let's put failsafe reports with surefire to have access to tests failures/success reports in sonar -->
-							<reportsDirectory>${sonar.junit.reportsPath}</reportsDirectory>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
-			<dependencies>
-				<!-- Because of the conflict between powermock and jacoco, we have to use offline instrumentation -->
-				<!-- https://github.com/powermock/powermock/wiki/Code-coverage-with-JaCoCo -->
-				<dependency>
-					<groupId>org.jacoco</groupId>
-					<artifactId>org.jacoco.agent</artifactId>
-					<classifier>runtime</classifier>
-					<version>${jacoco-maven-plugin_version}</version>
-					<scope>test</scope>
-				</dependency>
-			</dependencies>
-		</profile>
-	</profiles>
+                    </plugin>
+                    <!-- coverage report -->
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>${jacoco-maven-plugin_version}</version>
+                        <executions>
+                            <execution>
+                                <id>default-instrument</id>
+                                <goals>
+                                    <goal>instrument</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>default-restore-instrumented-classes</id>
+                                <goals>
+                                    <goal>restore-instrumented-classes</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                                <configuration>
+                                    <dataFile>${sonar.jacoco.reportPath}</dataFile>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>${maven-surefire-plugin_version}</version>
+                        <configuration>
+                            <systemPropertyVariables>
+                                <jacoco-agent.destfile>${sonar.jacoco.reportPath}</jacoco-agent.destfile>
+                                <sonar.junit.reportsPath>${sonar.junit.reportsPath}</sonar.junit.reportsPath>
+                                <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+                                <sonar.binaries>target/classes</sonar.binaries>
+                                <sonar.tests>src/test/java</sonar.tests>
+                            </systemPropertyVariables>
+                            <argLine>${argLine}</argLine>
+                            <testFailureIgnore>${test.failure.ignore}</testFailureIgnore>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <version>${maven-failsafe-plugin_version}</version>
+                        <configuration>
+                            <argLine>-Xmx512m -XX:MaxPermSize=128m ${argLine}</argLine>
+                            <!-- Let's put failsafe reports with surefire to have access to tests failures/success reports in sonar -->
+                            <reportsDirectory>${sonar.junit.reportsPath}</reportsDirectory>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+            <dependencies>
+                <!-- Because of the conflict between powermock and jacoco, we have to use offline instrumentation -->
+                <!-- https://github.com/powermock/powermock/wiki/Code-coverage-with-JaCoCo -->
+                <dependency>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>org.jacoco.agent</artifactId>
+                    <classifier>runtime</classifier>
+                    <version>${jacoco-maven-plugin_version}</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+    </profiles>
 </project>
