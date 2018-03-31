@@ -10,18 +10,6 @@ spring:
     active: @profileActive@
   messages:
     basename: l10n/exceptions
-  data:
-    mongodb:
-      authentication-database:
-      database: frs
-      grid-fs-database: frs-grid
-      host: songlp.ddns.net
-      port: 27017
-      username:
-      password:
-      repositories:
-        enabled: true
-
 
 springfox:
   documentation:
@@ -32,7 +20,7 @@ springfox:
 info:
   app:
     name: Alex File Repository Service
-    description: Alex File Repository Service, which is built on top of Apache Jackrabbit.
+    description: Alex File Repository Service, which is built on top of Springboot and MongoDB.
     version: @project.version@
 
 

@@ -7,3 +7,14 @@ logging:
     Root: WARN
     alex: DEBUG
 
+spring:
+  data:
+    mongodb:
+      authentication-database: frs
+      database: frs
+      grid-fs-database: frs-grid
+      host: localhost
+      username: frs
+      password: frs
+      repositories:
+        enabled: true
