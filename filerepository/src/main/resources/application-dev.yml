@@ -13,7 +13,7 @@ spring:
       authentication-database: frs
       database: frs
       grid-fs-database: frs-grid
-      host: localhost
+      host: songlp.ddns.net
       username: frs
       password: frs
       repositories:
