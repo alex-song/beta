@@ -16,8 +16,8 @@ import alex.beta.filerepository.persistence.entity.FileInfo;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
-public interface FileInfoRepository extends MongoRepository<FileInfo, Long> {
+public interface FileInfoRepository extends MongoRepository<FileInfo, String> {
 }

@@ -45,24 +45,25 @@
         <jaxb2-basics_version>0.11.1</jaxb2-basics_version>
 
         <!-- dependencies -->
-        <junit_version>4.12</junit_version>
-        <slf4j-api_version>1.7.25</slf4j-api_version>
-        <logback_version>1.2.3</logback_version>
-        <commons-lang3_version>3.7</commons-lang3_version>
         <spring-boot_version>1.5.10.RELEASE</spring-boot_version>
         <springfox-swagger2_version>2.8.0</springfox-swagger2_version>
+        <slf4j-api_version>1.7.25</slf4j-api_version>
+        <logback_version>1.2.3</logback_version>
         <h2_version>1.4.195</h2_version>
+        <mongo-java-driver_version>3.6.3</mongo-java-driver_version>
+        <postgresql_version>42.2.2</postgresql_version>
         <hibernate-core_version>5.2.10.Final</hibernate-core_version>
         <querydsl-jpa_version>4.1.4</querydsl-jpa_version>
         <gson_version>2.2.4</gson_version>
         <guava_version>22.0</guava_version>
+        <commons-lang3_version>3.7</commons-lang3_version>
+        <commons-io_version>2.6</commons-io_version>
         <httpclient_version>4.5.5</httpclient_version>
-        <crawler4j_version>4.3</crawler4j_version>
-        <wiremock_version>2.15.0</wiremock_version>
-        <jsr305_version>3.0.2</jsr305_version>
-        <mongo-java-driver_version>3.6.3</mongo-java-driver_version>
-        <postgresql_version>42.2.2</postgresql_version>
         <lombok_version>1.16.20</lombok_version>
+        <crawler4j_version>4.3</crawler4j_version>
+        <jsr305_version>3.0.2</jsr305_version>
+        <junit_version>4.12</junit_version>
+        <wiremock_version>2.15.0</wiremock_version>
 
         <!-- build parameters -->
         <test.failure.ignore>false</test.failure.ignore>

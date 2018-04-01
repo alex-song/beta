@@ -69,11 +69,7 @@
             <version>${springfox-swagger2_version}</version>
         </dependency>
 
-        <!-- Persistence -->
-        <!--<dependency>-->
-            <!--<groupId>org.springframework.boot</groupId>-->
-            <!--<artifactId>spring-boot-starter-data-jpa</artifactId>-->
-        <!--</dependency>-->
+        <!-- persistence -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
@@ -102,6 +98,14 @@
             <artifactId>jsr305</artifactId>
             <version>${jsr305_version}</version>
         </dependency>
+
+        <!-- utils -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io_version}</version>
+        </dependency>
+
         <!-- test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
