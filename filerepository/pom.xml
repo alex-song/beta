@@ -92,6 +92,16 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- security -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+        </dependency>
+
         <!-- find bugs -->
         <dependency>
             <groupId>com.google.code.findbugs</groupId>

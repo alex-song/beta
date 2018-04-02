@@ -16,12 +16,12 @@ import alex.beta.filerepository.mongo.Cascade;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.*;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @version ${project.version}
@@ -56,9 +56,19 @@ public class FileInfo {
     @Cascade(delete = true)
     private FileStore fileStore;
 
+    @CreatedDate
+    @Field("createDate")
+    private LocalDateTime createDate;
+
+    @CreatedBy
     @Field("createdBy")
     private String createdBy;
 
-    @Field("createdOn")
-    private Date createdOn;
+    @LastModifiedBy
+    @Field("lastModifiedBy")
+    private String lastModifiedBy;
+
+    @LastModifiedDate
+    @Field("lastModifiedDate")
+    private LocalDateTime lastModifiedDate;
 }
