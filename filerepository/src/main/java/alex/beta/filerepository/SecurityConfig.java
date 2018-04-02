@@ -57,7 +57,7 @@ public class SecurityConfig {
         @Bean
         public RoleHierarchy roleHierarchy() {
             RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-            roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_OPERATOR > ROLE_GUEST");
+            roleHierarchy.setHierarchy("ROLE_FRS_ADMIN > ROLE_FRS_OPERATOR > ROLE_FRS_GUEST");
             return roleHierarchy;
         }
 
@@ -71,7 +71,7 @@ public class SecurityConfig {
                 } else {
                     um.createUser(User.withUsername(userConfig.getAdminUsername())
                             .password(StringUtils.isEmpty(userConfig.getAdminPassword()) ? "" : userConfig.getAdminPassword())
-                            .roles("ADMIN").build());
+                            .roles("FRS_ADMIN").build());
                 }
 
                 if (StringUtils.isEmpty(userConfig.getOperatorUsername())) {
@@ -79,13 +79,13 @@ public class SecurityConfig {
                 } else {
                     um.createUser(User.withUsername(userConfig.getOperatorUsername())
                             .password(StringUtils.isEmpty(userConfig.getOperatorPassword()) ? "" : userConfig.getOperatorPassword())
-                            .roles("OPERATOR").build());
+                            .roles("FRS_OPERATOR").build());
                 }
 
                 if (!StringUtils.isEmpty(userConfig.getGuestUsername())) {
                     um.createUser(User.withUsername(userConfig.getGuestUsername())
                             .password(StringUtils.isEmpty(userConfig.getGuestPassword()) ? "" : userConfig.getGuestPassword())
-                            .roles("GUEST").build());
+                            .roles("FRS_GUEST").build());
                 }
             } else {
                 throw new InvalidConfigurationException("FileRepositoryUserConfig is missing");
