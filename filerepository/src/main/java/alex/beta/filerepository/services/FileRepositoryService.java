@@ -12,9 +12,11 @@
  */
 package alex.beta.filerepository.services;
 
+import alex.beta.filerepository.ContentValidationException;
 import alex.beta.filerepository.models.FileModel;
 
 import javax.annotation.Nonnull;
+import java.time.LocalDateTime;
 
 /**
  * @Description
@@ -22,5 +24,7 @@ import javax.annotation.Nonnull;
  */
 public interface FileRepositoryService {
 
-    FileModel add(@Nonnull String name, String description, String contentType, boolean temporary, byte[] content);
+    FileModel add(@Nonnull String name, @Nonnull String appid, String description, String contentType,
+                  LocalDateTime expiredDate, String md5, byte[] content)
+            throws ContentValidationException;
 }

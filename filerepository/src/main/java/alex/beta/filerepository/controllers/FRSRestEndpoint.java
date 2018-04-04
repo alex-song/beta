@@ -14,7 +14,9 @@ package alex.beta.filerepository.controllers;
 
 import alex.beta.filerepository.persistence.entity.FileInfo;
 import alex.beta.filerepository.persistence.entity.FileStore;
+import alex.beta.filerepository.persistence.entity.Quota;
 import alex.beta.filerepository.persistence.repository.FileInfoRepository;
+import alex.beta.filerepository.persistence.repository.QuotaRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -55,6 +57,9 @@ public class FRSRestEndpoint {
     private FileInfoRepository frsRepository;
 
     @Autowired
+    private QuotaRepository qr;
+
+    @Autowired
     public FRSRestEndpoint(MessageSource messageSource, FileInfoRepository frsRepository) {
         this.messageSource = messageSource;
         this.frsRepository = frsRepository;
@@ -72,6 +77,10 @@ public class FRSRestEndpoint {
     })
     @GetMapping(value = "/testAdd", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity testAdd() throws Exception {
+
+        Quota q = qr.findAndIncreaseUsedQuotaByAppidIgnoreCase("aaa", 10);
+        logger.warn(q.toString());
+
 
         PathMatchingResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
         Resource res = resourcePatternResolver.getResource("classpath:application.yml");

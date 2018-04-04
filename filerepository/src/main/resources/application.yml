@@ -24,12 +24,16 @@ info:
     version: @project.version@
 
 filerepository:
-  admin:
-    username: admin
-    password: admin
-  guest:
-    username: readonly
-    password: readonly
-  operator:
-    username: operator
-    password: operator
+  users:
+    admin:
+      username: admin
+      password: admin
+    guest:
+      username: readonly
+      password: readonly
+    operator:
+      username: operator
+      password: operator
+  quota:
+    max:
+      - default: 1000

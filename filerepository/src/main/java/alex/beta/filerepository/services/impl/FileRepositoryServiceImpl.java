@@ -12,6 +12,7 @@
  */
 package alex.beta.filerepository.services.impl;
 
+import alex.beta.filerepository.ContentValidationException;
 import alex.beta.filerepository.models.FileModel;
 import alex.beta.filerepository.persistence.entity.FileInfo;
 import alex.beta.filerepository.persistence.entity.FileStore;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 
 import javax.annotation.Nonnull;
+import java.time.LocalDateTime;
 
 /**
  * @Description
@@ -45,22 +47,29 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
 
     @Override
     @Transactional
-    public FileModel add(@Nonnull String name, String description, String contentType, boolean temporary, byte[] content) {
+    public FileModel add(@Nonnull String name, @Nonnull String appid, String description, String contentType,
+                         LocalDateTime expiredDate, String md5, byte[] content)
+            throws ContentValidationException {
         FileInfo fileInfo = FileInfo.builder()
                 .name(name)
+                .appid(appid)
                 .description(description)
-                .temporary(temporary)
+                .expiredDate(expiredDate)
                 .contentType(contentType)
                 .size(content == null ? 0 : content.length)
                 .build();
 
         if (content != null) {
-            FileStore fileStore = FileStore.builder()
-                    .content(content)
-                    .md5(DigestUtils.md5DigestAsHex(content))
-                    .build();
-
-            fileInfo.setFileStore(fileStore);
+            FileStore.FileStoreBuilder fileStore = FileStore.builder().content(content);
+            String calculatedMd5 = DigestUtils.md5DigestAsHex(content);
+            if (md5 == null) {
+                fileStore = fileStore.md5(calculatedMd5);
+            } else if (!calculatedMd5.equalsIgnoreCase(md5)) {
+                throw new ContentValidationException(md5, calculatedMd5);
+            } else {
+                fileStore = fileStore.md5(md5);
+            }
+            fileInfo.setFileStore(fileStore.build());
         }
 
         return new FileModel(fileInfoRepository.save(fileInfo));

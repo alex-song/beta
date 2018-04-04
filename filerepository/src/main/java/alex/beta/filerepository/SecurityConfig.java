@@ -39,6 +39,11 @@ import org.springframework.util.StringUtils;
 @Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+    public static final String ROLE_PREFIX = "ROLE_";
+    public static final String ROLE_FRS_ADMIN = "FRS_ADMIN";
+    public static final String ROLE_FRS_OPERATOR = "FRS_OPERATOR";
+    public static final String ROLE_FRS_GUEST = "FRS_GUEST";
+
 
     @Profile({"dev", "docker"})
     @Configuration
@@ -57,10 +62,15 @@ public class SecurityConfig {
         @Bean
         public RoleHierarchy roleHierarchy() {
             RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-            roleHierarchy.setHierarchy("ROLE_FRS_ADMIN > ROLE_FRS_OPERATOR > ROLE_FRS_GUEST");
+            roleHierarchy.setHierarchy(
+                    ROLE_PREFIX + ROLE_FRS_ADMIN
+                    + " > " + ROLE_PREFIX + ROLE_FRS_OPERATOR
+                    + " > " + ROLE_PREFIX + ROLE_FRS_GUEST);
             return roleHierarchy;
         }
 
+        //TODO how to integrate with consume authentication/authorization?
+        //TODO UT
         @Autowired
         public void configureGlobal(AuthenticationManagerBuilder auth, FileRepositoryUserConfig userConfig) throws Exception {
             InMemoryUserDetailsManager um = new InMemoryUserDetailsManager();
@@ -71,7 +81,7 @@ public class SecurityConfig {
                 } else {
                     um.createUser(User.withUsername(userConfig.getAdminUsername())
                             .password(StringUtils.isEmpty(userConfig.getAdminPassword()) ? "" : userConfig.getAdminPassword())
-                            .roles("FRS_ADMIN").build());
+                            .roles(ROLE_FRS_ADMIN).build());
                 }
 
                 if (StringUtils.isEmpty(userConfig.getOperatorUsername())) {
@@ -79,13 +89,13 @@ public class SecurityConfig {
                 } else {
                     um.createUser(User.withUsername(userConfig.getOperatorUsername())
                             .password(StringUtils.isEmpty(userConfig.getOperatorPassword()) ? "" : userConfig.getOperatorPassword())
-                            .roles("FRS_OPERATOR").build());
+                            .roles(ROLE_FRS_OPERATOR).build());
                 }
 
                 if (!StringUtils.isEmpty(userConfig.getGuestUsername())) {
                     um.createUser(User.withUsername(userConfig.getGuestUsername())
                             .password(StringUtils.isEmpty(userConfig.getGuestPassword()) ? "" : userConfig.getGuestPassword())
-                            .roles("FRS_GUEST").build());
+                            .roles(ROLE_FRS_GUEST).build());
                 }
             } else {
                 throw new InvalidConfigurationException("FileRepositoryUserConfig is missing");
@@ -103,22 +113,22 @@ public class SecurityConfig {
     @Data
     @EnableAutoConfiguration
     static class FileRepositoryUserConfig {
-        @Value("${filerepository.admin.username}")
+        @Value("${filerepository.users.admin.username}")
         String adminUsername;
 
-        @Value("${filerepository.admin.password}")
+        @Value("${filerepository.users.admin.password}")
         String adminPassword;
 
-        @Value("${filerepository.guest.username}")
+        @Value("${filerepository.users.guest.username}")
         String guestUsername;
 
-        @Value("${filerepository.guest.password}")
+        @Value("${filerepository.users.guest.password}")
         String guestPassword;
 
-        @Value("${filerepository.operator.username}")
+        @Value("${filerepository.users.operator.username}")
         String operatorUsername;
 
-        @Value("${filerepository.operator.password}")
+        @Value("${filerepository.users.operator.password}")
         String operatorPassword;
     }
 }

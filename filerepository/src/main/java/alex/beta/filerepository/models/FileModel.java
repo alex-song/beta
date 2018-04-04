@@ -33,6 +33,10 @@ public class FileModel {
     @ApiModelProperty
     private String id;
 
+    @JsonProperty("appid")
+    @ApiModelProperty
+    private String appid;
+
     @JsonProperty("name")
     @ApiModelProperty
     private String name;
@@ -52,6 +56,10 @@ public class FileModel {
     @JsonProperty("temporary")
     @ApiModelProperty
     private boolean temporary;
+
+    @JsonProperty("expiredDate")
+    @ApiModelProperty
+    private LocalDateTime expiredDate;
 
     @JsonProperty("md5")
     @ApiModelProperty
@@ -78,6 +86,18 @@ public class FileModel {
     private LocalDateTime lastModifiedDate;
 
     public FileModel(FileInfo fileInfo) {
-        //TODO
+        this.setId(fileInfo.getId());
+        this.setAppid(fileInfo.getAppid());
+        this.setContent(fileInfo.getFileStore() == null ? null : fileInfo.getFileStore().getContent());
+        this.setContentType(fileInfo.getContentType());
+        this.setCreateDate(fileInfo.getCreateDate());
+        this.setCreatedBy(fileInfo.getCreatedBy());
+        this.setDescription(fileInfo.getDescription());
+        this.setExpiredDate(fileInfo.getExpiredDate());
+        this.setLastModifiedBy(fileInfo.getLastModifiedBy());
+        this.setLastModifiedDate(fileInfo.getLastModifiedDate());
+        this.setMd5(fileInfo.getFileStore() == null ? null : fileInfo.getFileStore().getMd5());
+        this.setName(fileInfo.getName());
+        this.setSize(fileInfo.getSize());
     }
 }
