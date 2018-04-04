@@ -15,17 +15,17 @@ package alex.beta.filerepository.services;
 import alex.beta.filerepository.QuotaExceededException;
 import alex.beta.filerepository.persistence.entity.Quota;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 public interface QuotaService {
 
     /**
      * Increase points of used quota of given appid. Create quota, if it's not found.
+     *
      * @param appid
      * @param points
      * @throws QuotaExceededException
@@ -34,13 +34,13 @@ public interface QuotaService {
 
     /**
      * Reduce points of used quota of given appid. Do nothing, if it's not found.
+     *
      * @param appid
      * @param points
      */
     void releaseQuota(String appid, long points);
 
     /**
-     *
      * @param appid
      * @return 0, if it's not found
      */
@@ -49,16 +49,19 @@ public interface QuotaService {
     void setMaxQuota(String appid, long points);
 
     /**
-     *
      * @param appid
      * @return 0, if it's not found
      */
     long getMaxQuota(String appid);
 
-    long recalculateQuote(String appid);
+    /**
+     * Calculate used quota of given appid, based on size of FileInfo
+     *
+     * @param appid
+     */
+    void recalculateQuota(String... appid);
 
     /**
-     *
      * @param quotas
      * @return Newly created quota or existing quota, according to given quotas
      */
@@ -66,6 +69,7 @@ public interface QuotaService {
 
     /**
      * Reset used quota of given quota appid
+     *
      * @param quotas
      */
     void resetUsedQuota(String... quotas);

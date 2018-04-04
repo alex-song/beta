@@ -64,8 +64,8 @@ public class SecurityConfig {
             RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
             roleHierarchy.setHierarchy(
                     ROLE_PREFIX + ROLE_FRS_ADMIN
-                    + " > " + ROLE_PREFIX + ROLE_FRS_OPERATOR
-                    + " > " + ROLE_PREFIX + ROLE_FRS_GUEST);
+                            + " > " + ROLE_PREFIX + ROLE_FRS_OPERATOR
+                            + " > " + ROLE_PREFIX + ROLE_FRS_GUEST);
             return roleHierarchy;
         }
 

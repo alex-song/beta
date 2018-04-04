@@ -14,7 +14,6 @@ package alex.beta.filerepository.controllers;
 
 import alex.beta.filerepository.persistence.entity.FileInfo;
 import alex.beta.filerepository.persistence.entity.FileStore;
-import alex.beta.filerepository.persistence.entity.Quota;
 import alex.beta.filerepository.persistence.repository.FileInfoRepository;
 import alex.beta.filerepository.persistence.repository.QuotaRepository;
 import io.swagger.annotations.Api;
@@ -78,9 +77,10 @@ public class FRSRestEndpoint {
     @GetMapping(value = "/testAdd", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity testAdd() throws Exception {
 
-        Quota q = qr.findAndIncreaseUsedQuotaByAppidIgnoreCase("aaa", 10);
-        logger.warn(q.toString());
+//        Quota q = qr.findAndIncreaseUsedQuotaByAppidIgnoreCase("aaa", 10);
+//        logger.warn(q.toString());
 
+        qr.recalculateQuota("sss", "aaa");
 
         PathMatchingResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
         Resource res = resourcePatternResolver.getResource("classpath:application.yml");
@@ -88,7 +88,7 @@ public class FRSRestEndpoint {
         byte[] content = IOUtils.toByteArray(res.getInputStream());
         FileStore fs = FileStore.builder().content(content).md5(DigestUtils.md5DigestAsHex(content)).build();
 
-        FileInfo fi = frsRepository.save(FileInfo.builder().name("name").description("description").size(content.length).fileStore(fs).build());
+        FileInfo fi = frsRepository.save(FileInfo.builder().appid("aaa").name("name").description("description").size(content.length).fileStore(fs).build());
         System.out.println(fi.getId());
         return ResponseEntity.ok("ok");
     }

@@ -14,8 +14,6 @@ package alex.beta.filerepository.persistence.repository;
 
 import alex.beta.filerepository.persistence.entity.Quota;
 
-import javax.annotation.Nonnull;
-
 /**
  * @version ${project.version}
  * @Description
@@ -23,44 +21,53 @@ import javax.annotation.Nonnull;
 public interface QuotaRepository {
     /**
      * Find quota according to given appid. Create a new one, according to QuotaConfig, if it's not found.
+     *
      * @param appid
      * @return
      */
-    Quota findOneOrCreateOneByAppidIgnoreCase(@Nonnull String appid);
+    Quota findOneOrCreateOneByAppidIgnoreCase(String appid);
 
     /**
      * Create new quota if it doesn't exist, otherwise return existing quota
+     *
      * @param quota
      * @return
      */
-    Quota findOneOrCreateOne(@Nonnull Quota quota);
+    Quota findOneOrCreateOne(Quota quota);
 
     /**
      * Find quota according to given appid, and increase the used quota points
+     *
      * @param appid
      * @param points points to increase as used quota
      * @return null if quota doesn't exist
      */
-    Quota findAndIncreaseUsedQuotaByAppidIgnoreCase(@Nonnull String appid, long points);
+    Quota findAndIncreaseUsedQuotaByAppidIgnoreCase(String appid, long points);
 
     /**
-     *
      * @param appid
      * @return null, if no quota is defined for given appid
      */
-    Quota findOneByAppidIgnoreCase(@Nonnull String appid);
+    Quota findOneByAppidIgnoreCase(String appid);
 
     /**
      * Find quota according to given appid, and set max quota as per given points
+     *
      * @param appid
      * @param points
      * @return
      */
-    Quota findAndModifyMaxQuotaByAppidIgnoreCase(@Nonnull String appid, long points);
+    Quota findAndModifyMaxQuotaByAppidIgnoreCase(String appid, long points);
 
     /**
      * Set used quota to 0 of given appid
+     *
      * @param quotas
      */
     void resetUsedQuota(String... quotas);
+
+    /**
+     * @param appid
+     */
+    void recalculateQuota(String... appid);
 }

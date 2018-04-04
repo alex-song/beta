@@ -106,9 +106,8 @@ public class QuotaServiceImpl implements QuotaService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
-    public long recalculateQuote(String appid) {
-        //TODO
-        return 0;
+    public void recalculateQuota(String... appid) {
+        quotaRepository.recalculateQuota(appid);
     }
 
     @Override

@@ -19,12 +19,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 
 @Configuration
-@ConfigurationProperties(prefix="filerepository.quota")
+@ConfigurationProperties(prefix = "filerepository.quota")
 public class QuotaConfig {
     private List<Map<String, String>> max;
 

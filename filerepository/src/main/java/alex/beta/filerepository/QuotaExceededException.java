@@ -13,8 +13,8 @@
 package alex.beta.filerepository;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 public class QuotaExceededException extends Exception {
 

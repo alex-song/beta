@@ -13,13 +13,16 @@
 package alex.beta.filerepository.persistence.repository;
 
 import alex.beta.filerepository.QuotaConfig;
+import alex.beta.filerepository.persistence.entity.FileInfo;
 import alex.beta.filerepository.persistence.entity.Quota;
+import com.mongodb.BasicDBObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -28,12 +31,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Nonnull;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
+
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 
 /**
  * @version ${project.version}
@@ -91,7 +95,7 @@ public class QuotaRepositoryImpl implements QuotaRepository {
         // output default max quota setting
         Iterator<String> keys = defaultAppMaxQuotaMap.keySet().iterator();
         logger.debug("Default max quotas:");
-        while(keys.hasNext()){
+        while (keys.hasNext()) {
             String key = keys.next();
             Long value = defaultAppMaxQuotaMap.get(key);
             logger.debug("{} : {}", key, value);
@@ -158,6 +162,36 @@ public class QuotaRepositoryImpl implements QuotaRepository {
             mongoOperations.findAndModify(
                     new Query(Criteria.where("appid").regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE))),
                     new Update().set("usedQuota", 0L),
+                    Quota.class);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void recalculateQuota(String... appid) {
+        List<Criteria> cs = new ArrayList<>(appid.length);
+        for (String id : appid) {
+            if (!StringUtils.isEmpty(id)) {
+                cs.add(Criteria.where("appid").regex(Pattern.compile(id, Pattern.CASE_INSENSITIVE)));
+            }
+        }
+
+        TypedAggregation<FileInfo> aggregation = TypedAggregation.newAggregation(
+                FileInfo.class,
+                match(new Criteria().orOperator(cs.toArray(new Criteria[]{}))),
+                group("appid").sum("size").as("usedQuota"));
+
+        List<BasicDBObject> results = mongoOperations.aggregate(aggregation, BasicDBObject.class).getMappedResults();
+
+        for (BasicDBObject result : results) {
+            String id = result.getString("_id");
+            long uq = result.getLong("usedQuota");
+            if (logger.isDebugEnabled()) {
+                logger.debug("UsedQuota of {} is {}", id, uq);
+            }
+            mongoOperations.findAndModify(
+                    new Query(Criteria.where("appid").regex(Pattern.compile(id, Pattern.CASE_INSENSITIVE))),
+                    new Update().set("usedQuota", uq),
                     Quota.class);
         }
     }

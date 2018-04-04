@@ -15,8 +15,8 @@ package alex.beta.filerepository;
 import javax.annotation.Nonnull;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 public class ContentValidationException extends Exception {
     public ContentValidationException(@Nonnull String expected, @Nonnull String actual) {
