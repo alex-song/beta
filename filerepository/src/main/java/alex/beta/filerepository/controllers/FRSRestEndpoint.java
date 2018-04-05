@@ -80,7 +80,7 @@ public class FRSRestEndpoint {
 //        Quota q = qr.findAndIncreaseUsedQuotaByAppidIgnoreCase("aaa", 10);
 //        logger.warn(q.toString());
 
-        qr.recalculateQuota("sss", "aaa");
+        qr.findAllAppidFromQuota();
 
         PathMatchingResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
         Resource res = resourcePatternResolver.getResource("classpath:application.yml");

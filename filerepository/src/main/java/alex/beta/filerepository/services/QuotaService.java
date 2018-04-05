@@ -46,11 +46,15 @@ public interface QuotaService {
      */
     long getUsedQuota(String appid);
 
+    /**
+     * @param appid
+     * @param points
+     */
     void setMaxQuota(String appid, long points);
 
     /**
      * @param appid
-     * @return 0, if it's not found
+     * @return Long.MIN_VALUE, if it's not found
      */
     long getMaxQuota(String appid);
 
@@ -73,4 +77,9 @@ public interface QuotaService {
      * @param quotas
      */
     void resetUsedQuota(String... quotas);
+
+    /**
+     * Reset used quota of all appid in Quota and FileInfo
+     */
+    void resetAllUsedQuota();
 }

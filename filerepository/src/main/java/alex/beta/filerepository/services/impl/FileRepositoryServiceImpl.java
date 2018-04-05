@@ -18,6 +18,7 @@ import alex.beta.filerepository.persistence.entity.FileInfo;
 import alex.beta.filerepository.persistence.entity.FileStore;
 import alex.beta.filerepository.persistence.repository.FileInfoRepository;
 import alex.beta.filerepository.services.FileRepositoryService;
+import alex.beta.filerepository.services.QuotaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,14 +41,17 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
 
     private FileInfoRepository fileInfoRepository;
 
+    private QuotaService quotaService;
+
     @Autowired
-    public FileRepositoryServiceImpl(FileInfoRepository fileInfoRepository) {
+    public FileRepositoryServiceImpl(FileInfoRepository fileInfoRepository, QuotaService quotaService) {
         this.fileInfoRepository = fileInfoRepository;
+        this.quotaService = quotaService;
     }
 
     @Override
     @Transactional
-    public FileModel add(@Nonnull String name, @Nonnull String appid, String description, String contentType,
+    public FileModel add(@Nonnull String appid, @Nonnull String name, String description, String contentType,
                          LocalDateTime expiredDate, String md5, byte[] content)
             throws ContentValidationException {
         FileInfo fileInfo = FileInfo.builder()

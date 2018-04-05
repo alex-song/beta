@@ -14,7 +14,9 @@ package alex.beta.filerepository;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 
+import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Map;
 
@@ -27,6 +29,16 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "filerepository.quota")
 public class QuotaConfig {
     private List<Map<String, String>> max;
+
+    //TODO UT
+    public static long parseSize(@Nonnull String size) {
+        size = StringUtils.trimAllWhitespace(size).toUpperCase();
+        return size.endsWith("KB")
+                ? Long.valueOf(size.substring(0, size.length() - 2)) * 1024L
+                : (size.endsWith("MB")
+                ? Long.valueOf(size.substring(0, size.length() - 2)) * 1024L * 1024L
+                : Long.valueOf(size));
+    }
 
     public List<Map<String, String>> getMax() {
         return max;

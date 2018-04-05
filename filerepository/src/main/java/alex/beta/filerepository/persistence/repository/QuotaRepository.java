@@ -14,6 +14,9 @@ package alex.beta.filerepository.persistence.repository;
 
 import alex.beta.filerepository.persistence.entity.Quota;
 
+import java.util.Map;
+import java.util.Set;
+
 /**
  * @version ${project.version}
  * @Description
@@ -60,14 +63,27 @@ public interface QuotaRepository {
     Quota findAndModifyMaxQuotaByAppidIgnoreCase(String appid, long points);
 
     /**
-     * Set used quota to 0 of given appid
+     * Calculate used quota based on size of FileInfo, that is linked to given appid
      *
-     * @param quotas
+     * @param appid
+     * @return
      */
-    void resetUsedQuota(String... quotas);
+    Map<String, Long> aggregateUsedQuotaByAppidIgnoreCase(String... appid);
 
     /**
      * @param appid
+     * @param points
+     * @return
      */
-    void recalculateQuota(String... appid);
+    Quota findAndModifyUsedQuotaByAppidIgnoreCase(String appid, long points);
+
+    /**
+     * @return in lower case
+     */
+    Set<String> findAllAppidFromQuota();
+
+    /**
+     * @return in lower case
+     */
+    Set<String> findAllAppidFromFileInfo();
 }

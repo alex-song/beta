@@ -6,6 +6,10 @@ endpoints:
   enabled: false
 
 spring:
+  http:
+    multipart:
+      maxFileSize: 10Mb
+      maxRequestSize: 10Mb
   profiles:
     active: @profileActive@
   messages:
@@ -36,4 +40,4 @@ filerepository:
       password: operator
   quota:
     max:
-      - default: 1000
+      - default: 100MB

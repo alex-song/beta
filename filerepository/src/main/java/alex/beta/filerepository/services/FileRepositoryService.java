@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
  */
 public interface FileRepositoryService {
 
-    FileModel add(@Nonnull String name, @Nonnull String appid, String description, String contentType,
+    FileModel add(@Nonnull String appid, @Nonnull String name, String description, String contentType,
                   LocalDateTime expiredDate, String md5, byte[] content)
             throws ContentValidationException;
 }

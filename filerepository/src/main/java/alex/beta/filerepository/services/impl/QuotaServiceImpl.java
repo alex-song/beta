@@ -23,8 +23,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static alex.beta.filerepository.SecurityConfig.*;
 
@@ -107,7 +106,25 @@ public class QuotaServiceImpl implements QuotaService {
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
     public void recalculateQuota(String... appid) {
-        quotaRepository.recalculateQuota(appid);
+        Map<String, Long> results = quotaRepository.aggregateUsedQuotaByAppidIgnoreCase(appid);
+        Map<String, Boolean> found = new HashMap<>(appid.length);
+        for (String id : appid) {
+            found.put(id.toLowerCase(), Boolean.FALSE);
+        }
+        for (String s : results.keySet()) {
+            found.put(s.toLowerCase(), Boolean.TRUE);
+        }
+
+        for (String id : found.keySet()) {
+            if (found.get(id)) {
+                quotaRepository.findAndModifyUsedQuotaByAppidIgnoreCase(id, results.get(id));
+            } else {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("No file of {} is found", id);
+                }
+                quotaRepository.findAndModifyUsedQuotaByAppidIgnoreCase(id, 0L);
+            }
+        }
     }
 
     @Override
@@ -125,6 +142,21 @@ public class QuotaServiceImpl implements QuotaService {
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
     public void resetUsedQuota(String... quotas) {
-        quotaRepository.resetUsedQuota(quotas);
+        for (String appid : quotas) {
+            quotaRepository.findAndModifyUsedQuotaByAppidIgnoreCase(appid, 0L);
+        }
+    }
+
+    @Override
+    @Transactional
+    @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
+    public void resetAllUsedQuota() {
+        Set<String> appidInQuota = quotaRepository.findAllAppidFromQuota();
+        Set<String> appidInFileInfo = quotaRepository.findAllAppidFromFileInfo();
+        Set<String> merged = new HashSet<>();
+        merged.addAll(appidInQuota);
+        merged.addAll(appidInFileInfo);
+
+        resetUsedQuota(merged.toArray(new String[]{}));
     }
 }
