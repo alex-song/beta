@@ -13,7 +13,8 @@
 package alex.beta.filerepository.services.impl;
 
 import alex.beta.filerepository.ContentValidationException;
-import alex.beta.filerepository.models.FileModel;
+import alex.beta.filerepository.QuotaExceededException;
+import alex.beta.filerepository.models.FileInfoModel;
 import alex.beta.filerepository.persistence.entity.FileInfo;
 import alex.beta.filerepository.persistence.entity.FileStore;
 import alex.beta.filerepository.persistence.repository.FileInfoRepository;
@@ -25,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Nonnull;
 import java.time.LocalDateTime;
@@ -51,9 +53,9 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
 
     @Override
     @Transactional
-    public FileModel add(@Nonnull String appid, @Nonnull String name, String description, String contentType,
-                         LocalDateTime expiredDate, String md5, byte[] content)
-            throws ContentValidationException {
+    public FileInfoModel add(@Nonnull String appid, @Nonnull String name, String description, String contentType,
+                             LocalDateTime expiredDate, String md5, byte[] content)
+            throws ContentValidationException, QuotaExceededException {
         FileInfo fileInfo = FileInfo.builder()
                 .name(name)
                 .appid(appid)
@@ -66,7 +68,7 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
         if (content != null) {
             FileStore.FileStoreBuilder fileStore = FileStore.builder().content(content);
             String calculatedMd5 = DigestUtils.md5DigestAsHex(content);
-            if (md5 == null) {
+            if (StringUtils.isEmpty(md5)) {
                 fileStore = fileStore.md5(calculatedMd5);
             } else if (!calculatedMd5.equalsIgnoreCase(md5)) {
                 throw new ContentValidationException(md5, calculatedMd5);
@@ -76,6 +78,16 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
             fileInfo.setFileStore(fileStore.build());
         }
 
-        return new FileModel(fileInfoRepository.save(fileInfo));
+        if (fileInfo.getSize() > 0) {
+            quotaService.useQuota(appid, fileInfo.getSize());
+        }
+        try {
+            return new FileInfoModel(fileInfoRepository.save(fileInfo));
+        } catch (RuntimeException ex) {
+            if (fileInfo.getSize() > 0) {
+                quotaService.releaseQuota(appid, fileInfo.getSize());
+            }
+            throw ex;
+        }
     }
 }

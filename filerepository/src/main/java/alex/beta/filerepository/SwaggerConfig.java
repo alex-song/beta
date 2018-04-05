@@ -13,6 +13,7 @@
 package alex.beta.filerepository;
 
 import alex.beta.filerepository.controllers.FRSRestEndpoint;
+import alex.beta.filerepository.controllers.QuotaRestEndpoint;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -44,7 +45,8 @@ import java.time.LocalDateTime;
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan(basePackageClasses = {
-        FRSRestEndpoint.class
+        FRSRestEndpoint.class,
+        QuotaRestEndpoint.class
 })
 public class SwaggerConfig {
     @Value("${info.app.version}")

@@ -1,6 +1,6 @@
 server:
   port: 7070
-  contextPath: /filerepository/
+  contextPath: /frs/
 
 endpoints:
   enabled: false

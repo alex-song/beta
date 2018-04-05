@@ -1,5 +1,5 @@
 /**
- * @File: FileModel.java
+ * @File: FileInfoModel.java
  * @Project: beta
  * @Copyright: Copyright (c) 2018, All Rights Reserved
  * <p>
@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-public class FileModel {
+public class FileInfoModel {
 
     @JsonProperty("id")
     @ApiModelProperty
@@ -65,10 +65,6 @@ public class FileModel {
     @ApiModelProperty
     private String md5;
 
-    @JsonProperty("content")
-    @ApiModelProperty
-    private byte[] content;
-
     @JsonProperty("createDate")
     @ApiModelProperty
     private LocalDateTime createDate;
@@ -85,10 +81,9 @@ public class FileModel {
     @ApiModelProperty
     private LocalDateTime lastModifiedDate;
 
-    public FileModel(FileInfo fileInfo) {
+    public FileInfoModel(FileInfo fileInfo) {
         this.setId(fileInfo.getId());
         this.setAppid(fileInfo.getAppid());
-        this.setContent(fileInfo.getFileStore() == null ? null : fileInfo.getFileStore().getContent());
         this.setContentType(fileInfo.getContentType());
         this.setCreateDate(fileInfo.getCreateDate());
         this.setCreatedBy(fileInfo.getCreatedBy());
@@ -99,5 +94,9 @@ public class FileModel {
         this.setMd5(fileInfo.getFileStore() == null ? null : fileInfo.getFileStore().getMd5());
         this.setName(fileInfo.getName());
         this.setSize(fileInfo.getSize());
+    }
+
+    public FileInfoModel() {
+        //default constructor
     }
 }

@@ -12,28 +12,25 @@
  */
 package alex.beta.filerepository.controllers;
 
+import alex.beta.filerepository.models.FileInfoModel;
 import alex.beta.filerepository.persistence.entity.FileInfo;
-import alex.beta.filerepository.persistence.entity.FileStore;
-import alex.beta.filerepository.persistence.repository.FileInfoRepository;
 import alex.beta.filerepository.persistence.repository.QuotaRepository;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import org.apache.commons.io.IOUtils;
+import alex.beta.filerepository.services.FileRepositoryService;
+import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.DigestUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -53,15 +50,15 @@ public class FRSRestEndpoint {
 
     private MessageSource messageSource;
 
-    private FileInfoRepository frsRepository;
+    private FileRepositoryService fileRepositoryService;
 
     @Autowired
     private QuotaRepository qr;
 
     @Autowired
-    public FRSRestEndpoint(MessageSource messageSource, FileInfoRepository frsRepository) {
+    public FRSRestEndpoint(MessageSource messageSource, FileRepositoryService fileRepositoryService) {
         this.messageSource = messageSource;
-        this.frsRepository = frsRepository;
+        this.fileRepositoryService = fileRepositoryService;
     }
 
     @GetMapping("/")
@@ -69,28 +66,31 @@ public class FRSRestEndpoint {
         response.sendRedirect("api-spec/index.html");
     }
 
-    @ApiOperation(value = "Test")
+    @ApiOperation(value = "Add file into repository")
     @ApiResponses({
-            @ApiResponse(code = 200, message = "Translation request is found."),
-            @ApiResponse(code = 404, message = "Translation request is not found.")
+            @ApiResponse(code = 200, message = "File is uploaded successfully.", response = FileInfoModel.class),
+            @ApiResponse(code = 500, message = "Internal server error, when saving file into repository."),
+            @ApiResponse(code = 403, message = "No permission to add file.")
     })
-    @GetMapping(value = "/testAdd", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity testAdd() throws Exception {
+    @PostMapping(value = "/repository", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity add(
+            @ApiParam(value = "File to upload", required = true)
+            @RequestParam("file") MultipartFile file,
+            @ApiParam(value = "Application ID", required = true)
+            @RequestParam(value = "appid") String appid,
+            @ApiParam(value = "File name")
+            @RequestParam(value = "name", required = false) String name,
+            @ApiParam(value = "File description")
+            @RequestParam(value = "description", required = false) String description,
+            @ApiParam(value = "Content MD5 value")
+            @RequestParam(value = "md5", required = false) String md5
+    ) throws Exception {
+        FileInfoModel model = fileRepositoryService.add(appid,
+                StringUtils.isEmpty(name) ? file.getOriginalFilename() : name, description,
+                file.getContentType(), null, md5, file.getBytes());
 
-//        Quota q = qr.findAndIncreaseUsedQuotaByAppidIgnoreCase("aaa", 10);
-//        logger.warn(q.toString());
+        return ResponseEntity.ok(model);
 
-        qr.findAllAppidFromQuota();
-
-        PathMatchingResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-        Resource res = resourcePatternResolver.getResource("classpath:application.yml");
-
-        byte[] content = IOUtils.toByteArray(res.getInputStream());
-        FileStore fs = FileStore.builder().content(content).md5(DigestUtils.md5DigestAsHex(content)).build();
-
-        FileInfo fi = frsRepository.save(FileInfo.builder().appid("aaa").name("name").description("description").size(content.length).fileStore(fs).build());
-        System.out.println(fi.getId());
-        return ResponseEntity.ok("ok");
     }
 
     @ApiOperation(value = "Test")
@@ -104,7 +104,7 @@ public class FRSRestEndpoint {
         List<FileInfo> aaa = new ArrayList<>();
         aaa.add(FileInfo.builder().id("5ac0ed30ff11c10f9e38483e").build());
 
-        frsRepository.delete(aaa);
+        //frsRepository.delete(aaa);
         return ResponseEntity.ok("ok");
     }
 }

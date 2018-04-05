@@ -23,6 +23,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
 import static alex.beta.filerepository.SecurityConfig.*;
@@ -48,7 +49,7 @@ public class QuotaServiceImpl implements QuotaService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_OPERATOR + "')")
-    public void useQuota(String appid, long points) throws QuotaExceededException {
+    public void useQuota(@Nonnull String appid, long points) throws QuotaExceededException {
         if (logger.isDebugEnabled()) {
             logger.debug("Use quota {} of {}", points, appid);
         }
@@ -67,7 +68,7 @@ public class QuotaServiceImpl implements QuotaService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_OPERATOR + "')")
-    public void releaseQuota(String appid, long points) {
+    public void releaseQuota(@Nonnull String appid, long points) {
         if (quotaRepository.findAndIncreaseUsedQuotaByAppidIgnoreCase(appid, -1 * points) == null
                 && logger.isInfoEnabled()) {
             logger.info("Quota of {} doesn't exist", appid);
@@ -77,7 +78,7 @@ public class QuotaServiceImpl implements QuotaService {
 
     @Override
     @PreAuthorize("hasRole('" + ROLE_FRS_GUEST + "')")
-    public long getUsedQuota(String appid) {
+    public long getUsedQuota(@Nonnull String appid) {
         Quota quota = quotaRepository.findOneByAppidIgnoreCase(appid);
         if (quota == null && logger.isInfoEnabled()) {
             logger.info("Quota of {} doesn't exist", appid);
@@ -88,13 +89,13 @@ public class QuotaServiceImpl implements QuotaService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
-    public void setMaxQuota(String appid, long points) {
+    public void setMaxQuota(@Nonnull String appid, long points) {
         quotaRepository.findAndModifyMaxQuotaByAppidIgnoreCase(appid, points);
     }
 
     @Override
     @PreAuthorize("hasRole('" + ROLE_FRS_GUEST + "')")
-    public long getMaxQuota(String appid) {
+    public long getMaxQuota(@Nonnull String appid) {
         Quota quota = quotaRepository.findOneByAppidIgnoreCase(appid);
         if (quota == null && logger.isInfoEnabled()) {
             logger.info("Quota of {} doesn't exist", appid);
@@ -105,7 +106,7 @@ public class QuotaServiceImpl implements QuotaService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
-    public void recalculateQuota(String... appid) {
+    public void recalculateQuota(@Nonnull String... appid) {
         Map<String, Long> results = quotaRepository.aggregateUsedQuotaByAppidIgnoreCase(appid);
         Map<String, Boolean> found = new HashMap<>(appid.length);
         for (String id : appid) {
@@ -130,7 +131,7 @@ public class QuotaServiceImpl implements QuotaService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
-    public List<Quota> createQuota(Quota... quotas) {
+    public List<Quota> createQuota(@Nonnull Quota... quotas) {
         List<Quota> qs = new ArrayList<>(quotas.length);
         for (Quota q : quotas) {
             qs.add(quotaRepository.findOneOrCreateOne(q));
@@ -141,7 +142,7 @@ public class QuotaServiceImpl implements QuotaService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
-    public void resetUsedQuota(String... quotas) {
+    public void resetUsedQuota(@Nonnull String... quotas) {
         for (String appid : quotas) {
             quotaRepository.findAndModifyUsedQuotaByAppidIgnoreCase(appid, 0L);
         }

@@ -13,7 +13,8 @@
 package alex.beta.filerepository.services;
 
 import alex.beta.filerepository.ContentValidationException;
-import alex.beta.filerepository.models.FileModel;
+import alex.beta.filerepository.QuotaExceededException;
+import alex.beta.filerepository.models.FileInfoModel;
 
 import javax.annotation.Nonnull;
 import java.time.LocalDateTime;
@@ -24,7 +25,7 @@ import java.time.LocalDateTime;
  */
 public interface FileRepositoryService {
 
-    FileModel add(@Nonnull String appid, @Nonnull String name, String description, String contentType,
-                  LocalDateTime expiredDate, String md5, byte[] content)
-            throws ContentValidationException;
+    FileInfoModel add(@Nonnull String appid, @Nonnull String name, String description, String contentType,
+                      LocalDateTime expiredDate, String md5, byte[] content)
+            throws ContentValidationException, QuotaExceededException;
 }

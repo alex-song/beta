@@ -50,7 +50,7 @@ public class QuotaRepositoryImpl implements QuotaRepository {
 
     private MongoOperations mongoOperations;
 
-    private long defaultMax = 100 * 1024 * 1024L;
+    private long defaultMax = QuotaConfig.parseSize("100MB");
 
     private ConcurrentMap<String, Long> defaultAppMaxQuotaMap;
 
@@ -117,9 +117,9 @@ public class QuotaRepositoryImpl implements QuotaRepository {
         if (q == null) {
             logger.info("Quota of {} doesn't exist, will create one according to given quota setting.", quota.getAppid());
             initializeQuota(quota);
-            quota = findOneByAppidIgnoreCase(quota.getAppid());
+            q = findOneByAppidIgnoreCase(quota.getAppid());
         }
-        return quota;
+        return q;
     }
 
     @Override
@@ -224,7 +224,7 @@ public class QuotaRepositoryImpl implements QuotaRepository {
         try {
             Quota q = Quota.builder().appid(quota.getAppid())
                     .usedQuota(quota.getUsedQuota())
-                    .maxQuota(quota.getMaxQuota()).build();
+                    .maxQuota(quota.getMaxQuota() <= 0 ? getDefaultMaxQuota(quota.getAppid()) : quota.getMaxQuota()).build();
             mongoOperations.insert(q, "Quota");
             return true;
         } catch (DuplicateKeyException ex) {
