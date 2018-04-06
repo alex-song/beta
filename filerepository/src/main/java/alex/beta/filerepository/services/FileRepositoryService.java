@@ -77,8 +77,9 @@ public interface FileRepositoryService {
      * Delete file according to given file info id, and release the quota
      *
      * @param fileInfoId
+     * @return null, if the file is not found
      */
-    void delete(String fileInfoId);
+    FileInfoModel delete(String fileInfoId);
 
     /**
      * Delete all files of appid, and release the quota

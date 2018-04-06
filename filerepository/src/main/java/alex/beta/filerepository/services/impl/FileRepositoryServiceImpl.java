@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
@@ -39,6 +40,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import static alex.beta.filerepository.SecurityConfig.*;
 
 /**
  * @version ${project.version}
@@ -65,6 +68,7 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('" + ROLE_FRS_OPERATOR + "')")
     public FileInfoModel add(@Nonnull String appid, @Nonnull String name, String description, String contentType,
                              LocalDateTime expiredDate, String md5, byte[] content)
             throws ContentValidationException, QuotaExceededException {
@@ -97,6 +101,7 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
     }
 
     @Override
+    @PreAuthorize("hasRole('" + ROLE_FRS_GUEST + "')")
     public List<FileInfoModel> find(String appid, String name, @Min(0) int skip, @Max(1000) @Min(0) int limit) {
         List<FileInfo> fis = fileInfoCustomizedRepository.findByAppidAndNameIgnoreCase(appid, name, skip, limit);
         List<FileInfoModel> fims = new ArrayList<>(fis.size());
@@ -104,7 +109,9 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
         return fims;
     }
 
+    //TODO 好好想想怎么用page
     @Override
+    @PreAuthorize("hasRole('" + ROLE_FRS_GUEST + "')")
     public List<FileInfoModel> page(String appid, String name, @Min(0) int pageNum) {
         List<FileInfo> fis = fileInfoRepository.findByAppidAndNameIgnoreCase(appid, name,
                 new PageRequest(pageNum, 50, new Sort(Sort.Direction.ASC, "createDate"))).getContent();
@@ -114,27 +121,34 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
     }
 
     @Override
+    @PreAuthorize("hasRole('" + ROLE_FRS_GUEST + "')")
     public Set<String> findAllAppid() {
         return fileInfoCustomizedRepository.findAllAppid();
     }
 
     @Override
+    @PreAuthorize("hasRole('" + ROLE_FRS_GUEST + "')")
     public FileInfoModel get(@Nonnull String fileInfoId) {
         return new FileInfoModel(fileInfoRepository.findOne(fileInfoId));
     }
 
     @Override
     @Transactional
-    public void delete(@Nonnull String fileInfoId) {
+    @PreAuthorize("hasRole('" + ROLE_FRS_OPERATOR + "')")
+    public FileInfoModel delete(@Nonnull String fileInfoId) {
         FileInfo fi = fileInfoRepository.findOne(fileInfoId);
         if (fi != null) {
             fileInfoRepository.delete(fileInfoId);
             quotaService.releaseQuota(fi.getAppid(), fi.getSize());
+            return new FileInfoModel(fi);
+        } else {
+            return null;
         }
     }
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
     public void deleteAppid(@Nonnull String appid) {
         List<FileInfo> deletedFiles = fileInfoCustomizedRepository.deleteByAppid(appid);
         if (logger.isDebugEnabled()) {
@@ -144,6 +158,7 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
     }
 
     @Override
+    @PreAuthorize("hasRole('" + ROLE_FRS_GUEST + "')")
     public FileStoreModel getFile(@Nonnull String fileInfoId) {
         FileInfo fileInfo = fileInfoRepository.findOne(fileInfoId);
         if (fileInfo == null || fileInfo.getFileStore() == null) {
@@ -154,6 +169,7 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
 
     @Override
     @Transactional
+    @PreAuthorize("hasRole('" + ROLE_FRS_OPERATOR + "')")
     public FileInfoModel update(@Nonnull String fileInfoId, String description, LocalDateTime expiredDate) {
         FileInfo fi = fileInfoCustomizedRepository.update(fileInfoId, description, expiredDate);
         if (fi == null) {

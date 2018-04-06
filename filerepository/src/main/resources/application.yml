@@ -16,6 +16,9 @@ spring:
     active: @profileActive@
   messages:
     basename: l10n/exceptions
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
 
 springfox:
   documentation:

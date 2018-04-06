@@ -12,6 +12,8 @@
  */
 package alex.beta.filerepository;
 
+import lombok.Getter;
+
 import javax.annotation.Nonnull;
 
 /**
@@ -19,19 +21,16 @@ import javax.annotation.Nonnull;
  * @Description
  */
 public class ContentValidationException extends Exception {
+
+    @Getter
+    private String expected;
+
+    @Getter
+    private String actual;
+
     public ContentValidationException(@Nonnull String expected, @Nonnull String actual) {
         super("File content MD5 validation is failed. Expected value is \'" + expected + "\', but actual value is \'" + actual + "\'.");
-    }
-
-    public ContentValidationException(Throwable cause) {
-        super(cause);
-    }
-
-    public ContentValidationException(String message) {
-        super(message);
-    }
-
-    public ContentValidationException(String message, Throwable cause) {
-        super(message, cause);
+        this.actual = actual;
+        this.expected = expected;
     }
 }

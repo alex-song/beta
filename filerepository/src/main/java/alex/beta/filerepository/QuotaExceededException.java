@@ -12,18 +12,32 @@
  */
 package alex.beta.filerepository;
 
+import lombok.Getter;
+
 /**
  * @version ${project.version}
  * @Description
  */
 public class QuotaExceededException extends Exception {
 
-    public QuotaExceededException(String appid, long points, long used, long max) {
-        super("File repository quota of \'" + appid + "\' is " + max + ", and it's used " + used
-                + ". Cannot allocate " + points + ".");
-    }
+    @Getter
+    private String appid;
 
-    public QuotaExceededException(String message) {
-        super(message);
+    @Getter
+    private long points;
+
+    @Getter
+    private long used;
+
+    @Getter
+    private long max;
+
+    public QuotaExceededException(String appid, long points, long used, long max) {
+        super("Quota of file repository \'" + appid + "\' is " + max + ", and it's been used " + used
+                + ". Cannot allocate " + points + ".");
+        this.appid = appid;
+        this.points = points;
+        this.used = used;
+        this.max = max;
     }
 }
