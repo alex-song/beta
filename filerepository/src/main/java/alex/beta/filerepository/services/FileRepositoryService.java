@@ -28,7 +28,6 @@ import java.util.Set;
 public interface FileRepositoryService {
 
     /**
-     *
      * @param appid
      * @param name
      * @param description
@@ -45,23 +44,30 @@ public interface FileRepositoryService {
             throws ContentValidationException, QuotaExceededException;
 
     /**
-     *
-     * @param skip
-     * @param size
      * @param appid
      * @param name
+     * @param skip
+     * @param size
      * @return
      */
-    List<FileInfoModel> list(int skip, int size, String appid, String name);
+    List<FileInfoModel> find(String appid, String name, int skip, int size);
 
     /**
+     * Default page size is 50
      *
+     * @param appid
+     * @param name
+     * @param pageNum
+     * @return
+     */
+    List<FileInfoModel> page(String appid, String name, int pageNum);
+
+    /**
      * @return
      */
     Set<String> findAllAppid();
 
     /**
-     *
      * @param fileInfoId
      * @return
      */
@@ -69,25 +75,25 @@ public interface FileRepositoryService {
 
     /**
      * Delete file according to given file info id, and release the quota
+     *
      * @param fileInfoId
      */
     void delete(String fileInfoId);
 
     /**
      * Delete all files of appid, and release the quota
+     *
      * @param appid
      */
     void deleteAppid(String appid);
 
     /**
-     *
      * @param fileInfoId
      * @return
      */
     FileStoreModel getFile(String fileInfoId);
 
     /**
-     *
      * @param fileInfoId
      * @param description
      * @param expiredDate

@@ -25,6 +25,8 @@ import alex.beta.filerepository.services.QuotaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
@@ -34,6 +36,7 @@ import javax.annotation.Nonnull;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -94,9 +97,20 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
     }
 
     @Override
-    public List<FileInfoModel> list(@Min(0) int skip, @Max(1000) @Min(0) int size, String appid, String name) {
-        //TODO
-        return null;
+    public List<FileInfoModel> find(String appid, String name, @Min(0) int skip, @Max(1000) @Min(0) int limit) {
+        List<FileInfo> fis = fileInfoCustomizedRepository.findByAppidAndNameIgnoreCase(appid, name, skip, limit);
+        List<FileInfoModel> fims = new ArrayList<>(fis.size());
+        fis.forEach(fileInfo -> fims.add(new FileInfoModel(fileInfo)));
+        return fims;
+    }
+
+    @Override
+    public List<FileInfoModel> page(String appid, String name, @Min(0) int pageNum) {
+        List<FileInfo> fis = fileInfoRepository.findByAppidAndNameIgnoreCase(appid, name,
+                new PageRequest(pageNum, 50, new Sort(Sort.Direction.ASC, "createDate"))).getContent();
+        List<FileInfoModel> fims = new ArrayList<>(fis.size());
+        fis.forEach(fileInfo -> fims.add(new FileInfoModel(fileInfo)));
+        return fims;
     }
 
     @Override

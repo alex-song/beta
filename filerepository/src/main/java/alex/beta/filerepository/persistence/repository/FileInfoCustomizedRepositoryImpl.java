@@ -15,14 +15,14 @@ package alex.beta.filerepository.persistence.repository;
 import alex.beta.filerepository.persistence.entity.FileInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Nonnull;
 import java.time.LocalDateTime;
@@ -70,5 +70,22 @@ public class FileInfoCustomizedRepositoryImpl implements FileInfoCustomizedRepos
                 new Update().set("description", description).set("expiredDate", expiredDate),
                 new FindAndModifyOptions().returnNew(true),
                 FileInfo.class);
+    }
+
+    //TODO 匹配UT
+    @Override
+    public List<FileInfo> findByAppidAndNameIgnoreCase(String appid, String name, int skip, int limit) {
+        Query query = new Query();
+        if (!StringUtils.isEmpty(appid)) {
+            query.addCriteria(Criteria.where("appid").regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE)));
+        }
+        if (!StringUtils.isEmpty(name)) {
+            // 模糊匹配
+            query.addCriteria(Criteria.where("name").regex(Pattern.compile("^.*?" + name + ".*$", Pattern.CASE_INSENSITIVE)));
+        }
+        query.with(new Sort(Sort.Direction.ASC, "createDate"));
+        query.skip(skip);
+        query.limit(Math.min(1000, limit));
+        return mongoOperations.find(query, FileInfo.class);
     }
 }

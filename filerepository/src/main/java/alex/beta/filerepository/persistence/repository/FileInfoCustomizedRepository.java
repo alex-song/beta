@@ -31,17 +31,26 @@ public interface FileInfoCustomizedRepository {
 
     /**
      * Delete all file info by appid
+     *
      * @param appid
      * @return deleted FileInfo
      */
     List<FileInfo> deleteByAppid(String appid);
 
     /**
-     *
      * @param fileInfoId
      * @param description
      * @param expiredDate
      * @return Updated file info
      */
     FileInfo update(String fileInfoId, String description, LocalDateTime expiredDate);
+
+    /**
+     * @param appid
+     * @param name
+     * @param skip
+     * @param limit
+     * @return
+     */
+    List<FileInfo> findByAppidAndNameIgnoreCase(String appid, String name, int skip, int limit);
 }

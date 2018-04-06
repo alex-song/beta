@@ -13,8 +13,7 @@
 package alex.beta.filerepository.controllers;
 
 import alex.beta.filerepository.models.FileInfoModel;
-import alex.beta.filerepository.persistence.entity.FileInfo;
-import alex.beta.filerepository.persistence.repository.QuotaRepository;
+import alex.beta.filerepository.persistence.repository.FileInfoRepository;
 import alex.beta.filerepository.services.FileRepositoryService;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -34,7 +33,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,7 +51,7 @@ public class FRSRestEndpoint {
     private FileRepositoryService fileRepositoryService;
 
     @Autowired
-    private QuotaRepository qr;
+    private FileInfoRepository fileInfoRepository;
 
     @Autowired
     public FRSRestEndpoint(MessageSource messageSource, FileRepositoryService fileRepositoryService) {
@@ -100,11 +98,18 @@ public class FRSRestEndpoint {
     })
     @GetMapping(value = "/testDelete", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity testDelete() throws Exception {
+        //fileRepositoryService.add("aabbcc", "aabbcc", "", null, null, null, null);
+        //fileRepositoryService.add("AaBbCc", "aabbcc", "", null, null, null, null);
+        //fileRepositoryService.add("aabbcc", "bbc", "", null, null, null, null);
 
-        List<FileInfo> aaa = new ArrayList<>();
-        aaa.add(FileInfo.builder().id("5ac0ed30ff11c10f9e38483e").build());
+        List<FileInfoModel> fims = fileRepositoryService.page("AaBbCc", "AAB", 0);
 
-        //frsRepository.delete(aaa);
+        System.out.println(fims);
+
+        List<FileInfoModel> fims1 = fileRepositoryService.page("AaBbCc", "AAB", 1);
+
+        System.out.println(fims1);
+
         return ResponseEntity.ok("ok");
     }
 }
