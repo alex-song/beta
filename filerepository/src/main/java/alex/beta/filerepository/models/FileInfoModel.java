@@ -61,10 +61,6 @@ public class FileInfoModel {
     @ApiModelProperty
     private LocalDateTime expiredDate;
 
-    @JsonProperty("md5")
-    @ApiModelProperty
-    private String md5;
-
     @JsonProperty("createDate")
     @ApiModelProperty
     private LocalDateTime createDate;
@@ -91,7 +87,6 @@ public class FileInfoModel {
         this.setExpiredDate(fileInfo.getExpiredDate());
         this.setLastModifiedBy(fileInfo.getLastModifiedBy());
         this.setLastModifiedDate(fileInfo.getLastModifiedDate());
-        this.setMd5(fileInfo.getFileStore() == null ? null : fileInfo.getFileStore().getMd5());
         this.setName(fileInfo.getName());
         this.setSize(fileInfo.getSize());
     }

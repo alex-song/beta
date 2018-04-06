@@ -8,6 +8,8 @@ endpoints:
 spring:
   http:
     multipart:
+      enabled: true
+      fileSizeThreshold: 0
       maxFileSize: 10Mb
       maxRequestSize: 10Mb
   profiles:

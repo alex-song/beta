@@ -15,8 +15,10 @@ package alex.beta.filerepository.services.impl;
 import alex.beta.filerepository.ContentValidationException;
 import alex.beta.filerepository.QuotaExceededException;
 import alex.beta.filerepository.models.FileInfoModel;
+import alex.beta.filerepository.models.FileStoreModel;
 import alex.beta.filerepository.persistence.entity.FileInfo;
 import alex.beta.filerepository.persistence.entity.FileStore;
+import alex.beta.filerepository.persistence.repository.FileInfoCustomizedRepository;
 import alex.beta.filerepository.persistence.repository.FileInfoRepository;
 import alex.beta.filerepository.services.FileRepositoryService;
 import alex.beta.filerepository.services.QuotaService;
@@ -29,7 +31,11 @@ import org.springframework.util.DigestUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Nonnull;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @version ${project.version}
@@ -43,11 +49,14 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
 
     private FileInfoRepository fileInfoRepository;
 
+    private FileInfoCustomizedRepository fileInfoCustomizedRepository;
+
     private QuotaService quotaService;
 
     @Autowired
-    public FileRepositoryServiceImpl(FileInfoRepository fileInfoRepository, QuotaService quotaService) {
+    public FileRepositoryServiceImpl(FileInfoRepository fileInfoRepository, QuotaService quotaService, FileInfoCustomizedRepository fileInfoCustomizedRepository) {
         this.fileInfoRepository = fileInfoRepository;
+        this.fileInfoCustomizedRepository = fileInfoCustomizedRepository;
         this.quotaService = quotaService;
     }
 
@@ -81,13 +90,62 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
         if (fileInfo.getSize() > 0) {
             quotaService.useQuota(appid, fileInfo.getSize());
         }
-        try {
-            return new FileInfoModel(fileInfoRepository.save(fileInfo));
-        } catch (RuntimeException ex) {
-            if (fileInfo.getSize() > 0) {
-                quotaService.releaseQuota(appid, fileInfo.getSize());
-            }
-            throw ex;
+        return new FileInfoModel(fileInfoRepository.save(fileInfo));
+    }
+
+    @Override
+    public List<FileInfoModel> list(@Min(0) int skip, @Max(1000) @Min(0) int size, String appid, String name) {
+        //TODO
+        return null;
+    }
+
+    @Override
+    public Set<String> findAllAppid() {
+        return fileInfoCustomizedRepository.findAllAppid();
+    }
+
+    @Override
+    public FileInfoModel get(@Nonnull String fileInfoId) {
+        return new FileInfoModel(fileInfoRepository.findOne(fileInfoId));
+    }
+
+    @Override
+    @Transactional
+    public void delete(@Nonnull String fileInfoId) {
+        FileInfo fi = fileInfoRepository.findOne(fileInfoId);
+        if (fi != null) {
+            fileInfoRepository.delete(fileInfoId);
+            quotaService.releaseQuota(fi.getAppid(), fi.getSize());
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteAppid(@Nonnull String appid) {
+        List<FileInfo> deletedFiles = fileInfoCustomizedRepository.deleteByAppid(appid);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Deleted {} files", deletedFiles.size());
+        }
+        quotaService.resetUsedQuota(appid);
+    }
+
+    @Override
+    public FileStoreModel getFile(@Nonnull String fileInfoId) {
+        FileInfo fileInfo = fileInfoRepository.findOne(fileInfoId);
+        if (fileInfo == null || fileInfo.getFileStore() == null) {
+            return null;
+        }
+        return new FileStoreModel(fileInfo.getFileStore());
+    }
+
+    @Override
+    @Transactional
+    public FileInfoModel update(@Nonnull String fileInfoId, String description, LocalDateTime expiredDate) {
+        FileInfo fi = fileInfoCustomizedRepository.update(fileInfoId, description, expiredDate);
+        if (fi == null) {
+            return null;
+        } else {
+            return new FileInfoModel(fi);
         }
     }
 }

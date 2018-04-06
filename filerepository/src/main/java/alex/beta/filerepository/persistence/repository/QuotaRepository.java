@@ -80,10 +80,5 @@ public interface QuotaRepository {
     /**
      * @return in lower case
      */
-    Set<String> findAllAppidFromQuota();
-
-    /**
-     * @return in lower case
-     */
-    Set<String> findAllAppidFromFileInfo();
+    Set<String> findAllAppid();
 }

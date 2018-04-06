@@ -74,9 +74,9 @@ public interface QuotaService {
     /**
      * Reset used quota of given quota appid
      *
-     * @param quotas
+     * @param appids
      */
-    void resetUsedQuota(String... quotas);
+    void resetUsedQuota(String... appids);
 
     /**
      * Reset used quota of all appid in Quota and FileInfo

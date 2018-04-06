@@ -14,6 +14,7 @@ package alex.beta.filerepository.services.impl;
 
 import alex.beta.filerepository.QuotaExceededException;
 import alex.beta.filerepository.persistence.entity.Quota;
+import alex.beta.filerepository.persistence.repository.FileInfoCustomizedRepository;
 import alex.beta.filerepository.persistence.repository.QuotaRepository;
 import alex.beta.filerepository.services.QuotaService;
 import org.slf4j.Logger;
@@ -40,9 +41,12 @@ public class QuotaServiceImpl implements QuotaService {
 
     private QuotaRepository quotaRepository;
 
+    private FileInfoCustomizedRepository fileInfoCustomizedRepository;
+
     @Autowired
-    public QuotaServiceImpl(QuotaRepository quotaRepository) {
+    public QuotaServiceImpl(QuotaRepository quotaRepository, FileInfoCustomizedRepository fileInfoCustomizedRepository) {
         this.quotaRepository = quotaRepository;
+        this.fileInfoCustomizedRepository = fileInfoCustomizedRepository;
     }
 
     //TODO UT
@@ -142,8 +146,8 @@ public class QuotaServiceImpl implements QuotaService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
-    public void resetUsedQuota(@Nonnull String... quotas) {
-        for (String appid : quotas) {
+    public void resetUsedQuota(@Nonnull String... appids) {
+        for (String appid : appids) {
             quotaRepository.findAndModifyUsedQuotaByAppidIgnoreCase(appid, 0L);
         }
     }
@@ -152,8 +156,8 @@ public class QuotaServiceImpl implements QuotaService {
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
     public void resetAllUsedQuota() {
-        Set<String> appidInQuota = quotaRepository.findAllAppidFromQuota();
-        Set<String> appidInFileInfo = quotaRepository.findAllAppidFromFileInfo();
+        Set<String> appidInQuota = quotaRepository.findAllAppid();
+        Set<String> appidInFileInfo = fileInfoCustomizedRepository.findAllAppid();
         Set<String> merged = new HashSet<>();
         merged.addAll(appidInQuota);
         merged.addAll(appidInFileInfo);

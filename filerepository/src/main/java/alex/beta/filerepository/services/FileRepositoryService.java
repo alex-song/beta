@@ -15,9 +15,11 @@ package alex.beta.filerepository.services;
 import alex.beta.filerepository.ContentValidationException;
 import alex.beta.filerepository.QuotaExceededException;
 import alex.beta.filerepository.models.FileInfoModel;
+import alex.beta.filerepository.models.FileStoreModel;
 
-import javax.annotation.Nonnull;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @version ${project.version}
@@ -25,7 +27,71 @@ import java.time.LocalDateTime;
  */
 public interface FileRepositoryService {
 
-    FileInfoModel add(@Nonnull String appid, @Nonnull String name, String description, String contentType,
+    /**
+     *
+     * @param appid
+     * @param name
+     * @param description
+     * @param contentType
+     * @param expiredDate
+     * @param md5
+     * @param content
+     * @return
+     * @throws ContentValidationException
+     * @throws QuotaExceededException
+     */
+    FileInfoModel add(String appid, String name, String description, String contentType,
                       LocalDateTime expiredDate, String md5, byte[] content)
             throws ContentValidationException, QuotaExceededException;
+
+    /**
+     *
+     * @param skip
+     * @param size
+     * @param appid
+     * @param name
+     * @return
+     */
+    List<FileInfoModel> list(int skip, int size, String appid, String name);
+
+    /**
+     *
+     * @return
+     */
+    Set<String> findAllAppid();
+
+    /**
+     *
+     * @param fileInfoId
+     * @return
+     */
+    FileInfoModel get(String fileInfoId);
+
+    /**
+     * Delete file according to given file info id, and release the quota
+     * @param fileInfoId
+     */
+    void delete(String fileInfoId);
+
+    /**
+     * Delete all files of appid, and release the quota
+     * @param appid
+     */
+    void deleteAppid(String appid);
+
+    /**
+     *
+     * @param fileInfoId
+     * @return
+     */
+    FileStoreModel getFile(String fileInfoId);
+
+    /**
+     *
+     * @param fileInfoId
+     * @param description
+     * @param expiredDate
+     * @return
+     */
+    FileInfoModel update(String fileInfoId, String description, LocalDateTime expiredDate);
 }

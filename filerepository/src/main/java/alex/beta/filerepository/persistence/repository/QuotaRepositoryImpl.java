@@ -190,18 +190,8 @@ public class QuotaRepositoryImpl implements QuotaRepository {
     }
 
     @Override
-    public Set<String> findAllAppidFromQuota() {
+    public Set<String> findAllAppid() {
         List dbresult = mongoOperations.getCollection("Quota").distinct("appid");
-        Set<String> result = new HashSet<>(dbresult.size());
-        for (Object obj : dbresult) {
-            result.add(obj.toString().toLowerCase());
-        }
-        return result;
-    }
-
-    @Override
-    public Set<String> findAllAppidFromFileInfo() {
-        List dbresult = mongoOperations.getCollection("FileInfo").distinct("appid");
         Set<String> result = new HashSet<>(dbresult.size());
         for (Object obj : dbresult) {
             result.add(obj.toString().toLowerCase());
