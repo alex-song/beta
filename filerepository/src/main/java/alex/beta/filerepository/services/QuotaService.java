@@ -13,6 +13,7 @@
 package alex.beta.filerepository.services;
 
 import alex.beta.filerepository.QuotaExceededException;
+import alex.beta.filerepository.models.QuotaModel;
 import alex.beta.filerepository.persistence.entity.Quota;
 
 import java.util.List;
@@ -82,4 +83,16 @@ public interface QuotaService {
      * Reset used quota of all appid in Quota and FileInfo
      */
     void resetAllUsedQuota();
+
+    /**
+     * @param appid
+     * @return
+     */
+    QuotaModel findByAppidIgnoreCase(String appid);
+
+    /**
+     *
+     * @return
+     */
+    List<QuotaModel> findAll();
 }

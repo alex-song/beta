@@ -199,6 +199,11 @@ public class QuotaRepositoryImpl implements QuotaRepository {
         return result;
     }
 
+    @Override
+    public List<Quota> findAll() {
+        return mongoOperations.findAll(Quota.class);
+    }
+
     private synchronized boolean initializeQuota(@Nonnull String appid) {
         try {
             Quota q = Quota.builder().appid(appid).usedQuota(0L).maxQuota(getDefaultMaxQuota(appid)).build();

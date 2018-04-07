@@ -174,13 +174,9 @@ public class FRSRestEndpoint {
     }
 
 
-    @ApiOperation(value = "Test")
-    @ApiResponses({
-            @ApiResponse(code = 200, message = "Translation request is found."),
-            @ApiResponse(code = 404, message = "Translation request is not found.")
-    })
-    @GetMapping(value = "/testDelete", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity testDelete() throws Exception {
+    @ApiOperation(value = "test")
+    @GetMapping(value = "/test", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity test() throws Exception {
         //fileRepositoryService.add("aabbcc", "aabbcc", "", null, null, null, null);
         //fileRepositoryService.add("AaBbCc", "aabbcc", "", null, null, null, null);
         //fileRepositoryService.add("aabbcc", "bbc", "", null, null, null, null);

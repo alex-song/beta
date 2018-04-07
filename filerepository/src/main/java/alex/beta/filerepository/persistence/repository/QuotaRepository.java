@@ -14,6 +14,7 @@ package alex.beta.filerepository.persistence.repository;
 
 import alex.beta.filerepository.persistence.entity.Quota;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -81,4 +82,10 @@ public interface QuotaRepository {
      * @return in lower case
      */
     Set<String> findAllAppid();
+
+    /**
+     *
+     * @return
+     */
+    List<Quota> findAll();
 }

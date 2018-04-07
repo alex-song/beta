@@ -13,6 +13,7 @@
 package alex.beta.filerepository.services.impl;
 
 import alex.beta.filerepository.QuotaExceededException;
+import alex.beta.filerepository.models.QuotaModel;
 import alex.beta.filerepository.persistence.entity.Quota;
 import alex.beta.filerepository.persistence.repository.FileInfoCustomizedRepository;
 import alex.beta.filerepository.persistence.repository.QuotaRepository;
@@ -163,5 +164,28 @@ public class QuotaServiceImpl implements QuotaService {
         merged.addAll(appidInFileInfo);
 
         resetUsedQuota(merged.toArray(new String[]{}));
+    }
+
+    @Override
+    @PreAuthorize("hasRole('" + ROLE_FRS_GUEST + "')")
+    public QuotaModel findByAppidIgnoreCase(@Nonnull String appid) {
+        Quota quota = quotaRepository.findOneByAppidIgnoreCase(appid);
+        if (quota == null) {
+            return null;
+        } else {
+            return new QuotaModel(quota);
+        }
+    }
+
+    @Override
+    @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
+    public List<QuotaModel> findAll() {
+        List<Quota> quotas = quotaRepository.findAll();
+        if (quotas == null) {
+            return null;
+        }
+        List<QuotaModel> models = new ArrayList<>(quotas.size());
+        quotas.forEach(quota -> models.add(new QuotaModel(quota)));
+        return models;
     }
 }
