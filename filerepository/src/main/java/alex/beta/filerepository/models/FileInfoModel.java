@@ -53,6 +53,10 @@ public class FileInfoModel {
     @ApiModelProperty
     private String contentType;
 
+    @JsonProperty("md5")
+    @ApiModelProperty
+    private String md5;
+
     @JsonProperty("temporary")
     @ApiModelProperty
     private boolean temporary;
@@ -89,9 +93,6 @@ public class FileInfoModel {
         this.setLastModifiedDate(fileInfo.getLastModifiedDate());
         this.setName(fileInfo.getName());
         this.setSize(fileInfo.getSize());
-    }
-
-    public FileInfoModel() {
-        //default constructor
+        this.setMd5(fileInfo.getMd5());
     }
 }

@@ -34,17 +34,8 @@ public class FileStoreModel {
     @ApiModelProperty
     private byte[] content;
 
-    @JsonProperty("md5")
-    @ApiModelProperty
-    private String md5;
-
     public FileStoreModel(FileStore fileStore) {
         this.setId(fileStore.getInfoId());
-        this.setMd5(fileStore.getMd5());
         this.setContent(fileStore.getContent());
-    }
-
-    public FileStoreModel() {
-        //default constructor
     }
 }

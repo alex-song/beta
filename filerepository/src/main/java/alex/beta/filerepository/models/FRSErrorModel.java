@@ -36,10 +36,6 @@ public class FRSErrorModel {
     @ApiModelProperty
     private String message;
 
-    public FRSErrorModel() {
-        //default construction
-    }
-
     public FRSErrorModel(String errorCode) {
         this.errorCode = errorCode;
     }

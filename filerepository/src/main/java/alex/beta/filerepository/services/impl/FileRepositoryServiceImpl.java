@@ -85,11 +85,11 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
             FileStore.FileStoreBuilder fileStore = FileStore.builder().content(content);
             String calculatedMd5 = DigestUtils.md5DigestAsHex(content);
             if (StringUtils.isEmpty(md5)) {
-                fileStore = fileStore.md5(calculatedMd5);
+                fileInfo.setMd5(calculatedMd5);
             } else if (!calculatedMd5.equalsIgnoreCase(md5)) {
                 throw new ContentValidationException(md5, calculatedMd5);
             } else {
-                fileStore = fileStore.md5(md5);
+                fileInfo.setMd5(md5);
             }
             fileInfo.setFileStore(fileStore.build());
         }

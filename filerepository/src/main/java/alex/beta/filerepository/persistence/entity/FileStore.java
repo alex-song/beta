@@ -33,9 +33,6 @@ public class FileStore {
     @Field("id")
     private String id;
 
-    @Field("md5")
-    private String md5;
-
     @Field("content")
     private byte[] content;
 

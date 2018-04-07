@@ -32,7 +32,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -83,8 +82,6 @@ public class FRSRestEndpoint {
             @RequestParam("file") MultipartFile file,
             @ApiParam(value = "Application ID", required = true)
             @RequestParam(value = "appid") String appid,
-            @ApiParam(value = "File name")
-            @RequestParam(value = "name", required = false) String name,
             @ApiParam(value = "File description")
             @RequestParam(value = "description", required = false) String description,
             @ApiParam(value = "Content MD5 value")
@@ -93,7 +90,7 @@ public class FRSRestEndpoint {
             @RequestParam(value = "expiredDate", required = false) LocalDateTime expiredDate) {
         try {
             FileInfoModel model = fileRepositoryService.add(appid,
-                    StringUtils.isEmpty(name) ? file.getOriginalFilename() : name, description,
+                    file.getOriginalFilename(), description,
                     file.getContentType(), expiredDate, md5, file.getBytes());
             if (logger.isDebugEnabled()) {
                 logger.debug("File is uploaded successfully{}{}", System.lineSeparator(), model);
@@ -148,7 +145,6 @@ public class FRSRestEndpoint {
         if (model == null) {
             return ResponseEntity.notFound().build();
         } else {
-            ByteArrayResource resource = new ByteArrayResource(model.getContent());
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate");
             headers.add(HttpHeaders.PRAGMA, "no-cache");
@@ -156,7 +152,7 @@ public class FRSRestEndpoint {
 
             return ResponseEntity.ok().headers(headers).contentLength(model.getContent().length)
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .body(resource);
+                    .body(new ByteArrayResource(model.getContent()));
         }
     }
 

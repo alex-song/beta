@@ -52,6 +52,9 @@ public class FileInfo {
     @Field("size")
     private int size;
 
+    @Field("md5")
+    private String md5;
+
     @Field("contentType")
     private String contentType;
 
