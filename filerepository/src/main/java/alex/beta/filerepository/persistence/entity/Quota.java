@@ -1,5 +1,5 @@
 /**
- * @File: FileStore.java
+ * @File: Quota.java
  * @Project: beta
  * @Copyright: Copyright (c) 2018, All Rights Reserved
  * <p>
@@ -7,7 +7,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * </p>
- * @Date: 2018/4/1 上午10:01
+ * @Date: 2018/4/3 下午1:00
  * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
 package alex.beta.filerepository.persistence.entity;
@@ -15,7 +15,9 @@ package alex.beta.filerepository.persistence.entity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -27,18 +29,20 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Data
 @AllArgsConstructor
 @Builder
-@Document(collection = "FileStore")
-public class FileStore {
+@Document(collection = "Quota")
+public class Quota {
     @Id
     @Field("id")
     private String id;
 
-    @Field("content")
-    private byte[] content;
+    @Field("appid")
+    @Indexed(unique = true)
+    @NonNull
+    private String appid;
 
-    /**
-     * 反向链接，指向对应的FileInfo。为清理数据，及联删除提供便利。
-     */
-    @Field("infoId")
-    private String infoId;
+    @Field("maxQuota")
+    private long maxQuota;
+
+    @Field("usedQuota")
+    private long usedQuota;
 }

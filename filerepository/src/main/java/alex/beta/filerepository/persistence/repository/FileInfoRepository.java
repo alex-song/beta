@@ -13,11 +13,18 @@
 package alex.beta.filerepository.persistence.repository;
 
 import alex.beta.filerepository.persistence.entity.FileInfo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+
 
 /**
  * @version ${project.version}
  * @Description
  */
 public interface FileInfoRepository extends MongoRepository<FileInfo, String> {
+
+    @Query(value = "{'appid' : {'$regex' : ?0 , '$options' : 'i'}, 'name' : {'$regex' : '^.*??1.*$' , '$options' : 'i'}}")
+    Page<FileInfo> findByAppidAndNameIgnoreCase(String appid, String name, Pageable pageable);
 }

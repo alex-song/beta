@@ -16,6 +16,7 @@ import alex.beta.filerepository.mongo.Cascade;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 import org.springframework.data.annotation.*;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -37,7 +38,12 @@ public class FileInfo {
     @Field("id")
     private String id;
 
+    @Field("appid")
+    @NonNull
+    private String appid;
+
     @Field("name")
+    @NonNull
     private String name;
 
     @Field("description")
@@ -46,11 +52,14 @@ public class FileInfo {
     @Field("size")
     private int size;
 
+    @Field("md5")
+    private String md5;
+
     @Field("contentType")
     private String contentType;
 
-    @Field("temporary")
-    private boolean temporary;
+    @Field("expiredDate")
+    private LocalDateTime expiredDate;
 
     @DBRef(lazy = true)
     @Cascade(delete = true)

@@ -115,6 +115,11 @@
             <artifactId>commons-io</artifactId>
             <version>${commons-io_version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson-datatype-jsr310_version}</version>
+        </dependency>
 
         <!-- test -->
         <dependency>

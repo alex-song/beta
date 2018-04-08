@@ -1,15 +1,24 @@
 server:
   port: 7070
-  contextPath: /filerepository/
+  contextPath: /frs/
 
 endpoints:
   enabled: false
 
 spring:
+  http:
+    multipart:
+      enabled: true
+      fileSizeThreshold: 0
+      maxFileSize: 10Mb
+      maxRequestSize: 10Mb
   profiles:
     active: @profileActive@
   messages:
     basename: l10n/exceptions
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
 
 springfox:
   documentation:
@@ -23,4 +32,17 @@ info:
     description: Alex File Repository Service, which is built on top of Springboot and MongoDB.
     version: @project.version@
 
-
+filerepository:
+  users:
+    admin:
+      username: admin
+      password: admin
+    guest:
+      username: readonly
+      password: readonly
+    operator:
+      username: operator
+      password: operator
+  quota:
+    max:
+      - default: 100MB
