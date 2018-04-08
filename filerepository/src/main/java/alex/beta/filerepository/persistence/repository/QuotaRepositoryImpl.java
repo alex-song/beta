@@ -12,7 +12,7 @@
  */
 package alex.beta.filerepository.persistence.repository;
 
-import alex.beta.filerepository.QuotaConfig;
+import alex.beta.filerepository.config.xmlbeans.IFrsConfig;
 import alex.beta.filerepository.persistence.entity.FileInfo;
 import alex.beta.filerepository.persistence.entity.Quota;
 import com.mongodb.BasicDBObject;
@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
+import static alex.beta.filerepository.config.xmlbeans.AbstractApp.DEFAULT;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.group;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 
@@ -50,44 +51,19 @@ public class QuotaRepositoryImpl implements QuotaRepository {
 
     private MongoOperations mongoOperations;
 
-    private long defaultMax = QuotaConfig.parseSize("100MB");
-
     private ConcurrentMap<String, Long> defaultAppMaxQuotaMap;
 
     @Autowired
-    public QuotaRepositoryImpl(MongoOperations mongoOperations, QuotaConfig quotaConfig) {
+    public QuotaRepositoryImpl(MongoOperations mongoOperations, IFrsConfig frsConfig) {
         this.mongoOperations = mongoOperations;
 
         // 组建默认值Map
-        defaultAppMaxQuotaMap = new ConcurrentHashMap<>(quotaConfig.getMax().size());
-        for (Map<String, String> config : quotaConfig.getMax()) {
-            if (!config.isEmpty()) {
-                String key = config.keySet().iterator().next();
-                String tmp = config.get(key);
-                if ("default".equalsIgnoreCase(key)) {
-                    if (!StringUtils.isEmpty(tmp)) {
-                        try {
-                            defaultMax = QuotaConfig.parseSize(tmp);
-                        } catch (NumberFormatException ex) {
-                            if (logger.isWarnEnabled()) {
-                                logger.warn("Invalid default max quota configuration ({}), use default 100 instead.", tmp, ex);
-                            }
-                        }
-                    }
-                    defaultAppMaxQuotaMap.put("default", defaultMax);
-                } else {
-                    if (!StringUtils.isEmpty(tmp)) {
-                        try {
-                            defaultAppMaxQuotaMap.put(key.toLowerCase(), QuotaConfig.parseSize(tmp));
-                        } catch (NumberFormatException ex) {
-                            if (logger.isWarnEnabled()) {
-                                logger.warn("Invalid default max quota configuration ({}) of appid {}.", tmp, key, ex);
-                            }
-                        }
-                    }
-                }
-            }
+        defaultAppMaxQuotaMap = new ConcurrentHashMap<>();
+        defaultAppMaxQuotaMap.put(DEFAULT.getAppid(), DEFAULT.getMaxQuotaValue());
+        if (frsConfig.getApp() != null && !frsConfig.getApp().isEmpty()) {
+            frsConfig.getApp().forEach(app -> defaultAppMaxQuotaMap.put(app.getAppid(), app.getMaxQuotaValue()));
         }
+
         // output default max quota setting
         Iterator<String> keys = defaultAppMaxQuotaMap.keySet().iterator();
         logger.debug("Default max quotas:");
@@ -229,8 +205,6 @@ public class QuotaRepositoryImpl implements QuotaRepository {
     }
 
     private long getDefaultMaxQuota(@Nonnull String appid) {
-        return defaultAppMaxQuotaMap.containsKey(appid.toLowerCase())
-                ? defaultAppMaxQuotaMap.get(appid.toLowerCase())
-                : defaultMax;
+        return defaultAppMaxQuotaMap.getOrDefault(appid, defaultAppMaxQuotaMap.getOrDefault("default", 100 * 1024L * 1024L));
     }
 }

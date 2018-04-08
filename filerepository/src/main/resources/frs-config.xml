@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<frs:Config xmlns:frs="http://songlp.ddns.net/frs/schema">
+	<frs:Admin username="admin" password="admin"/>
+	<frs:Operator username="operator" password="operator"/>
+	<frs:Guest username="guest" password="guest"/>
+	<frs:App appid="default" maxQuota="100MB"/>
+</frs:Config>
