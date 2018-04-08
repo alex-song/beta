@@ -32,17 +32,20 @@ info:
     description: Alex File Repository Service, which is built on top of Springboot and MongoDB.
     version: @project.version@
 
-filerepository:
-  users:
-    admin:
-      username: admin
-      password: admin
-    guest:
-      username: readonly
-      password: readonly
-    operator:
-      username: operator
-      password: operator
-  quota:
-    max:
-      - default: 100MB
+frs:
+  config: ${frs.config:'classpath:frs-config-default.properties'}
+
+#filerepository:
+#  users:
+#    admin:
+#      username: admin
+#      password: admin
+#    guest:
+#      username: readonly
+#      password: readonly
+#    operator:
+#      username: operator
+#      password: operator
+#  quota:
+#    max:
+#      - default: 100MB
