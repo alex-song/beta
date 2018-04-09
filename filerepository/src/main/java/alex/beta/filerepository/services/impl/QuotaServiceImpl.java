@@ -136,10 +136,10 @@ public class QuotaServiceImpl implements QuotaService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
-    public List<Quota> createQuota(@Nonnull Quota... quotas) {
-        List<Quota> qs = new ArrayList<>(quotas.length);
+    public List<QuotaModel> createQuota(@Nonnull Quota... quotas) {
+        List<QuotaModel> qs = new ArrayList<>(quotas.length);
         for (Quota q : quotas) {
-            qs.add(quotaRepository.findOneOrCreateOne(q));
+            qs.add(new QuotaModel(quotaRepository.findOneOrCreateOne(q)));
         }
         return qs;
     }
@@ -183,6 +183,9 @@ public class QuotaServiceImpl implements QuotaService {
         List<Quota> quotas = quotaRepository.findAll();
         if (quotas == null) {
             return null;
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("There are {} quotas", quotas.size());
         }
         List<QuotaModel> models = new ArrayList<>(quotas.size());
         quotas.forEach(quota -> models.add(new QuotaModel(quota)));

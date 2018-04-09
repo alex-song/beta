@@ -33,5 +33,5 @@ info:
     version: @project.version@
 
 frs:
-  config: ${frs.config:'classpath:frs-config.xml'}
+  configFile: ${frs.config:classpath:frs-config.xml}
 

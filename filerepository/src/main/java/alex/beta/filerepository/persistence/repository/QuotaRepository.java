@@ -84,7 +84,6 @@ public interface QuotaRepository {
     Set<String> findAllAppid();
 
     /**
-     *
      * @return
      */
     List<Quota> findAll();

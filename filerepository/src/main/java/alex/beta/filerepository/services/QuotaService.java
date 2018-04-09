@@ -70,7 +70,7 @@ public interface QuotaService {
      * @param quotas
      * @return Newly created quota or existing quota, according to given quotas
      */
-    List<Quota> createQuota(Quota... quotas);
+    List<QuotaModel> createQuota(Quota... quotas);
 
     /**
      * Reset used quota of given quota appid
@@ -91,7 +91,6 @@ public interface QuotaService {
     QuotaModel findByAppidIgnoreCase(String appid);
 
     /**
-     *
      * @return
      */
     List<QuotaModel> findAll();

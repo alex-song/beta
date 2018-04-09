@@ -12,6 +12,7 @@
  */
 package alex.beta.filerepository;
 
+import alex.beta.filerepository.config.xmlbeans.FrsConfig;
 import alex.beta.filerepository.config.xmlbeans.IFrsConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,7 @@ public class FrsConfigResolver {
 
     private static final Logger logger = LoggerFactory.getLogger(FrsConfigResolver.class);
 
-    @Value("${frs.config}")
+    @Value("${frs.configFile}")
     private String frsConfigFile;
 
     @Bean("frsConfig")
@@ -49,7 +50,7 @@ public class FrsConfigResolver {
             if (logger.isInfoEnabled()) {
                 logger.info("Initializing file repository service using configuration file {}", frsConfigFile);
             }
-            JAXBContext jaxbContext = JAXBContext.newInstance(Class.forName("alex.beta.filerepository.config.xmlbeans.FrsConfig").asSubclass(IFrsConfig.class));
+            JAXBContext jaxbContext = JAXBContext.newInstance(FrsConfig.class);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             Resource res = new PathMatchingResourcePatternResolver().getResource(frsConfigFile);
             if (res == null || !res.exists() || !res.isReadable()) {
@@ -57,14 +58,11 @@ public class FrsConfigResolver {
                 throw new InvalidConfigurationException(frsConfigFile);
             } else {
                 XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(res.getInputStream());
-                return jaxbUnmarshaller.unmarshal(reader, IFrsConfig.class).getValue();
+                return jaxbUnmarshaller.unmarshal(reader, FrsConfig.class).getValue();
             }
         } catch (IOException | XMLStreamException e1) {
             logger.error("Failed to read configuration XML file, {}", frsConfigFile, e1);
             throw new InvalidConfigurationException(frsConfigFile, e1);
-        } catch (ClassNotFoundException e2) {
-            logger.error("alex.beta.filerepository.config.xmlbeans.FrsConfig is not found", e2);
-            throw new InternalError("alex.beta.filerepository.config.xmlbeans.FrsConfig", e2);
         } catch (JAXBException e3) {
             logger.error("Cannot bind XML {} with Configuration bean", frsConfigFile, e3);
             throw new InvalidConfigurationException(frsConfigFile, e3);

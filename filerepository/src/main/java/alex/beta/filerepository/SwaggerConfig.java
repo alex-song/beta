@@ -40,7 +40,7 @@ import java.time.LocalDateTime;
  * @version ${project.version}
  * @Description
  */
-@Profile({"dev", "docker"})
+@Profile({"dev", "docker", "test"})
 @EnableSwagger2
 @Configuration
 @EnableAutoConfiguration
