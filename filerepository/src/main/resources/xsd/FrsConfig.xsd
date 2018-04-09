@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:frs="http://songlp.ddns.net/frs/schema" targetNamespace="http://songlp.ddns.net/frs/schema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+    <xs:element name="Config" type="frs:FrsConfig">
+        <xs:annotation>
+            <xs:documentation>File Repository Service Configuration</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <xs:complexType name="FrsConfig">
+        <xs:sequence>
+            <xs:element name="Admin" type="frs:Admin" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="Operator" type="frs:Operator" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="Guest" type="frs:Guest" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="App" type="frs:Quota" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="User" abstract="true">
+        <xs:attribute name="username" type="xs:string" use="required"/>
+        <xs:attribute name="password" type="xs:string" use="required"/>
+    </xs:complexType>
+    <xs:complexType name="Admin">
+        <xs:complexContent>
+            <xs:extension base="frs:User"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="Operator">
+        <xs:complexContent>
+            <xs:extension base="frs:User"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="Guest">
+        <xs:complexContent>
+            <xs:extension base="frs:User"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="Quota">
+        <xs:attribute name="appid" type="xs:string" use="required"/>
+        <xs:attribute name="maxQuota" type="xs:string" use="optional" default="100MB"/>
+    </xs:complexType>
+</xs:schema>

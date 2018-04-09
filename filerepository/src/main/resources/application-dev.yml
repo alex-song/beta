@@ -14,7 +14,7 @@ spring:
       database: frs
       grid-fs-database: frs-grid
       host: localhost
-      username: frs
-      password: frs
+#      username: frs
+#      password: frs
       repositories:
         enabled: true

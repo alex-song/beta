@@ -12,10 +12,8 @@
  */
 package alex.beta.filerepository;
 
-import lombok.Data;
+import alex.beta.filerepository.config.xmlbeans.IFrsConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,9 +25,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.util.StringUtils;
 
 /**
  * @version ${project.version}
@@ -69,66 +65,24 @@ public class SecurityConfig {
             return roleHierarchy;
         }
 
-        //TODO how to integrate with consume authentication/authorization?
         //TODO UT
         @Autowired
-        public void configureGlobal(AuthenticationManagerBuilder auth, FileRepositoryUserConfig userConfig) throws Exception {
+        public void configureGlobal(AuthenticationManagerBuilder auth, IFrsConfig frsConfig) throws Exception {
             InMemoryUserDetailsManager um = new InMemoryUserDetailsManager();
 
-            if (userConfig != null) {
-                if (StringUtils.isEmpty(userConfig.getAdminUsername())) {
-                    throw new InvalidConfigurationException("Admin user is missing in the configuration");
-                } else {
-                    um.createUser(User.withUsername(userConfig.getAdminUsername())
-                            .password(StringUtils.isEmpty(userConfig.getAdminPassword()) ? "" : userConfig.getAdminPassword())
-                            .roles(ROLE_FRS_ADMIN).build());
-                }
+            if (frsConfig.getAdmin() != null && !frsConfig.getAdmin().isEmpty()) {
+                frsConfig.getAdmin().forEach(admin -> um.createUser(admin));
+            }
 
-                if (StringUtils.isEmpty(userConfig.getOperatorUsername())) {
-                    throw new InvalidConfigurationException("Operator user is missing in the configuration");
-                } else {
-                    um.createUser(User.withUsername(userConfig.getOperatorUsername())
-                            .password(StringUtils.isEmpty(userConfig.getOperatorPassword()) ? "" : userConfig.getOperatorPassword())
-                            .roles(ROLE_FRS_OPERATOR).build());
-                }
+            if (frsConfig.getOperator() != null && !frsConfig.getOperator().isEmpty()) {
+                frsConfig.getOperator().forEach(operator -> um.createUser(operator));
+            }
 
-                if (!StringUtils.isEmpty(userConfig.getGuestUsername())) {
-                    um.createUser(User.withUsername(userConfig.getGuestUsername())
-                            .password(StringUtils.isEmpty(userConfig.getGuestPassword()) ? "" : userConfig.getGuestPassword())
-                            .roles(ROLE_FRS_GUEST).build());
-                }
-            } else {
-                throw new InvalidConfigurationException("FileRepositoryUserConfig is missing");
+            if (frsConfig.getGuest() != null && !frsConfig.getGuest().isEmpty()) {
+                frsConfig.getGuest().forEach(guest -> um.createUser(guest));
             }
 
             auth.userDetailsService(um);
         }
-
-        @Bean
-        public FileRepositoryUserConfig getUserConfig() {
-            return new FileRepositoryUserConfig();
-        }
-    }
-
-    @Data
-    @EnableAutoConfiguration
-    static class FileRepositoryUserConfig {
-        @Value("${filerepository.users.admin.username}")
-        String adminUsername;
-
-        @Value("${filerepository.users.admin.password}")
-        String adminPassword;
-
-        @Value("${filerepository.users.guest.username}")
-        String guestUsername;
-
-        @Value("${filerepository.users.guest.password}")
-        String guestPassword;
-
-        @Value("${filerepository.users.operator.username}")
-        String operatorUsername;
-
-        @Value("${filerepository.users.operator.password}")
-        String operatorPassword;
     }
 }
