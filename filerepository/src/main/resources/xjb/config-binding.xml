@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<jxb:bindings version="1.0"
+              xmlns:jxb="http://java.sun.com/xml/ns/jaxb"
+              xmlns:xs="http://www.w3.org/2001/XMLSchema"
+              xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+              xmlns:inheritance="http://jaxb2-commons.dev.java.net/basic/inheritance"
+              jxb:extensionBindingPrefixes="xjc">
+
+    <jxb:bindings schemaLocation="../xsd/FrsConfig.xsd">
+        <jxb:bindings node="//xs:complexType[@name='FrsConfig']">
+            <inheritance:implements>alex.beta.filerepository.config.xmlbeans.IFrsConfig</inheritance:implements>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='User']">
+            <inheritance:extends>alex.beta.filerepository.config.xmlbeans.AbstractUser</inheritance:extends>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='Admin']">
+            <inheritance:extends>alex.beta.filerepository.config.xmlbeans.AbstractUser.AdminUser</inheritance:extends>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='Operator']">
+            <inheritance:extends>alex.beta.filerepository.config.xmlbeans.AbstractUser.OperatorUser</inheritance:extends>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='Guest']">
+            <inheritance:extends>alex.beta.filerepository.config.xmlbeans.AbstractUser.GuestUser</inheritance:extends>
+        </jxb:bindings>
+        <jxb:bindings node="//xs:complexType[@name='Quota']">
+            <inheritance:extends>alex.beta.filerepository.config.xmlbeans.AbstractApp</inheritance:extends>
+        </jxb:bindings>
+    </jxb:bindings>
+</jxb:bindings>

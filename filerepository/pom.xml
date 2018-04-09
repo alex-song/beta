@@ -153,6 +153,43 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>${maven-war-plugin_version}</version>
             </plugin>
+            <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
+                <version>${maven-jaxb2-plugin_version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <removeOldOutput>true</removeOldOutput>
+                    <extension>true</extension>
+                    <args>
+                        <arg>-Xinheritance</arg>
+                    </args>
+                    <bindingDirectory>src/main/resources/xjb</bindingDirectory>
+                    <bindingIncludes>
+                        <!-- This Should reference the binding files you use to configure the inheritance -->
+                        <include>**.xml</include>
+                    </bindingIncludes>
+                    <encoding>${compiler_encoding}</encoding>
+                    <schemaDirectory>src/main/resources/xsd</schemaDirectory>
+                    <schemaIncludes>
+                        <include>**.xsd</include>
+                    </schemaIncludes>
+                    <generatePackage>alex.beta.filerepository.config.xmlbeans</generatePackage>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.jvnet.jaxb2_commons</groupId>
+                            <artifactId>jaxb2-basics</artifactId>
+                            <version>${jaxb2-basics_version}</version>
+                        </plugin>
+                    </plugins>
+                </configuration>
+            </plugin>
         </plugins>
         <resources>
             <resource>

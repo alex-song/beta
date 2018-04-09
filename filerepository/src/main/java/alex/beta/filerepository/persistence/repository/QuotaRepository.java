@@ -24,7 +24,7 @@ import java.util.Set;
  */
 public interface QuotaRepository {
     /**
-     * Find quota according to given appid. Create a new one, according to QuotaConfig, if it's not found.
+     * Find quota according to given appid. Create a new one, according to FrsConfig, if it's not found.
      *
      * @param appid
      * @return

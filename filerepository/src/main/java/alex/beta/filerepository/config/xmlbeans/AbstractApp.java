@@ -1,5 +1,5 @@
 /**
- * @File: QuotaConfig.java
+ * @File: AbstractApp.java
  * @Project: beta
  * @Copyright: Copyright (c) 2018, All Rights Reserved
  * <p>
@@ -7,31 +7,33 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * </p>
- * @Date: 2018/4/3 下午8:31
+ * @Date: 2018/4/8 22:01
  * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
-package alex.beta.filerepository;
+package alex.beta.filerepository.config.xmlbeans;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @version ${project.version}
  * @Description
  */
+public abstract class AbstractApp {
+    public static final AbstractApp DEFAULT = new AbstractApp() {
+        @Override
+        public String getAppid() {
+            return "default";
+        }
 
-@Configuration
-@ConfigurationProperties(prefix = "filerepository.quota")
-public class QuotaConfig {
-    private List<Map<String, String>> max;
+        @Override
+        public String getMaxQuota() {
+            return "100MB";
+        }
+    };
 
-    //TODO UT
-    public static long parseSize(@Nonnull String size) {
+    private static long parseSize(@Nonnull String size) {
         size = StringUtils.trimAllWhitespace(size).toUpperCase();
         return size.endsWith("KB")
                 ? Long.valueOf(size.substring(0, size.length() - 2)) * 1024L
@@ -40,11 +42,11 @@ public class QuotaConfig {
                 : Long.valueOf(size));
     }
 
-    public List<Map<String, String>> getMax() {
-        return max;
-    }
+    public abstract String getAppid();
 
-    public void setMax(List<Map<String, String>> max) {
-        this.max = max;
+    public abstract String getMaxQuota();
+
+    public long getMaxQuotaValue() {
+        return parseSize(this.getMaxQuota());
     }
 }

@@ -33,19 +33,5 @@ info:
     version: @project.version@
 
 frs:
-  config: ${frs.config:'classpath:frs-config-default.properties'}
+  config: ${frs.config:'classpath:frs-config.xml'}
 
-#filerepository:
-#  users:
-#    admin:
-#      username: admin
-#      password: admin
-#    guest:
-#      username: readonly
-#      password: readonly
-#    operator:
-#      username: operator
-#      password: operator
-#  quota:
-#    max:
-#      - default: 100MB
