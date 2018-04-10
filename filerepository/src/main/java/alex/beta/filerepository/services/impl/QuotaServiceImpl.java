@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -136,6 +137,19 @@ public class QuotaServiceImpl implements QuotaService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
+    public void recalculateAllQuotas() {
+        Set<String> appidInQuota = quotaRepository.findAllAppid();
+        Set<String> appidInFileInfo = fileInfoCustomizedRepository.findAllAppid();
+        Set<String> merged = new HashSet<>();
+        merged.addAll(appidInQuota);
+        merged.addAll(appidInFileInfo);
+
+        recalculateQuota(merged.toArray(new String[]{}));
+    }
+
+    @Override
+    @Transactional
+    @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
     public List<QuotaModel> createQuota(@Nonnull Quota... quotas) {
         List<QuotaModel> qs = new ArrayList<>(quotas.length);
         for (Quota q : quotas) {
@@ -156,7 +170,7 @@ public class QuotaServiceImpl implements QuotaService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
-    public void resetAllUsedQuota() {
+    public void resetAllUsedQuotas() {
         Set<String> appidInQuota = quotaRepository.findAllAppid();
         Set<String> appidInFileInfo = fileInfoCustomizedRepository.findAllAppid();
         Set<String> merged = new HashSet<>();
@@ -190,5 +204,24 @@ public class QuotaServiceImpl implements QuotaService {
         List<QuotaModel> models = new ArrayList<>(quotas.size());
         quotas.forEach(quota -> models.add(new QuotaModel(quota)));
         return models;
+    }
+
+    @Override
+    @PreAuthorize("hasRole('" + ROLE_FRS_OPERATOR + "')")
+    public QuotaModel update(@Nonnull Quota quota) {
+        Quota q = null;
+        if (StringUtils.isEmpty(quota.getId())) {
+            Objects.requireNonNull(quota.getAppid());
+
+            q = quotaRepository.findOneByAppidIgnoreCase(quota.getAppid());
+        } else {
+            q = quotaRepository.get(quota.getId());
+        }
+        if (q != null) {
+            q.setMaxQuota(quota.getMaxQuota());
+            q.setUsedQuota(quota.getUsedQuota());
+            quotaRepository.save(q);
+        }
+        return q == null ? null : new QuotaModel(q);
     }
 }

@@ -87,4 +87,15 @@ public interface QuotaRepository {
      * @return
      */
     List<Quota> findAll();
+
+    /**
+     * @param quota
+     */
+    void save(Quota quota);
+
+    /**
+     * @param id
+     * @return
+     */
+    Quota get(String id);
 }

@@ -53,7 +53,43 @@ public class QuotaRestEndpoint {
         this.quotaService = quotaService;
     }
 
-    //TODO: update existing quota, reset all, reset one
+    @ApiOperation(value = "Update quota")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Quota is updated successfully.", response = QuotaModel.class),
+            @ApiResponse(code = 404, message = "Quota not found.")
+    })
+    @PatchMapping(value = "/quota", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity patch(
+            @ApiParam(value = "id")
+            @RequestParam(value = "id", required = false) String id,
+            @ApiParam(value = "usedQuota")
+            @RequestParam(value = "usedQuota", required = false) String usedQuota,
+            @ApiParam(value = "appid")
+            @RequestParam(value = "appid", required = false) String appid,
+            @ApiParam(value = "maxQuota")
+            @RequestParam(value = "maxQuota", required = false) String maxQuota
+    ) {
+        Quota.QuotaBuilder builder = Quota.builder();
+        if (!StringUtils.isEmpty(id)) {
+            builder.id(id);
+        }
+        if (!StringUtils.isEmpty(appid)) {
+            builder.appid(appid);
+        }
+        if (!StringUtils.isEmpty(usedQuota)) {
+            builder.maxQuota(AbstractApp.parseSize(usedQuota));
+        }
+        if (!StringUtils.isEmpty(maxQuota)) {
+            builder.maxQuota(AbstractApp.parseSize(maxQuota));
+        }
+        QuotaModel model = quotaService.update(builder.build());
+        if (model == null) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(model);
+        }
+    }
+
     @ApiOperation(value = "Get quota")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Quota is found.", response = QuotaModel.class),
@@ -103,6 +139,39 @@ public class QuotaRestEndpoint {
         } else {
             return ResponseEntity.ok(maxQuota);
         }
+    }
+
+    @ApiOperation(value = "Reset all quotas")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Reset all quotas", response = Void.class)
+    })
+    @PostMapping(value = "/quota/reset", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity resetAll() {
+        quotaService.resetAllUsedQuotas();
+        return ResponseEntity.ok().build();
+    }
+
+    @ApiOperation(value = "Reset quota")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Reset quota", response = Void.class)
+    })
+    @PostMapping(value = "/quota/{appid}/reset", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity reset(
+            @ApiParam(value = "appid", required = true)
+            @RequestParam("appid") String appid
+    ) {
+        quotaService.resetUsedQuota(appid);
+        return ResponseEntity.ok().build();
+    }
+
+    @ApiOperation(value = "Recalculate all quotas")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "Recalculate all quotas", response = Void.class)
+    })
+    @GetMapping(value = "/quota/recalculate", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity recalculate() {
+        quotaService.recalculateAllQuotas();
+        return ResponseEntity.ok().build();
     }
 
     @ApiOperation(value = "Get all quotas")
