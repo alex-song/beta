@@ -34,4 +34,7 @@ info:
 
 frs:
   configFile: ${frs.config:classpath:frs-config.xml}
+  housekeeping:
+    enabled: true
+    numOfThreads: 2
 

@@ -113,6 +113,9 @@ public class QuotaServiceImpl implements QuotaService {
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
     public void recalculateQuota(@Nonnull String... appid) {
+        if (appid.length == 0) {
+            return;
+        }
         Map<String, Long> results = quotaRepository.aggregateUsedQuotaByAppidIgnoreCase(appid);
         Map<String, Boolean> found = new HashMap<>(appid.length);
         for (String id : appid) {

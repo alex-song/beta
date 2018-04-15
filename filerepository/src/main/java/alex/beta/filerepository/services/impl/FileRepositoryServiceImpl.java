@@ -149,12 +149,14 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
-    public void deleteAppid(@Nonnull String appid) {
+    public int deleteAppid(@Nonnull String appid) {
         List<FileInfo> deletedFiles = fileInfoCustomizedRepository.deleteByAppid(appid);
+        int size = deletedFiles == null ? 0 : deletedFiles.size();
         if (logger.isDebugEnabled()) {
-            logger.debug("Deleted {} files", deletedFiles.size());
+            logger.debug("Deleted {} files", size);
         }
         quotaService.resetUsedQuota(appid);
+        return size;
     }
 
     @Override
@@ -169,13 +171,9 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
 
     @Override
     @Transactional
-    @PreAuthorize("hasRole('" + ROLE_FRS_OPERATOR + "')")
-    public FileInfoModel update(@Nonnull String fileInfoId, String description, LocalDateTime expiredDate) {
-        FileInfo fi = fileInfoCustomizedRepository.update(fileInfoId, description, expiredDate);
-        if (fi == null) {
-            return null;
-        } else {
-            return new FileInfoModel(fi);
-        }
+    @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
+    public int deleteExpiredFiles(@Nonnull String appid) {
+        List<FileInfo> files = fileInfoCustomizedRepository.findAllAndRemoveByAppidIgnoreCaseAndExpiredDateLessThan(appid, LocalDateTime.now());
+        return files == null ? 0 : files.size();
     }
 }

@@ -17,7 +17,6 @@ import alex.beta.filerepository.QuotaExceededException;
 import alex.beta.filerepository.models.FRSErrorModel;
 import alex.beta.filerepository.models.FileInfoModel;
 import alex.beta.filerepository.models.FileStoreModel;
-import alex.beta.filerepository.persistence.repository.FileInfoRepository;
 import alex.beta.filerepository.services.FileRepositoryService;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -39,7 +38,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.List;
 
 /**
  * @version ${project.version}
@@ -55,9 +53,6 @@ public class FRSRestEndpoint {
     private MessageSource messageSource;
 
     private FileRepositoryService fileRepositoryService;
-
-    @Autowired
-    private FileInfoRepository fileInfoRepository;
 
     @Autowired
     public FRSRestEndpoint(MessageSource messageSource, FileRepositoryService fileRepositoryService) {
@@ -173,22 +168,20 @@ public class FRSRestEndpoint {
         }
     }
 
+    @ApiOperation(value = "Delete all files of given appid")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "File is deleted.", response = Integer.class)
+    })
+    @DeleteMapping(value = "/repository/app/{appid}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity deleteApp(
+            @ApiParam(value = "Application id", required = true)
+            @PathVariable(value = "appid") String appid) {
+        return ResponseEntity.ok(fileRepositoryService.deleteAppid(appid));
+    }
 
     @ApiOperation(value = "test")
     @GetMapping(value = "/test", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity test() throws Exception {
-        //fileRepositoryService.add("aabbcc", "aabbcc", "", null, null, null, null);
-        //fileRepositoryService.add("AaBbCc", "aabbcc", "", null, null, null, null);
-        //fileRepositoryService.add("aabbcc", "bbc", "", null, null, null, null);
-
-        List<FileInfoModel> fims = fileRepositoryService.page("AaBbCc", "AAB", 0);
-
-        System.out.println(fims);
-
-        List<FileInfoModel> fims1 = fileRepositoryService.page("AaBbCc", "AAB", 1);
-
-        System.out.println(fims1);
-
         return ResponseEntity.ok("ok");
     }
 

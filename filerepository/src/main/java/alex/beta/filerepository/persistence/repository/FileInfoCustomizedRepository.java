@@ -38,14 +38,6 @@ public interface FileInfoCustomizedRepository {
     List<FileInfo> deleteByAppid(String appid);
 
     /**
-     * @param fileInfoId
-     * @param description
-     * @param expiredDate
-     * @return Updated file info
-     */
-    FileInfo update(String fileInfoId, String description, LocalDateTime expiredDate);
-
-    /**
      * @param appid
      * @param name
      * @param skip
@@ -53,4 +45,11 @@ public interface FileInfoCustomizedRepository {
      * @return
      */
     List<FileInfo> findByAppidAndNameIgnoreCase(String appid, String name, int skip, int limit);
+
+    /**
+     * @param appid
+     * @param dateTime
+     * @return
+     */
+    List<FileInfo> findAllAndRemoveByAppidIgnoreCaseAndExpiredDateLessThan(String appid, LocalDateTime dateTime);
 }
