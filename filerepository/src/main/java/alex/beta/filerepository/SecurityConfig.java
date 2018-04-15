@@ -20,9 +20,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
-import org.springframework.security.access.intercept.RunAsImplAuthenticationProvider;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -35,13 +34,13 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
  */
 
 @Configuration
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfig {
 
     public static final String ROLE_PREFIX = "ROLE_";
     public static final String ROLE_FRS_ADMIN = "FRS_ADMIN";
     public static final String ROLE_FRS_OPERATOR = "FRS_OPERATOR";
     public static final String ROLE_FRS_GUEST = "FRS_GUEST";
-    public static final String RUN_AS_KEY = "RUN_AS_FrsRunAsManager";
 
     @Configuration
     @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
@@ -78,14 +77,6 @@ public class SecurityConfig {
             web.ignoring().antMatchers("/info", "/health");
         }
 
-        @Bean
-        public AuthenticationProvider runAsAuthenticationProvider() {
-            RunAsImplAuthenticationProvider authProvider = new RunAsImplAuthenticationProvider();
-            authProvider.setKey(RUN_AS_KEY);
-            return authProvider;
-        }
-
-        //TODO 如果名字一样，哪个覆盖哪个？
         @Autowired
         public void configureGlobal(AuthenticationManagerBuilder auth, IFrsConfig frsConfig) throws Exception {
             InMemoryUserDetailsManager um = new InMemoryUserDetailsManager();
@@ -102,7 +93,6 @@ public class SecurityConfig {
                 frsConfig.getAdmin().forEach(admin -> um.createUser(admin));
             }
             auth.userDetailsService(um);
-            auth.authenticationProvider(runAsAuthenticationProvider());
         }
     }
 }

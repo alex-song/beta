@@ -63,9 +63,8 @@ public class FileInfoCustomizedRepositoryImpl implements FileInfoCustomizedRepos
         return mongoOperations.findAllAndRemove(query, FileInfo.class);
     }
 
-    //TODO 匹配UT, and?
     @Override
-    public List<FileInfo> findByAppidAndNameIgnoreCase(String appid, String name, int skip, int limit) {
+    public List<FileInfo> findByAppidAndNameContainsIgnoreCase(String appid, String name, int skip, int limit) {
         Query query = new Query();
         if (!StringUtils.isEmpty(appid)) {
             query.addCriteria(Criteria.where("appid").regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE)));

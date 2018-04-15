@@ -14,6 +14,7 @@ package alex.beta.filerepository;
 
 import alex.beta.filerepository.mongo.FileInfoCascadingMongoEventListener;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;
@@ -32,7 +33,7 @@ import java.security.Principal;
  */
 
 @Configuration
-@EnableAutoConfiguration
+@EnableAutoConfiguration(exclude = {EmbeddedMongoAutoConfiguration.class})
 @EnableMongoAuditing
 public class MongoConfig {
 

@@ -40,6 +40,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static alex.beta.filerepository.SecurityConfig.*;
 
@@ -94,16 +95,20 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
             fileInfo.setFileStore(fileStore.build());
         }
 
+        FileInfoModel fim = new FileInfoModel(fileInfoRepository.save(fileInfo));
         if (fileInfo.getSize() > 0) {
             quotaService.useQuota(appid, fileInfo.getSize());
         }
-        return new FileInfoModel(fileInfoRepository.save(fileInfo));
+        if (logger.isDebugEnabled()) {
+            logger.debug("Saved {}, and use {} points of {}", fim, fileInfo.getSize(), appid);
+        }
+        return fim;
     }
 
     @Override
     @PreAuthorize("hasRole('" + ROLE_FRS_GUEST + "')")
     public List<FileInfoModel> find(String appid, String name, @Min(0) int skip, @Max(1000) @Min(0) int limit) {
-        List<FileInfo> fis = fileInfoCustomizedRepository.findByAppidAndNameIgnoreCase(appid, name, skip, limit);
+        List<FileInfo> fis = fileInfoCustomizedRepository.findByAppidAndNameContainsIgnoreCase(appid, name, skip, limit);
         List<FileInfoModel> fims = new ArrayList<>(fis.size());
         fis.forEach(fileInfo -> fims.add(new FileInfoModel(fileInfo)));
         return fims;
@@ -174,6 +179,7 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
     @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
     public int deleteExpiredFiles(@Nonnull String appid) {
         List<FileInfo> files = fileInfoCustomizedRepository.findAllAndRemoveByAppidIgnoreCaseAndExpiredDateLessThan(appid, LocalDateTime.now());
+        quotaService.releaseQuota(appid, files.stream().map(FileInfo::<Integer>getSize).collect(Collectors.summingLong(l -> l)));
         return files == null ? 0 : files.size();
     }
 }

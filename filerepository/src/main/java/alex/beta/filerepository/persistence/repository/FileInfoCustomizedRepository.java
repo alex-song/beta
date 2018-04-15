@@ -44,7 +44,7 @@ public interface FileInfoCustomizedRepository {
      * @param limit
      * @return
      */
-    List<FileInfo> findByAppidAndNameIgnoreCase(String appid, String name, int skip, int limit);
+    List<FileInfo> findByAppidAndNameContainsIgnoreCase(String appid, String name, int skip, int limit);
 
     /**
      * @param appid

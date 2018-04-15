@@ -16,7 +16,6 @@ import alex.beta.filerepository.controllers.FRSRestEndpoint;
 import alex.beta.filerepository.controllers.QuotaRestEndpoint;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -43,7 +42,6 @@ import java.time.LocalDateTime;
 @Profile({"dev", "docker", "test"})
 @EnableSwagger2
 @Configuration
-@EnableAutoConfiguration
 @ComponentScan(basePackageClasses = {
         FRSRestEndpoint.class,
         QuotaRestEndpoint.class
