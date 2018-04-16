@@ -2,4 +2,5 @@
 <frs:Config xmlns:frs="http://songlp.ddns.net/frs/schema">
 	<frs:Admin username="test" password="test"/>
 	<frs:App appid="default" maxQuota="50MB"/>
+	<frs:App appid="test" maxQuota="100"/>
 </frs:Config>

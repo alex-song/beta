@@ -14,6 +14,9 @@ package alex.beta.filerepository;
 
 import alex.beta.filerepository.config.xmlbeans.FrsConfig;
 import alex.beta.filerepository.config.xmlbeans.IFrsConfig;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +43,8 @@ public class FrsConfigResolver {
 
     private static final Logger logger = LoggerFactory.getLogger(FrsConfigResolver.class);
 
+    @Setter
+    @Getter
     @Value("${frs.configFile}")
     private String frsConfigFile;
 
