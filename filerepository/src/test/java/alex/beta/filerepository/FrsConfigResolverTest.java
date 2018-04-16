@@ -18,7 +18,6 @@ import alex.beta.filerepository.config.xmlbeans.IFrsConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -27,19 +26,20 @@ import static org.junit.Assert.assertNotNull;
  * @version ${project.version}
  * @Description
  */
+public class FrsConfigResolverTest {
 
-public class FrsConfigResolverTest extends AbstractServerTest {
-
-    @Autowired
     private IFrsConfig frsConfig;
-
 
     @Before
     public void setUp() {
+        FrsConfigResolver resolver = new FrsConfigResolver();
+        resolver.setFrsConfigFile("classpath:frs-config-test.xml");
+        frsConfig = resolver.getFrsConfig();
     }
 
     @After
     public void tearDown() {
+        frsConfig = null;
     }
 
     @Test
@@ -49,7 +49,7 @@ public class FrsConfigResolverTest extends AbstractServerTest {
         assertEquals(1, frsConfig.getAdmin().size());
         assertEquals(0, frsConfig.getGuest().size());
         assertEquals(0, frsConfig.getOperator().size());
-        assertEquals(1, frsConfig.getApp().size());
+        assertEquals(2, frsConfig.getApp().size());
 
         AbstractUser admin = frsConfig.getAdmin().get(0);
         assertEquals("test", admin.getUsername());
@@ -58,6 +58,5 @@ public class FrsConfigResolverTest extends AbstractServerTest {
         AbstractApp app = frsConfig.getApp().get(0);
         assertEquals("default", app.getAppid());
         assertEquals(50 * 1024L * 1024L, app.getMaxQuotaValue());
-
     }
 }

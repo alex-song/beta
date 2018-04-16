@@ -12,33 +12,64 @@
  */
 package alex.beta.filerepository.services.impl;
 
+import alex.beta.filerepository.models.FileInfoModel;
+import alex.beta.filerepository.persistence.entity.FileInfo;
 import alex.beta.filerepository.persistence.repository.FileInfoCustomizedRepository;
 import alex.beta.filerepository.persistence.repository.FileInfoRepository;
 import alex.beta.filerepository.services.QuotaService;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Matchers;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.time.LocalDateTime;
 
 import static org.mockito.Mockito.doReturn;
+import static org.junit.Assert.*;
 
 /**
  * @Description
  * @version ${project.version}
  */
+@RunWith(MockitoJUnitRunner.class)
 public class FileRepositoryServiceImplTest {
 
-    @MockBean
+    @Mock
     private FileInfoRepository fileInfoRepository;
 
-    @MockBean
+    @Mock
     private FileInfoCustomizedRepository fileInfoCustomizedRepository;
 
-    @MockBean
+    @Mock
     private QuotaService quotaService;
 
+    @InjectMocks
+    private FileRepositoryServiceImpl fileRepositoryService;
+
+    @Before
+    public void setUp() {
+        // Use RunWith annotation or initMocks in setUp
+        // MockitoAnnotations.initMocks(this);
+    }
+
+    @After
+    public void tearDown() {
+    }
+
     @Test
-    public void testAdd() {
-        //TODO
-        //doReturn(output).when(apiConnector).translate(Matchers.any(TranslationEntity.class));
+    public void testAdd() throws Exception {
+        String name = "test" + System.currentTimeMillis();
+        LocalDateTime dt = LocalDateTime.now();
+
+        FileInfo savedFileInfo = FileInfo.builder().appid("test").name(name).id("1").createDate(dt).lastModifiedDate(dt).build();
+        doReturn(savedFileInfo).when(fileInfoRepository).save(Matchers.any(FileInfo.class));
+
+        FileInfoModel fim = fileRepositoryService.add("test", name, null, null, null, null, null);
+        assertEquals("1", fim.getId());
     }
 }
