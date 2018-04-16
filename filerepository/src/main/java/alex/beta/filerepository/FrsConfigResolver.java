@@ -14,7 +14,6 @@ package alex.beta.filerepository;
 
 import alex.beta.filerepository.config.xmlbeans.FrsConfig;
 import alex.beta.filerepository.config.xmlbeans.IFrsConfig;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
@@ -49,7 +48,7 @@ public class FrsConfigResolver {
     private String frsConfigFile;
 
     @Bean("frsConfig")
-    public IFrsConfig getFrsConfig() throws InvalidConfigurationException {
+    public IFrsConfig getFrsConfig() {
         Objects.requireNonNull(frsConfigFile);
         try {
             if (logger.isInfoEnabled()) {

@@ -181,7 +181,7 @@ public class FRSRestEndpoint {
 
     @ApiOperation(value = "test")
     @GetMapping(value = "/test", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity test() throws Exception {
+    public ResponseEntity test() {
         return ResponseEntity.ok("ok");
     }
 

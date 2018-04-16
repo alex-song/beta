@@ -13,8 +13,6 @@
 package alex.beta.filerepository.persistence.repository;
 
 import alex.beta.filerepository.persistence.entity.FileInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
@@ -38,7 +36,7 @@ import java.util.regex.Pattern;
 @Repository
 public class FileInfoCustomizedRepositoryImpl implements FileInfoCustomizedRepository {
 
-    private static final Logger logger = LoggerFactory.getLogger(FileInfoCustomizedRepositoryImpl.class);
+    private static final String APPID_FIELD_NAME = "appid";
 
     private MongoOperations mongoOperations;
 
@@ -49,7 +47,7 @@ public class FileInfoCustomizedRepositoryImpl implements FileInfoCustomizedRepos
 
     @Override
     public Set<String> findAllAppid() {
-        List dbresult = mongoOperations.getCollection("FileInfo").distinct("appid");
+        List dbresult = mongoOperations.getCollection("FileInfo").distinct(APPID_FIELD_NAME);
         Set<String> result = new HashSet<>(dbresult.size());
         for (Object obj : dbresult) {
             result.add(obj.toString().toLowerCase());
@@ -59,7 +57,7 @@ public class FileInfoCustomizedRepositoryImpl implements FileInfoCustomizedRepos
 
     @Override
     public List<FileInfo> deleteByAppid(@Nonnull String appid) {
-        Query query = new Query(Criteria.where("appid").regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE)));
+        Query query = new Query(Criteria.where(APPID_FIELD_NAME).regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE)));
         return mongoOperations.findAllAndRemove(query, FileInfo.class);
     }
 
@@ -67,7 +65,7 @@ public class FileInfoCustomizedRepositoryImpl implements FileInfoCustomizedRepos
     public List<FileInfo> findByAppidAndNameContainsIgnoreCase(String appid, String name, int skip, int limit) {
         Query query = new Query();
         if (!StringUtils.isEmpty(appid)) {
-            query.addCriteria(Criteria.where("appid").regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE)));
+            query.addCriteria(Criteria.where(APPID_FIELD_NAME).regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE)));
         }
         if (!StringUtils.isEmpty(name)) {
             // 模糊匹配
@@ -81,7 +79,7 @@ public class FileInfoCustomizedRepositoryImpl implements FileInfoCustomizedRepos
 
     @Override
     public List<FileInfo> findAllAndRemoveByAppidIgnoreCaseAndExpiredDateLessThan(@Nonnull String appid, @Nonnull LocalDateTime dateTime) {
-        Criteria appidC = Criteria.where("appid").regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE));
+        Criteria appidC = Criteria.where(APPID_FIELD_NAME).regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE));
         Criteria expiredC = Criteria.where("expiredDate").lt(dateTime);
 
         Query query = new Query(new Criteria().andOperator(appidC, expiredC));

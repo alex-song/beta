@@ -21,16 +21,16 @@ import lombok.Getter;
 public class QuotaExceededException extends Exception {
 
     @Getter
-    private String appid;
+    private final String appid;
 
     @Getter
-    private long points;
+    private final long points;
 
     @Getter
-    private long used;
+    private final long used;
 
     @Getter
-    private long max;
+    private final long max;
 
     public QuotaExceededException(String appid, long points, long used, long max) {
         super("Quota of file repository \'" + appid + "\' is " + max + ", and it's been used " + used

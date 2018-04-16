@@ -41,6 +41,8 @@ import java.util.stream.Collectors;
 public class FileInfoCascadingMongoEventListener extends AbstractMongoEventListener<FileInfo> {
     private static Logger logger = LoggerFactory.getLogger(FileInfoCascadingMongoEventListener.class);
 
+    private static final String FILESTORE_FIELD_NAME = "fileStore";
+
     @Autowired
     private MongoOperations mongoOperations;
 
@@ -49,7 +51,7 @@ public class FileInfoCascadingMongoEventListener extends AbstractMongoEventListe
         final FileInfo source = event.getSource();
         ReflectionUtils.doWithFields(FileInfo.class, field -> {
             ReflectionUtils.makeAccessible(field);
-            if ("fileStore".equalsIgnoreCase(field.getName())
+            if (FILESTORE_FIELD_NAME.equalsIgnoreCase(field.getName())
                     && field.isAnnotationPresent(DBRef.class)
                     && field.isAnnotationPresent(Cascade.class)) {
                 final FileStore fileStore = (FileStore) field.get(source);
@@ -74,7 +76,7 @@ public class FileInfoCascadingMongoEventListener extends AbstractMongoEventListe
         final FileInfo source = event.getSource();
         ReflectionUtils.doWithFields(FileInfo.class, field -> {
             ReflectionUtils.makeAccessible(field);
-            if ("fileStore".equalsIgnoreCase(field.getName())
+            if (FILESTORE_FIELD_NAME.equalsIgnoreCase(field.getName())
                     && field.isAnnotationPresent(DBRef.class)
                     && field.isAnnotationPresent(Cascade.class)) {
                 FileStore fileStore = (FileStore) field.get(source);
@@ -97,7 +99,7 @@ public class FileInfoCascadingMongoEventListener extends AbstractMongoEventListe
         if (infoId != null) {
             ReflectionUtils.doWithFields(FileInfo.class, field -> {
                 ReflectionUtils.makeAccessible(field);
-                if ("fileStore".equalsIgnoreCase(field.getName())
+                if (FILESTORE_FIELD_NAME.equalsIgnoreCase(field.getName())
                         && field.isAnnotationPresent(DBRef.class)
                         && field.isAnnotationPresent(Cascade.class)
                         && field.getDeclaredAnnotation(Cascade.class).delete()) {
@@ -118,7 +120,7 @@ public class FileInfoCascadingMongoEventListener extends AbstractMongoEventListe
         private boolean idFound;
 
         @Override
-        public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
+        public void doWith(Field field) throws IllegalAccessException {
             ReflectionUtils.makeAccessible(field);
 
             if (field.isAnnotationPresent(Id.class)) {

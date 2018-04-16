@@ -64,7 +64,7 @@ public class HousekeepingConfig implements SchedulingConfigurer {
         context.setAuthentication(new UsernamePasswordAuthenticationToken(
                 "housekeeping",
                 "",
-                Arrays.asList(new GrantedAuthority[]{(GrantedAuthority) () -> ROLE_PREFIX + ROLE_FRS_ADMIN})
+                Arrays.asList((GrantedAuthority) () -> ROLE_PREFIX + ROLE_FRS_ADMIN)
         ));
         return context;
     }
