@@ -12,12 +12,13 @@
  */
 package alex.beta.filerepository.config.xmlbeans;
 
-import alex.beta.filerepository.SecurityConfig;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Arrays;
 import java.util.Collection;
+
+import static alex.beta.filerepository.SecurityConfig.*;
 
 /**
  * @version ${project.version}
@@ -48,21 +49,21 @@ public abstract class AbstractUser implements UserDetails {
     public static abstract class AdminUser extends User {
         @Override
         public Collection<GrantedAuthority> getAuthorities() {
-            return Arrays.asList(new GrantedAuthority[]{(GrantedAuthority) () -> SecurityConfig.ROLE_FRS_ADMIN});
+            return Arrays.asList(new GrantedAuthority[]{(GrantedAuthority) () -> ROLE_PREFIX + ROLE_FRS_ADMIN});
         }
     }
 
     public static abstract class OperatorUser extends User {
         @Override
         public Collection<GrantedAuthority> getAuthorities() {
-            return Arrays.asList(new GrantedAuthority[]{(GrantedAuthority) () -> SecurityConfig.ROLE_FRS_OPERATOR});
+            return Arrays.asList(new GrantedAuthority[]{(GrantedAuthority) () -> ROLE_PREFIX + ROLE_FRS_OPERATOR});
         }
     }
 
     public static abstract class GuestUser extends User {
         @Override
         public Collection<GrantedAuthority> getAuthorities() {
-            return Arrays.asList(new GrantedAuthority[]{(GrantedAuthority) () -> SecurityConfig.ROLE_FRS_GUEST});
+            return Arrays.asList(new GrantedAuthority[]{(GrantedAuthority) () -> ROLE_PREFIX + ROLE_FRS_GUEST});
         }
     }
 }

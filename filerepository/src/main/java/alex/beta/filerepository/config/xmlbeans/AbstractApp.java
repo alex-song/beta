@@ -33,7 +33,7 @@ public abstract class AbstractApp {
         }
     };
 
-    private static long parseSize(@Nonnull String size) {
+    public static long parseSize(@Nonnull String size) {
         size = StringUtils.trimAllWhitespace(size).toUpperCase();
         return size.endsWith("KB")
                 ? Long.valueOf(size.substring(0, size.length() - 2)) * 1024L

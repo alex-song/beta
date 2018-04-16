@@ -67,10 +67,15 @@ public interface QuotaService {
     void recalculateQuota(String... appid);
 
     /**
+     *
+     */
+    void recalculateAllQuotas();
+
+    /**
      * @param quotas
      * @return Newly created quota or existing quota, according to given quotas
      */
-    List<Quota> createQuota(Quota... quotas);
+    List<QuotaModel> createQuota(Quota... quotas);
 
     /**
      * Reset used quota of given quota appid
@@ -82,7 +87,7 @@ public interface QuotaService {
     /**
      * Reset used quota of all appid in Quota and FileInfo
      */
-    void resetAllUsedQuota();
+    void resetAllUsedQuotas();
 
     /**
      * @param appid
@@ -91,8 +96,15 @@ public interface QuotaService {
     QuotaModel findByAppidIgnoreCase(String appid);
 
     /**
-     *
      * @return
      */
     List<QuotaModel> findAll();
+
+    /**
+     * Find by id, if it presents, otherwise find by appid.
+     *
+     * @param quota
+     * @return updated quota. Null if, it's not found
+     */
+    QuotaModel update(Quota quota);
 }

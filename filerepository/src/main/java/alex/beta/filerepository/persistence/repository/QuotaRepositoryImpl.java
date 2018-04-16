@@ -180,6 +180,16 @@ public class QuotaRepositoryImpl implements QuotaRepository {
         return mongoOperations.findAll(Quota.class);
     }
 
+    @Override
+    public Quota get(String id) {
+        return mongoOperations.findById(id, Quota.class);
+    }
+
+    @Override
+    public void save(Quota quota) {
+        mongoOperations.save(quota);
+    }
+
     private synchronized boolean initializeQuota(@Nonnull String appid) {
         try {
             Quota q = Quota.builder().appid(appid).usedQuota(0L).maxQuota(getDefaultMaxQuota(appid)).build();

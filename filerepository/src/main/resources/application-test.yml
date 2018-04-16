@@ -12,8 +12,12 @@ spring:
     mongodb:
       authentication-database: frs
       database: frs
-      host: songlp.ddns.net
+      host: localhost
       username: frs
       password: frs
       repositories:
         enabled: true
+
+frs:
+  housekeeping:
+    enabled: false

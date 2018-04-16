@@ -85,8 +85,9 @@ public interface FileRepositoryService {
      * Delete all files of appid, and release the quota
      *
      * @param appid
+     * @return number of files that has been deleted
      */
-    void deleteAppid(String appid);
+    int deleteAppid(String appid);
 
     /**
      * @param fileInfoId
@@ -95,10 +96,10 @@ public interface FileRepositoryService {
     FileStoreModel getFile(String fileInfoId);
 
     /**
-     * @param fileInfoId
-     * @param description
-     * @param expiredDate
-     * @return
+     * Delete expied files of appid
+     *
+     * @param appid
+     * @return number of diles deleted
      */
-    FileInfoModel update(String fileInfoId, String description, LocalDateTime expiredDate);
+    int deleteExpiredFiles(String appid);
 }

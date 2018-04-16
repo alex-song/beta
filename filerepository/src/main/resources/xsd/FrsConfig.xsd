@@ -12,6 +12,8 @@
             <xs:element name="Guest" type="frs:Guest" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="App" type="frs:Quota" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
+        <xs:attribute name="recalculateQuotas" type="xs:boolean" use="optional" default="true"/>
+        <xs:attribute name="deleteExpiredFiles" type="xs:boolean" use="optional" default="true"/>
     </xs:complexType>
     <xs:complexType name="User" abstract="true">
         <xs:attribute name="username" type="xs:string" use="required"/>

@@ -15,12 +15,11 @@ package alex.beta.filerepository.persistence.repository;
 import alex.beta.filerepository.persistence.entity.FileInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
@@ -43,6 +42,7 @@ public class FileInfoCustomizedRepositoryImpl implements FileInfoCustomizedRepos
 
     private MongoOperations mongoOperations;
 
+    @Autowired
     public FileInfoCustomizedRepositoryImpl(MongoOperations mongoOperations) {
         this.mongoOperations = mongoOperations;
     }
@@ -63,19 +63,8 @@ public class FileInfoCustomizedRepositoryImpl implements FileInfoCustomizedRepos
         return mongoOperations.findAllAndRemove(query, FileInfo.class);
     }
 
-    //TODO 是叫id吗？
     @Override
-    public FileInfo update(@Nonnull String fileInfoId, String description, LocalDateTime expiredDate) {
-        return mongoOperations.findAndModify(
-                new Query(Criteria.where("id").is(fileInfoId)),
-                new Update().set("description", description).set("expiredDate", expiredDate),
-                new FindAndModifyOptions().returnNew(true),
-                FileInfo.class);
-    }
-
-    //TODO 匹配UT
-    @Override
-    public List<FileInfo> findByAppidAndNameIgnoreCase(String appid, String name, int skip, int limit) {
+    public List<FileInfo> findByAppidAndNameContainsIgnoreCase(String appid, String name, int skip, int limit) {
         Query query = new Query();
         if (!StringUtils.isEmpty(appid)) {
             query.addCriteria(Criteria.where("appid").regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE)));
@@ -88,5 +77,14 @@ public class FileInfoCustomizedRepositoryImpl implements FileInfoCustomizedRepos
         query.skip(skip);
         query.limit(Math.min(1000, limit));
         return mongoOperations.find(query, FileInfo.class);
+    }
+
+    @Override
+    public List<FileInfo> findAllAndRemoveByAppidIgnoreCaseAndExpiredDateLessThan(@Nonnull String appid, @Nonnull LocalDateTime dateTime) {
+        Criteria appidC = Criteria.where("appid").regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE));
+        Criteria expiredC = Criteria.where("expiredDate").lt(dateTime);
+
+        Query query = new Query(new Criteria().andOperator(appidC, expiredC));
+        return mongoOperations.findAllAndRemove(query, FileInfo.class);
     }
 }

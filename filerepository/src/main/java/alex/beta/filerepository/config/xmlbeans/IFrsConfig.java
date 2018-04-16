@@ -15,8 +15,8 @@ package alex.beta.filerepository.config.xmlbeans;
 import java.util.List;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 public interface IFrsConfig {
     List<? extends AbstractUser.AdminUser> getAdmin();
@@ -26,4 +26,8 @@ public interface IFrsConfig {
     List<? extends AbstractUser.GuestUser> getGuest();
 
     List<? extends AbstractApp> getApp();
+
+    boolean isDeleteExpiredFiles();
+
+    boolean isRecalculateQuotas();
 }
