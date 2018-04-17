@@ -12,32 +12,41 @@
  */
 package alex.beta.filerepository.services.impl;
 
+import alex.beta.filerepository.ContentValidationException;
+import alex.beta.filerepository.QuotaExceededException;
 import alex.beta.filerepository.models.FileInfoModel;
 import alex.beta.filerepository.persistence.entity.FileInfo;
+import alex.beta.filerepository.persistence.entity.FileStore;
 import alex.beta.filerepository.persistence.repository.FileInfoCustomizedRepository;
 import alex.beta.filerepository.persistence.repository.FileInfoRepository;
 import alex.beta.filerepository.services.QuotaService;
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatcher;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.doReturn;
-import static org.junit.Assert.*;
+import static org.mockito.Mockito.doThrow;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 @RunWith(MockitoJUnitRunner.class)
 public class FileRepositoryServiceImplTest {
+    private static final String APPID = "FileRepositoryServiceImplTest";
 
     @Mock
     private FileInfoRepository fileInfoRepository;
@@ -63,13 +72,82 @@ public class FileRepositoryServiceImplTest {
 
     @Test
     public void testAdd() throws Exception {
-        String name = "test" + System.currentTimeMillis();
+        final String name = APPID + System.currentTimeMillis();
         LocalDateTime dt = LocalDateTime.now();
 
-        FileInfo savedFileInfo = FileInfo.builder().appid("test").name(name).id("1").createDate(dt).lastModifiedDate(dt).build();
-        doReturn(savedFileInfo).when(fileInfoRepository).save(Matchers.any(FileInfo.class));
+        Resource res = new PathMatchingResourcePatternResolver().getResource("classpath:FileRepositoryServiceImplTest_10.txt");
+        byte[] content = IOUtils.toByteArray(res.getInputStream());
 
-        FileInfoModel fim = fileRepositoryService.add("test", name, null, null, null, null, null);
+        FileStore savedFileStore = FileStore.builder().content(content).infoId("1").id("a").build();
+        FileInfo savedFileInfo = FileInfo.builder().appid(APPID).name(name).id("1").createDate(dt).lastModifiedDate(dt).fileStore(savedFileStore).size(10).build();
+        doReturn(savedFileInfo).when(fileInfoRepository).save(Matchers.argThat(new FileInfoMatcher(APPID, name)));
+
+        FileInfoModel fim = fileRepositoryService.add(APPID, name, null, null, null, null, content);
         assertEquals("1", fim.getId());
+        assertEquals(10, fim.getSize());
     }
+
+    @Test(expected = ContentValidationException.class)
+    public void testAddThrowsContentValidationException() throws Exception {
+        final String name = APPID + System.currentTimeMillis();
+        LocalDateTime dt = LocalDateTime.now();
+
+        Resource res = new PathMatchingResourcePatternResolver().getResource("classpath:FileRepositoryServiceImplTest_10.txt");
+        byte[] content = IOUtils.toByteArray(res.getInputStream());
+
+        fileRepositoryService.add(APPID, name, null, null, null, "1234", content);
+    }
+
+    @Test(expected = QuotaExceededException.class)
+    public void testAddThrowsQuotaExceededException() throws Exception {
+        final String name = APPID + System.currentTimeMillis();
+        LocalDateTime dt = LocalDateTime.now();
+
+        Resource res = new PathMatchingResourcePatternResolver().getResource("classpath:FileRepositoryServiceImplTest_10.txt");
+        byte[] content = IOUtils.toByteArray(res.getInputStream());
+
+        FileStore savedFileStore = FileStore.builder().content(content).infoId("2").id("a").build();
+        FileInfo savedFileInfo = FileInfo.builder().appid(APPID).name(name).id("2").createDate(dt).lastModifiedDate(dt).fileStore(savedFileStore).size(10).build();
+        doReturn(savedFileInfo).when(fileInfoRepository).save(Matchers.argThat(new FileInfoMatcher(APPID, name)));
+
+        doThrow(new QuotaExceededException(APPID, 10, 100, 100)).when(quotaService).useQuota(APPID, 10);
+
+        fileRepositoryService.add(APPID, name, null, null, null, null, content);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testDeleteExpiredFiles() throws Exception {
+        final String name = APPID + System.currentTimeMillis();
+        LocalDateTime dt = LocalDateTime.now();
+
+        FileInfo fi3 = FileInfo.builder().size(10).id("3").name(name + "3").appid(APPID).build();
+        FileInfo fi4 = FileInfo.builder().size(100).id("4").name(name + "4").appid(APPID).build();
+
+        doReturn(Arrays.asList(fi3, fi4)).when(fileInfoCustomizedRepository).findAllAndRemoveByAppidIgnoreCaseAndExpiredDateLessThan(APPID, dt);
+        doThrow(new UnsupportedOperationException()).when(quotaService).releaseQuota(APPID, 110);
+        fileRepositoryService.deleteExpiredFiles(APPID, dt);
+
+    }
+
+    class FileInfoMatcher extends ArgumentMatcher<FileInfo> {
+        private String appid;
+
+        private String name;
+
+        FileInfoMatcher(String appid, String name) {
+            this.appid = appid;
+            this.name = name;
+        }
+
+        @Override
+        public boolean matches(Object obj) {
+            if (obj != null && obj instanceof FileInfo) {
+                FileInfo info = (FileInfo) obj;
+                return appid.equals(info.getAppid()) && name.equals(info.getName());
+            } else {
+                return false;
+            }
+        }
+    }
+
 }

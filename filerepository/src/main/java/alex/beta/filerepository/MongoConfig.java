@@ -101,7 +101,7 @@ public class MongoConfig {
         }
 
         @Override
-        public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
+        public void doWith(Field field) throws IllegalAccessException {
             // 接受最上层的
             if (value == null) {
                 value = (String) field.get(source);

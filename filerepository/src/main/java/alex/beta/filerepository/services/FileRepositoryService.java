@@ -99,7 +99,8 @@ public interface FileRepositoryService {
      * Delete expied files of appid
      *
      * @param appid
+     * @param time  user LocalDateTime.now, if it's null
      * @return number of diles deleted
      */
-    int deleteExpiredFiles(String appid);
+    int deleteExpiredFiles(String appid, LocalDateTime time);
 }

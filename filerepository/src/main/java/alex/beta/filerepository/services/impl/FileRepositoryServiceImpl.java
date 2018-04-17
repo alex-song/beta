@@ -40,7 +40,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static alex.beta.filerepository.SecurityConfig.*;
 
@@ -177,9 +176,9 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
     @Override
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
-    public int deleteExpiredFiles(@Nonnull String appid) {
-        List<FileInfo> files = fileInfoCustomizedRepository.findAllAndRemoveByAppidIgnoreCaseAndExpiredDateLessThan(appid, LocalDateTime.now());
-        quotaService.releaseQuota(appid, files.stream().map(FileInfo::<Integer>getSize).collect(Collectors.summingLong(l -> l)));
-        return files == null ? 0 : files.size();
+    public int deleteExpiredFiles(@Nonnull String appid, LocalDateTime time) {
+        List<FileInfo> files = fileInfoCustomizedRepository.findAllAndRemoveByAppidIgnoreCaseAndExpiredDateLessThan(appid, time == null ? LocalDateTime.now() : time);
+        quotaService.releaseQuota(appid, files.stream().mapToLong(FileInfo::<Integer>getSize).sum());
+        return files.size();
     }
 }

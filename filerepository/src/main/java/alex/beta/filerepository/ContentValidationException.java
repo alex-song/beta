@@ -23,10 +23,10 @@ import javax.annotation.Nonnull;
 public class ContentValidationException extends Exception {
 
     @Getter
-    private String expected;
+    private final String expected;
 
     @Getter
-    private String actual;
+    private final String actual;
 
     public ContentValidationException(@Nonnull String expected, @Nonnull String actual) {
         super("File content MD5 validation is failed. Expected value is \'" + expected + "\', but actual value is \'" + actual + "\'.");

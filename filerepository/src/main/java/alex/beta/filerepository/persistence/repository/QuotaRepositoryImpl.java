@@ -47,6 +47,12 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.matc
 @Repository
 public class QuotaRepositoryImpl implements QuotaRepository {
 
+    private static final String APPID_FIELD_NAME = "appid";
+
+    private static final String USEDQUOTA_FIELD_NAME = "usedQuota";
+
+    private static final String QUOTA_COLLECTION_NAME = "Quota";
+
     private static final Logger logger = LoggerFactory.getLogger(QuotaRepositoryImpl.class);
 
     private MongoOperations mongoOperations;
@@ -101,8 +107,8 @@ public class QuotaRepositoryImpl implements QuotaRepository {
     @Override
     public Quota findAndIncreaseUsedQuotaByAppidIgnoreCase(@Nonnull String appid, long points) {
         return mongoOperations.findAndModify(
-                new Query(Criteria.where("appid").regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE))),
-                new Update().inc("usedQuota", points),
+                new Query(Criteria.where(APPID_FIELD_NAME).regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE))),
+                new Update().inc(USEDQUOTA_FIELD_NAME, points),
                 new FindAndModifyOptions().returnNew(true),
                 Quota.class);
     }
@@ -110,7 +116,7 @@ public class QuotaRepositoryImpl implements QuotaRepository {
     @Override
     public Quota findAndModifyMaxQuotaByAppidIgnoreCase(@Nonnull String appid, long points) {
         return mongoOperations.findAndModify(
-                new Query(Criteria.where("appid").regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE))),
+                new Query(Criteria.where(APPID_FIELD_NAME).regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE))),
                 new Update().set("maxQuota", points),
                 new FindAndModifyOptions().returnNew(true),
                 Quota.class);
@@ -119,15 +125,15 @@ public class QuotaRepositoryImpl implements QuotaRepository {
     @Override
     public Quota findOneByAppidIgnoreCase(@Nonnull String appid) {
         return mongoOperations.findOne(
-                new Query(Criteria.where("appid").regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE))),
+                new Query(Criteria.where(APPID_FIELD_NAME).regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE))),
                 Quota.class);
     }
 
     @Override
     public Quota findAndModifyUsedQuotaByAppidIgnoreCase(String appid, long points) {
         return mongoOperations.findAndModify(
-                new Query(Criteria.where("appid").regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE))),
-                new Update().set("usedQuota", points),
+                new Query(Criteria.where(APPID_FIELD_NAME).regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE))),
+                new Update().set(USEDQUOTA_FIELD_NAME, points),
                 new FindAndModifyOptions().returnNew(true),
                 Quota.class);
     }
@@ -138,20 +144,20 @@ public class QuotaRepositoryImpl implements QuotaRepository {
         List<Criteria> cs = new ArrayList<>(appid.length);
         for (String id : appid) {
             if (!StringUtils.isEmpty(id)) {
-                cs.add(Criteria.where("appid").regex(Pattern.compile(id, Pattern.CASE_INSENSITIVE)));
+                cs.add(Criteria.where(APPID_FIELD_NAME).regex(Pattern.compile(id, Pattern.CASE_INSENSITIVE)));
             }
         }
 
         TypedAggregation<FileInfo> aggregation = TypedAggregation.newAggregation(
                 FileInfo.class,
                 match(new Criteria().orOperator(cs.toArray(new Criteria[]{}))),
-                group("appid").sum("size").as("usedQuota"));
+                group(APPID_FIELD_NAME).sum("size").as(USEDQUOTA_FIELD_NAME));
 
         List<BasicDBObject> dbresults = mongoOperations.aggregate(aggregation, BasicDBObject.class).getMappedResults();
 
         for (BasicDBObject dbresult : dbresults) {
             String id = dbresult.getString("_id");
-            long uq = dbresult.getLong("usedQuota");
+            long uq = dbresult.getLong(USEDQUOTA_FIELD_NAME);
             if (logger.isDebugEnabled()) {
                 logger.debug("UsedQuota of {} is {}", id, uq);
             }
@@ -167,7 +173,7 @@ public class QuotaRepositoryImpl implements QuotaRepository {
 
     @Override
     public Set<String> findAllAppid() {
-        List dbresult = mongoOperations.getCollection("Quota").distinct("appid");
+        List dbresult = mongoOperations.getCollection(QUOTA_COLLECTION_NAME).distinct(APPID_FIELD_NAME);
         Set<String> result = new HashSet<>(dbresult.size());
         for (Object obj : dbresult) {
             result.add(obj.toString().toLowerCase());
@@ -193,7 +199,7 @@ public class QuotaRepositoryImpl implements QuotaRepository {
     private synchronized boolean initializeQuota(@Nonnull String appid) {
         try {
             Quota q = Quota.builder().appid(appid).usedQuota(0L).maxQuota(getDefaultMaxQuota(appid)).build();
-            mongoOperations.insert(q, "Quota");
+            mongoOperations.insert(q, QUOTA_COLLECTION_NAME);
             return true;
         } catch (DuplicateKeyException ex) {
             logger.info("Quota of {} already exists", appid);
@@ -206,7 +212,7 @@ public class QuotaRepositoryImpl implements QuotaRepository {
             Quota q = Quota.builder().appid(quota.getAppid())
                     .usedQuota(quota.getUsedQuota())
                     .maxQuota(quota.getMaxQuota() <= 0 ? getDefaultMaxQuota(quota.getAppid()) : quota.getMaxQuota()).build();
-            mongoOperations.insert(q, "Quota");
+            mongoOperations.insert(q, QUOTA_COLLECTION_NAME);
             return true;
         } catch (DuplicateKeyException ex) {
             logger.info("Quota of {} already exists", quota.getAppid());

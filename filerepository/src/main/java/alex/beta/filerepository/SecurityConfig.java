@@ -81,17 +81,18 @@ public class SecurityConfig {
         public void configureGlobal(AuthenticationManagerBuilder auth, IFrsConfig frsConfig) throws Exception {
             InMemoryUserDetailsManager um = new InMemoryUserDetailsManager();
 
-            if (frsConfig.getGuest() != null && !frsConfig.getGuest().isEmpty()) {
-                frsConfig.getGuest().forEach(guest -> um.createUser(guest));
+            if (frsConfig.getAdmin() != null && !frsConfig.getAdmin().isEmpty()) {
+                frsConfig.getAdmin().forEach(um::createUser);
             }
 
             if (frsConfig.getOperator() != null && !frsConfig.getOperator().isEmpty()) {
-                frsConfig.getOperator().forEach(operator -> um.createUser(operator));
+                frsConfig.getOperator().forEach(um::createUser);
             }
 
-            if (frsConfig.getAdmin() != null && !frsConfig.getAdmin().isEmpty()) {
-                frsConfig.getAdmin().forEach(admin -> um.createUser(admin));
+            if (frsConfig.getGuest() != null && !frsConfig.getGuest().isEmpty()) {
+                frsConfig.getGuest().forEach(um::createUser);
             }
+
             auth.userDetailsService(um);
         }
     }

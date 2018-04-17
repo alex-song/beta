@@ -78,7 +78,6 @@ public class QuotaServiceImpl implements QuotaService {
         if (quotaRepository.findAndIncreaseUsedQuotaByAppidIgnoreCase(appid, -1 * points) == null
                 && logger.isInfoEnabled()) {
             logger.info("Quota of {} doesn't exist", appid);
-
         }
     }
 
@@ -125,14 +124,14 @@ public class QuotaServiceImpl implements QuotaService {
             found.put(s.toLowerCase(), Boolean.TRUE);
         }
 
-        for (String id : found.keySet()) {
-            if (found.get(id)) {
-                quotaRepository.findAndModifyUsedQuotaByAppidIgnoreCase(id, results.get(id));
+        for (Map.Entry<String, Boolean> entry : found.entrySet()) {
+            if (entry.getValue()) {
+                quotaRepository.findAndModifyUsedQuotaByAppidIgnoreCase(entry.getKey(), results.get(entry.getKey()));
             } else {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("No file of {} is found", id);
+                    logger.debug("No file of {} is found", entry.getKey());
                 }
-                quotaRepository.findAndModifyUsedQuotaByAppidIgnoreCase(id, 0L);
+                quotaRepository.findAndModifyUsedQuotaByAppidIgnoreCase(entry.getKey(), 0L);
             }
         }
     }
@@ -198,8 +197,8 @@ public class QuotaServiceImpl implements QuotaService {
     @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
     public List<QuotaModel> findAll() {
         List<Quota> quotas = quotaRepository.findAll();
-        if (quotas == null) {
-            return null;
+        if (quotas == null || quotas.isEmpty()) {
+            return Collections.emptyList();
         }
         if (logger.isDebugEnabled()) {
             logger.debug("There are {} quotas", quotas.size());
@@ -212,7 +211,7 @@ public class QuotaServiceImpl implements QuotaService {
     @Override
     @PreAuthorize("hasRole('" + ROLE_FRS_OPERATOR + "')")
     public QuotaModel update(@Nonnull Quota quota) {
-        Quota q = null;
+        Quota q;
         if (StringUtils.isEmpty(quota.getId())) {
             Objects.requireNonNull(quota.getAppid());
 

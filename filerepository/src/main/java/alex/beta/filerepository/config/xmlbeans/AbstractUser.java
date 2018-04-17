@@ -46,24 +46,24 @@ public abstract class AbstractUser implements UserDetails {
         return true;
     }
 
-    public static abstract class AdminUser extends User {
+    public abstract static class AdminUser extends User {
         @Override
         public Collection<GrantedAuthority> getAuthorities() {
-            return Arrays.asList(new GrantedAuthority[]{(GrantedAuthority) () -> ROLE_PREFIX + ROLE_FRS_ADMIN});
+            return Arrays.asList((GrantedAuthority) () -> ROLE_PREFIX + ROLE_FRS_ADMIN);
         }
     }
 
-    public static abstract class OperatorUser extends User {
+    public abstract static class OperatorUser extends User {
         @Override
         public Collection<GrantedAuthority> getAuthorities() {
-            return Arrays.asList(new GrantedAuthority[]{(GrantedAuthority) () -> ROLE_PREFIX + ROLE_FRS_OPERATOR});
+            return Arrays.asList((GrantedAuthority) () -> ROLE_PREFIX + ROLE_FRS_OPERATOR);
         }
     }
 
-    public static abstract class GuestUser extends User {
+    public abstract static class GuestUser extends User {
         @Override
         public Collection<GrantedAuthority> getAuthorities() {
-            return Arrays.asList(new GrantedAuthority[]{(GrantedAuthority) () -> ROLE_PREFIX + ROLE_FRS_GUEST});
+            return Arrays.asList((GrantedAuthority) () -> ROLE_PREFIX + ROLE_FRS_GUEST);
         }
     }
 }

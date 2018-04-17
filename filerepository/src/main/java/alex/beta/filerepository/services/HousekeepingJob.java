@@ -53,7 +53,7 @@ public class HousekeepingJob {
 
         if (frsConfig.isDeleteExpiredFiles()) {
             for (String appid : appids) {
-                int deletedFiles = fileRepositoryService.deleteExpiredFiles(appid);
+                int deletedFiles = fileRepositoryService.deleteExpiredFiles(appid, null);
                 if (deletedFiles > 0) {
                     if (logger.isInfoEnabled()) {
                         logger.info("Deleted {} expired files in app \'{}\'", deletedFiles, appid);

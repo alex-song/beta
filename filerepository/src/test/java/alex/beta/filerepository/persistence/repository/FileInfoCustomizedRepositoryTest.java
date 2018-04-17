@@ -22,14 +22,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 
-@Ignore
 public class FileInfoCustomizedRepositoryTest extends AbstractServerTest {
 
     @Autowired
