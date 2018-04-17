@@ -29,7 +29,7 @@ import static org.junit.Assert.assertNotNull;
  * @version ${project.version}
  * @Description
  */
-
+@Ignore
 public class FileInfoCustomizedRepositoryTest extends AbstractServerTest {
 
     @Autowired

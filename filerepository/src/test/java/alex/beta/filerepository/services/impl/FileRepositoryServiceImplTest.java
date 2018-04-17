@@ -37,8 +37,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.*;
 
 /**
  * @version ${project.version}
@@ -115,21 +114,38 @@ public class FileRepositoryServiceImplTest {
         fileRepositoryService.add(APPID, name, null, null, null, null, content);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test(expected = DummyException.class)
     public void testDeleteExpiredFiles() throws Exception {
         final String name = APPID + System.currentTimeMillis();
         LocalDateTime dt = LocalDateTime.now();
 
         FileInfo fi3 = FileInfo.builder().size(10).id("3").name(name + "3").appid(APPID).build();
         FileInfo fi4 = FileInfo.builder().size(100).id("4").name(name + "4").appid(APPID).build();
+        FileInfo fi5 = FileInfo.builder().size(1000).id("5").name(name + "5").appid(APPID).build();
 
-        doReturn(Arrays.asList(fi3, fi4)).when(fileInfoCustomizedRepository).findAllAndRemoveByAppidIgnoreCaseAndExpiredDateLessThan(APPID, dt);
-        doThrow(new UnsupportedOperationException()).when(quotaService).releaseQuota(APPID, 110);
+        doReturn(Arrays.asList(fi3, fi4, fi5)).when(fileInfoCustomizedRepository).findAllAndRemoveByAppidIgnoreCaseAndExpiredDateLessThan(APPID, dt);
+        doThrow(new DummyException("Sum up and release all quotas of deleted expired files")).when(quotaService).releaseQuota(APPID, 1110);
         fileRepositoryService.deleteExpiredFiles(APPID, dt);
-
     }
 
-    class FileInfoMatcher extends ArgumentMatcher<FileInfo> {
+    @Test(expected = DummyException.class)
+    public void testDelete() throws Exception {
+        final String name = APPID + System.currentTimeMillis();
+        FileInfo deletedFile = FileInfo.builder().id(name).name(name).appid(APPID).size(10).build();
+        doReturn(deletedFile).when(fileInfoRepository).findOne(name);
+        doNothing().when(fileInfoRepository).delete(name);
+        doThrow(new DummyException("Release the quota after file gets deleted")).when(quotaService).releaseQuota(APPID, 10);
+        fileRepositoryService.delete(name);
+    }
+
+
+    static class DummyException extends RuntimeException {
+        DummyException(String msg) {
+            super(msg);
+        }
+    }
+
+    static class FileInfoMatcher extends ArgumentMatcher<FileInfo> {
         private String appid;
 
         private String name;
