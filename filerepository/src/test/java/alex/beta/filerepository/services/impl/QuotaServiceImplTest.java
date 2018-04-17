@@ -6,7 +6,6 @@ import alex.beta.filerepository.persistence.repository.FileInfoCustomizedReposit
 import alex.beta.filerepository.persistence.repository.QuotaRepository;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -15,15 +14,13 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by songlip on 2018/4/17.
@@ -90,7 +87,6 @@ public class QuotaServiceImplTest {
         quotaService.useQuota(APPID, 91);
     }
 
-    @Ignore
     @Test
     public void testRecalculateQuota() throws Exception {
         String appid1 = "a" + System.currentTimeMillis();
@@ -98,13 +94,24 @@ public class QuotaServiceImplTest {
         String appid3 = "c" + System.currentTimeMillis();
 
         Map<String, Long> returnedUsedQuotas = new HashMap<>(2);
-        returnedUsedQuotas.put(appid1, 10L);
-        returnedUsedQuotas.put(appid2, 20L);
+        returnedUsedQuotas.put(appid1.toLowerCase(), 10L);
+        returnedUsedQuotas.put(appid2.toLowerCase(), 20L);
 
         doReturn(returnedUsedQuotas).when(quotaRepository).aggregateUsedQuotaByAppidIgnoreCase(appid1, appid2, appid3);
         doAnswer(new DummyAnswer(appid1, appid2, appid3)).when(quotaRepository).findAndModifyUsedQuotaByAppidIgnoreCase(anyString(), anyLong());
 
         quotaService.recalculateQuota(appid1, appid2, appid3);
+    }
+
+    @Test
+    public void testUpdate() throws Exception {
+        quotaService.update(Quota.builder().usedQuota(10L).maxQuota(20L).appid("abc").build());
+        verify(quotaRepository, times(1)).findOneByAppidIgnoreCase("abc");
+        verify(quotaRepository, never()).get("abc");
+
+        quotaService.update(Quota.builder().usedQuota(10L).maxQuota(20L).appid("def").id("def").build());
+        verify(quotaRepository, times(1)).get("def");
+        verify(quotaRepository, never()).findOneByAppidIgnoreCase("def");
     }
 
     static class DummyAnswer implements Answer<Quota> {
@@ -117,14 +124,13 @@ public class QuotaServiceImplTest {
 
         @Override
         public Quota answer(InvocationOnMock invocation) throws Throwable {
-            System.out.println(invocation);
             Object[] args = invocation.getArguments();
-            String appid = (String)args[0];
-            long usedQuota = (long)args[1];
-            if ((appids[0].equalsIgnoreCase(appid) && usedQuota == 10L) || (appids[1].equalsIgnoreCase(appid) && usedQuota == 20L) || (appids[2].equalsIgnoreCase(appid) && usedQuota == 0L)){
-                return isA(Quota.class);
+            String appid = (String) args[0];
+            long usedQuota = (long) args[1];
+            if ((appids[0].equalsIgnoreCase(appid) && usedQuota == 10L) || (appids[1].equalsIgnoreCase(appid) && usedQuota == 20L) || (appids[2].equalsIgnoreCase(appid) && usedQuota == 0L)) {
+                return null;
             } else {
-                throw new RuntimeException();
+                throw new RuntimeException("Unexpected appid " + appid + ", usedQuota " + usedQuota);
             }
         }
     }

@@ -47,11 +47,11 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.matc
 @Repository
 public class QuotaRepositoryImpl implements QuotaRepository {
 
-    private static final String APPID_FIELD_NAME = "appid";
+    static final String APPID_FIELD_NAME = "appid";
 
-    private static final String USEDQUOTA_FIELD_NAME = "usedQuota";
+    static final String USEDQUOTA_FIELD_NAME = "usedQuota";
 
-    private static final String QUOTA_COLLECTION_NAME = "Quota";
+    static final String QUOTA_COLLECTION_NAME = "Quota";
 
     private static final Logger logger = LoggerFactory.getLogger(QuotaRepositoryImpl.class);
 
@@ -72,7 +72,7 @@ public class QuotaRepositoryImpl implements QuotaRepository {
 
         // output default max quota setting
         Iterator<String> keys = defaultAppMaxQuotaMap.keySet().iterator();
-        logger.debug("Default max quotas:");
+        logger.debug("---=== Default max quotas ===---");
         while (keys.hasNext()) {
             String key = keys.next();
             Long value = defaultAppMaxQuotaMap.get(key);
@@ -220,7 +220,7 @@ public class QuotaRepositoryImpl implements QuotaRepository {
         }
     }
 
-    private long getDefaultMaxQuota(@Nonnull String appid) {
+    long getDefaultMaxQuota(@Nonnull String appid) {
         return defaultAppMaxQuotaMap.getOrDefault(appid, defaultAppMaxQuotaMap.getOrDefault("default", 100 * 1024L * 1024L));
     }
 }

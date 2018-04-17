@@ -33,6 +33,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
  * @Description
  */
 
+@SuppressWarnings("squid:S1118")
 @Configuration
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfig {
