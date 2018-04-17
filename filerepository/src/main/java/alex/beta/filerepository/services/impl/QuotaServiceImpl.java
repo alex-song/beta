@@ -51,7 +51,6 @@ public class QuotaServiceImpl implements QuotaService {
         this.fileInfoCustomizedRepository = fileInfoCustomizedRepository;
     }
 
-    //TODO UT
     @Override
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_OPERATOR + "')")
@@ -108,6 +107,7 @@ public class QuotaServiceImpl implements QuotaService {
         return quota == null ? Long.MIN_VALUE : quota.getMaxQuota();
     }
 
+    //TODO UT
     @Override
     @Transactional
     @PreAuthorize("hasRole('" + ROLE_FRS_ADMIN + "')")
@@ -124,7 +124,12 @@ public class QuotaServiceImpl implements QuotaService {
             found.put(s.toLowerCase(), Boolean.TRUE);
         }
 
+        System.out.println("found:" + found);
+        System.out.println("results" + results);
+
+
         for (Map.Entry<String, Boolean> entry : found.entrySet()) {
+            System.out.println("entry: " + entry);
             if (entry.getValue()) {
                 quotaRepository.findAndModifyUsedQuotaByAppidIgnoreCase(entry.getKey(), results.get(entry.getKey()));
             } else {
@@ -208,6 +213,7 @@ public class QuotaServiceImpl implements QuotaService {
         return models;
     }
 
+    //TODO UT
     @Override
     @PreAuthorize("hasRole('" + ROLE_FRS_OPERATOR + "')")
     public QuotaModel update(@Nonnull Quota quota) {
