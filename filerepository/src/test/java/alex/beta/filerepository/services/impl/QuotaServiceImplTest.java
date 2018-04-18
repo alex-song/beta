@@ -1,3 +1,15 @@
+/**
+ * @File: QuotaServiceImplTest.java
+ * @Project: beta
+ * @Copyright: Copyright (c) 2018, All Rights Reserved
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * </p>
+ * @Date: 2018/4/17 下午1:59
+ * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
+ */
 package alex.beta.filerepository.services.impl;
 
 import alex.beta.filerepository.QuotaExceededException;
@@ -23,7 +35,8 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
- * Created by songlip on 2018/4/17.
+ * @version ${project.version}
+ * @Description
  */
 @RunWith(MockitoJUnitRunner.class)
 public class QuotaServiceImplTest {
@@ -89,7 +102,7 @@ public class QuotaServiceImplTest {
 
     @Test
     public void testRecalculateQuota() throws Exception {
-        String appid1 = "a" + System.currentTimeMillis();
+        String appid1 = "A" + System.currentTimeMillis();
         String appid2 = "b" + System.currentTimeMillis();
         String appid3 = "c" + System.currentTimeMillis();
 

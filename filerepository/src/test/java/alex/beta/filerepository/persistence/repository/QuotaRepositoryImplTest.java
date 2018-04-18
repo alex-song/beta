@@ -19,6 +19,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.*;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -26,12 +28,13 @@ import org.springframework.data.mongodb.core.query.Query;
 
 import java.util.regex.Pattern;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
 
 /**
- * @Description
  * @version ${project.version}
+ * @Description
  */
 public class QuotaRepositoryImplTest extends AbstractServerTest {
 
@@ -53,7 +56,6 @@ public class QuotaRepositoryImplTest extends AbstractServerTest {
     @After
     public void tearDown() {
     }
-
 
     @Test
     public void testFindOneOrCreateOneByAppidIgnoreCase1() throws Exception {
@@ -105,6 +107,37 @@ public class QuotaRepositoryImplTest extends AbstractServerTest {
         assertEquals(existingQ, q);
     }
 
-    //TODO maxQuota is configured, but gets overwritten
-    //TODO getDefaultMaxQuota
+    @Test
+    public void testFindOneOrCreateOne3() throws Exception {
+        String appid = "test";
+        Quota quota = Quota.builder().appid(appid).maxQuota(500).build();
+
+        doReturn(null).when(mongoOperations).findOne(
+                new Query(Criteria.where(QuotaRepositoryImpl.APPID_FIELD_NAME).regex(Pattern.compile(appid, Pattern.CASE_INSENSITIVE))), Quota.class);
+
+        doAnswer(new Answer() {
+            @Override
+            public Quota answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
+                Quota q = (Quota) args[0];
+                String cName = (String) args[1];
+                if (QuotaRepositoryImpl.QUOTA_COLLECTION_NAME.equals(cName) && q.getMaxQuota() == 500 && "test".equals(q.getAppid())) {
+                    q.setId("6");
+                    return q;
+                } else {
+                    throw new RuntimeException("Unexpected quota creation, maxQuota = " + q.getMaxQuota());
+                }
+            }
+        }).when(mongoOperations).insert(any(Quota.class), eq(QuotaRepositoryImpl.QUOTA_COLLECTION_NAME));
+
+        quotaRepository.findOneOrCreateOne(quota);
+        verify(mongoOperations, times(1)).insert(Matchers.any(Quota.class), eq(QuotaRepositoryImpl.QUOTA_COLLECTION_NAME));
+    }
+
+    @Test
+    public void testGetDefaultMaxQuota() {
+        assertEquals(100, quotaRepository.getDefaultMaxQuota("test"));
+        assertEquals(50 * 1024L * 1024L, quotaRepository.getDefaultMaxQuota("default"));
+        assertEquals(50 * 1024L * 1024L, quotaRepository.getDefaultMaxQuota("aaa"));
+    }
 }
