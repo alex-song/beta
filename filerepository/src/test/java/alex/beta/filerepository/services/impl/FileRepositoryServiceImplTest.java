@@ -20,6 +20,7 @@ import alex.beta.filerepository.persistence.entity.FileStore;
 import alex.beta.filerepository.persistence.repository.FileInfoCustomizedRepository;
 import alex.beta.filerepository.persistence.repository.FileInfoRepository;
 import alex.beta.filerepository.services.QuotaService;
+import com.codahale.metrics.MetricRegistry;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -55,6 +56,9 @@ public class FileRepositoryServiceImplTest {
 
     @Mock
     private QuotaService quotaService;
+
+    @Mock
+    private MetricRegistry metricRegistry;
 
     @InjectMocks
     private FileRepositoryServiceImpl fileRepositoryService;

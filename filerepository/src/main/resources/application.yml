@@ -32,6 +32,10 @@ info:
     description: Alex File Repository Service, which is built on top of Springboot and MongoDB.
     version: @project.version@
 
+management:
+  security:
+    roles: ROLE_FRS_ADMIN
+
 frs:
   configFile: ${frs.config:classpath:frs-config.xml}
   housekeeping:

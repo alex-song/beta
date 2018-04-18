@@ -20,7 +20,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.concurrent.DelegatingSecurityContextScheduledExecutorService;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -61,9 +61,9 @@ public class HousekeepingConfig implements SchedulingConfigurer {
 
     private SecurityContext createSchedulerSecurityContext() {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(new UsernamePasswordAuthenticationToken(
-                "housekeeping",
-                "",
+        context.setAuthentication(new AnonymousAuthenticationToken(
+                "system",
+                "system",
                 Arrays.asList((GrantedAuthority) () -> ROLE_PREFIX + ROLE_FRS_ADMIN)
         ));
         return context;
