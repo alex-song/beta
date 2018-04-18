@@ -114,7 +114,7 @@ public class FileRepositoryServiceImplTest {
         fileRepositoryService.add(APPID, name, null, null, null, null, content);
     }
 
-    @Test(expected = DummyException.class)
+    @Test
     public void testDeleteExpiredFiles() throws Exception {
         final String name = APPID + System.currentTimeMillis();
         LocalDateTime dt = LocalDateTime.now();
@@ -124,25 +124,18 @@ public class FileRepositoryServiceImplTest {
         FileInfo fi5 = FileInfo.builder().size(1000).id("5").name(name + "5").appid(APPID).build();
 
         doReturn(Arrays.asList(fi3, fi4, fi5)).when(fileInfoCustomizedRepository).findAllAndRemoveByAppidIgnoreCaseAndExpiredDateLessThan(APPID, dt);
-        doThrow(new DummyException("Sum up and release all quotas of deleted expired files")).when(quotaService).releaseQuota(APPID, 1110);
         fileRepositoryService.deleteExpiredFiles(APPID, dt);
+        verify(quotaService, times(1)).releaseQuota(APPID, 1110);
     }
 
-    @Test(expected = DummyException.class)
+    @Test
     public void testDelete() throws Exception {
         final String name = APPID + System.currentTimeMillis();
         FileInfo deletedFile = FileInfo.builder().id(name).name(name).appid(APPID).size(10).build();
         doReturn(deletedFile).when(fileInfoRepository).findOne(name);
         doNothing().when(fileInfoRepository).delete(name);
-        doThrow(new DummyException("Release the quota after file gets deleted")).when(quotaService).releaseQuota(APPID, 10);
         fileRepositoryService.delete(name);
-    }
-
-
-    static class DummyException extends RuntimeException {
-        DummyException(String msg) {
-            super(msg);
-        }
+        verify(quotaService, times(1)).releaseQuota(APPID, 10);
     }
 
     static class FileInfoMatcher extends ArgumentMatcher<FileInfo> {
@@ -165,5 +158,4 @@ public class FileRepositoryServiceImplTest {
             }
         }
     }
-
 }
