@@ -1,3 +1,15 @@
+/**
+ * @File: QuotaMetrics.java
+ * @Project: beta
+ * @Copyright: Copyright (c) 2018, All Rights Reserved
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * </p>
+ * @Date: 2018/4/18 下午1:38
+ * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
+ */
 package alex.beta.filerepository;
 
 import alex.beta.filerepository.models.QuotaModel;
@@ -8,12 +20,14 @@ import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
- * Created by songlip on 2018/4/18.
+ * @version ${project.version}
+ * @Description
  */
 @Component
 public class QuotaMetrics implements PublicMetrics {
@@ -25,16 +39,16 @@ public class QuotaMetrics implements PublicMetrics {
         this.quotaService = quotaService;
     }
 
+    private static void addMetrics(Set<Metric<?>> qms, @Nonnull String appid, long usedQuota, long maxQuota) {
+        qms.add(new Metric("frs." + appid + ".usedQuota", usedQuota));
+        qms.add(new Metric("frs." + appid + ".maxQuota", maxQuota));
+    }
+
     @Override
     public Collection<Metric<?>> metrics() {
         List<QuotaModel> quotas = quotaService.findAll();
-        List<Metric<?>> qms = new ArrayList<>(quotas.size());
+        Set<Metric<?>> qms = new LinkedHashSet<>(quotas.size());
         quotas.forEach(quota -> addMetrics(qms, quota.getAppid(), quota.getUsedQuota(), quota.getMaxQuota()));
         return qms;
-    }
-
-    private static void addMetrics(List<Metric<?>> qms, @Nonnull String appid, long usedQuota, long maxQuota) {
-        qms.add(new Metric("frs." + appid + ".usedQuota", usedQuota));
-        qms.add(new Metric("frs." + appid + ".maxQuota", maxQuota));
     }
 }

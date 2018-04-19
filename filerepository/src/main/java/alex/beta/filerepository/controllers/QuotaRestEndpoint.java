@@ -174,12 +174,6 @@ public class QuotaRestEndpoint {
         return ResponseEntity.ok().build();
     }
 
-    @ApiOperation(value = "Get all quotas")
-    @GetMapping(value = "/quota/all", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity all() {
-        return ResponseEntity.ok(quotaService.findAll());
-    }
-
     @ApiOperation(value = "Create a new quota")
     @ApiResponses({
             @ApiResponse(code = 200, message = "Quota is created successfully.", response = QuotaModel.class),

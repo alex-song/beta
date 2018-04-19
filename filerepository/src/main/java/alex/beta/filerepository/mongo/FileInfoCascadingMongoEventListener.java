@@ -39,10 +39,8 @@ import java.util.stream.Collectors;
  * @Description
  */
 public class FileInfoCascadingMongoEventListener extends AbstractMongoEventListener<FileInfo> {
-    private static Logger logger = LoggerFactory.getLogger(FileInfoCascadingMongoEventListener.class);
-
     private static final String FILESTORE_FIELD_NAME = "fileStore";
-
+    private static Logger logger = LoggerFactory.getLogger(FileInfoCascadingMongoEventListener.class);
     @Autowired
     private MongoOperations mongoOperations;
 
