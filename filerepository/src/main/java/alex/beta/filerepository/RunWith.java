@@ -32,7 +32,7 @@ import static alex.beta.filerepository.SecurityConfig.*;
  * @Description
  */
 
-public class RunWith<T> {
+public class RunWith {
     private static final Logger logger = LoggerFactory.getLogger(RunWith.class);
 
     private RunWith() {
