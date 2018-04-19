@@ -296,7 +296,7 @@
         <!-- docker run -v /Volumes/MyData/devlogs:/devlogs -p 31001:7070 -d alexsong/onlinetranslation -->
         <!-- http://192.168.99.100:7070/onlinetranslation -->
 
-        <!-- run following command to push ht eimage to docker hub (define the server in settings.xml first) -->
+        <!-- run following command to push the image to docker hub (define the server in settings.xml first) -->
         <!-- mvn clean package docker:build -DpushImage -Pdocker -->
 
         <!-- docker exec -it <containerid> /bin/sh -->
