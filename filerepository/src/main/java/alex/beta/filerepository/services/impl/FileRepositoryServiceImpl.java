@@ -22,6 +22,8 @@ import alex.beta.filerepository.persistence.repository.FileInfoCustomizedReposit
 import alex.beta.filerepository.persistence.repository.FileInfoRepository;
 import alex.beta.filerepository.services.FileRepositoryService;
 import alex.beta.filerepository.services.QuotaService;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,11 +61,17 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
 
     private QuotaService quotaService;
 
+    private Meter fileMeter;
+
     @Autowired
-    public FileRepositoryServiceImpl(FileInfoRepository fileInfoRepository, QuotaService quotaService, FileInfoCustomizedRepository fileInfoCustomizedRepository) {
+    public FileRepositoryServiceImpl(FileInfoRepository fileInfoRepository, QuotaService quotaService, FileInfoCustomizedRepository fileInfoCustomizedRepository, MetricRegistry metricRegistry) {
         this.fileInfoRepository = fileInfoRepository;
         this.fileInfoCustomizedRepository = fileInfoCustomizedRepository;
         this.quotaService = quotaService;
+        this.fileMeter = metricRegistry.meter("frs");
+        if (fileMeter == null && logger.isWarnEnabled()) {
+            logger.warn("Metering is disabled for FileRepositoryService");
+        }
     }
 
     @Override
@@ -72,6 +80,13 @@ public class FileRepositoryServiceImpl implements FileRepositoryService {
     public FileInfoModel add(@Nonnull String appid, @Nonnull String name, String description, String contentType,
                              LocalDateTime expiredDate, String md5, byte[] content)
             throws ContentValidationException, QuotaExceededException {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Adding file {} to repository", name);
+        }
+        if (fileMeter != null) {
+            // Bypass metering in test
+            fileMeter.mark();
+        }
         FileInfo fileInfo = FileInfo.builder()
                 .name(name)
                 .appid(appid)

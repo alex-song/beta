@@ -65,6 +65,7 @@
         <junit_version>4.12</junit_version>
         <wiremock_version>2.15.0</wiremock_version>
         <jackson-datatype-jsr310_version>2.9.5</jackson-datatype-jsr310_version>
+        <metrics-core_version>4.0.2</metrics-core_version>
 
         <!-- build parameters -->
         <test.failure.ignore>false</test.failure.ignore>

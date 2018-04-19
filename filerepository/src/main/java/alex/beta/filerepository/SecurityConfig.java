@@ -68,7 +68,7 @@ public class SecurityConfig {
                     .antMatchers("/api-spec/**", "/v2/api-docs", "/swagger-spec.json", "/console/**", "/favicon.ico").permitAll()// for swagger and h2 console
                     .and()
                     .authorizeRequests()
-                    .antMatchers("/health", "/info", "/auditevents", "/manage").permitAll() // for spring health
+                    .antMatchers("/health", "/info", "/auditevents", "/manage", "/metrics").permitAll() // for spring health
                     .anyRequest().authenticated()
                     .and().httpBasic();
         }

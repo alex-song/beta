@@ -16,7 +16,6 @@ import alex.beta.filerepository.AbstractServerTest;
 import alex.beta.filerepository.persistence.entity.FileInfo;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
