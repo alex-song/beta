@@ -9,7 +9,7 @@ spring:
     mongodb:
       authentication-database: frs
       database: frs
-      host: songlp.ddns.net
+      host: mongo
       username: frs
       password: frs
       repositories:
