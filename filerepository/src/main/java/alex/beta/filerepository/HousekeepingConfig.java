@@ -62,8 +62,8 @@ public class HousekeepingConfig implements SchedulingConfigurer {
     private SecurityContext createSchedulerSecurityContext() {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         context.setAuthentication(new AnonymousAuthenticationToken(
-                "system",
-                "system",
+                "_system",
+                "_system",
                 Arrays.asList((GrantedAuthority) () -> ROLE_PREFIX + ROLE_FRS_ADMIN)
         ));
         return context;

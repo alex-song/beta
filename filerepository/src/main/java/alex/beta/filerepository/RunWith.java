@@ -29,11 +29,10 @@ import static alex.beta.filerepository.SecurityConfig.*;
 
 /**
  * @version ${project.version}
- * @Description 这个方法线程不安全，有待修改
+ * @Description
  */
 
-@Deprecated
-public class RunWith<T> {
+public class RunWith {
     private static final Logger logger = LoggerFactory.getLogger(RunWith.class);
 
     private RunWith() {
@@ -44,12 +43,11 @@ public class RunWith<T> {
      * Execute the method with ROLE_FRS_OPERATOR role
      *
      * @param func
-     * @param roles
      * @param <T>
      * @return
      * @throws Exception
      */
-    public static <T> T operatorRole(final RunWithMethod<T> func, final String... roles) throws Exception {
+    public static <T> T operatorRole(final RunWithMethod<T> func) throws Exception {
         return role(func, ROLE_PREFIX + ROLE_FRS_OPERATOR);
     }
 
@@ -57,12 +55,11 @@ public class RunWith<T> {
      * Execute the method with ROLE_FRS_GUEST role
      *
      * @param func
-     * @param roles
      * @param <T>
      * @return
      * @throws Exception
      */
-    public static <T> T guestRole(final RunWithMethod<T> func, final String... roles) throws Exception {
+    public static <T> T guestRole(final RunWithMethod<T> func) throws Exception {
         return role(func, ROLE_PREFIX + ROLE_FRS_GUEST);
     }
 
@@ -70,12 +67,11 @@ public class RunWith<T> {
      * Execute the method with ROLE_FRS_ADMIN role
      *
      * @param func
-     * @param roles
      * @param <T>
      * @return
      * @throws Exception
      */
-    public static <T> T adminRole(final RunWithMethod<T> func, final String... roles) throws Exception {
+    public static <T> T adminRole(final RunWithMethod<T> func) throws Exception {
         return role(func, ROLE_PREFIX + ROLE_FRS_ADMIN);
     }
 
@@ -90,20 +86,35 @@ public class RunWith<T> {
      */
     public static <T> T role(final RunWithMethod<T> func, final String... roles) throws Exception {
         if (logger.isDebugEnabled()) {
-            logger.debug("RunWith.systemUser, additional roles: {}",
+            logger.debug("RunWith roles: {}",
                     roles == null || roles.length == 0 ? "" : Arrays.stream(roles).collect(Collectors.joining(", ")));
         }
+        final Authentication originalAuthentication = SecurityContextHolder.getContext() == null ? null : SecurityContextHolder.getContext().getAuthentication();
+
         List<GrantedAuthority> authorities = new ArrayList<>();
         if (roles != null) {
             Arrays.stream(roles).forEach(role -> authorities.add(new SimpleGrantedAuthority(role)));
         }
-        final AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("system", "system", authorities);
-        final Authentication originalAuthentication = SecurityContextHolder.getContext().getAuthentication();
+        final AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("_system", "_system", authorities);
+        boolean noContext = false;
+        if (SecurityContextHolder.getContext() == null) {
+            noContext = true;
+            SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext());
+        }
         SecurityContextHolder.getContext().setAuthentication(token);
         try {
             return func.run();
         } finally {
-            SecurityContextHolder.getContext().setAuthentication(originalAuthentication);
+            if (noContext) {
+                SecurityContextHolder.clearContext();
+            } else {
+                if (SecurityContextHolder.getContext() != null) {
+                    SecurityContextHolder.getContext().setAuthentication(originalAuthentication);
+                } else {
+                    SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext());
+                    SecurityContextHolder.getContext().setAuthentication(originalAuthentication);
+                }
+            }
         }
     }
 

@@ -1,5 +1,5 @@
 /**
- * @File: InvalidConfigurationException.java
+ * @File: DummyService.java
  * @Project: beta
  * @Copyright: Copyright (c) 2018, All Rights Reserved
  * <p>
@@ -7,22 +7,19 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * </p>
- * @Date: 2018/4/2 下午10:15
+ * @Date: 2018/4/19 下午8:36
  * @author: <a target=_blank href="mailto:song_liping@hotmail.com">Alex Song</a>
  */
-package alex.beta.filerepository;
+package alex.beta.filerepository.services;
 
 /**
  * @version ${project.version}
  * @Description
  */
-public class InvalidConfigurationException extends RuntimeException {
+public interface DummyService {
+    String requireAdminRole(String arg);
 
-    public InvalidConfigurationException(String message) {
-        super(message);
-    }
+    String requireOperatorRole(String arg);
 
-    public InvalidConfigurationException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    String requireGuestRole(String arg);
 }
