@@ -17,7 +17,7 @@ services:
     links:
       - mongo
 #    environment:
-#      FRS_CONFIG:
+#      FRS_OPTS:
 #        - "-Dfrs.config=/XXX"
 #      DATABASE_OPTS:
 #        - "-Dspring.data.mongodb.authentication-database=frs -Dspring.data.mongodb.database=frs -Dspring.data.mongodb.host=songlp.ddns.net -Dspring.data.mongodb.username=frs -Dspring.data.mongodb.password=frs"
