@@ -1,13 +1,13 @@
 version: '3'
 services:
-  mongo:
-    image: mongo:3.6
-    ports:
-      - "27017:27017"
-    volumes:
-      - /mongodata:/data/db
-      - ./mongo/mongo-entrypoint:/docker-entrypoint-initdb.d
-    command: [--auth]
+#  mongo:
+#    image: mongo:3.6
+#    ports:
+#      - "27017:27017"
+#    volumes:
+#      - /mongodata:/data/db
+#      - ./mongo/mongo-entrypoint:/docker-entrypoint-initdb.d
+#    command: [--auth]
   filerepository:
     image: alexsong/filerepository:0.0.1
     ports:
