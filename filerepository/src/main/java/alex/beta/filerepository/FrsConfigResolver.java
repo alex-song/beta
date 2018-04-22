@@ -18,11 +18,14 @@ import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.util.StringUtils;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -30,8 +33,8 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.io.File;
 import java.io.IOException;
-import java.util.Objects;
 
 /**
  * @version ${project.version}
@@ -44,19 +47,42 @@ public class FrsConfigResolver {
 
     @Setter
     @Getter
-    @Value("${frs.configFile}")
-    private String frsConfigFile;
+    @Value("${frs.defaultConfig}")
+    private String defaultConfig;
+
+    @Autowired
+    private Environment env;
 
     @Bean("frsConfig")
     public IFrsConfig getFrsConfig() {
-        Objects.requireNonNull(frsConfigFile);
+        String frsConfigFile = null;
+        String lookup = env == null ? null : env.getProperty("lookup.dir");
         try {
             if (logger.isInfoEnabled()) {
-                logger.info("Initializing file repository service using configuration file {}", frsConfigFile);
+                logger.info("Initializing file repository service using lookup {}, defaultConfig {}", lookup, defaultConfig);
+            }
+            if (StringUtils.isEmpty(lookup)) {
+                frsConfigFile = defaultConfig;
+            } else {
+                Resource tmp = new PathMatchingResourcePatternResolver().getResource(lookup);
+                if (!tmp.exists() || !tmp.getFile().isDirectory()) {
+                    logger.warn("Invalid lookup directory configuration, {}. Use default configuration.", lookup);
+                    frsConfigFile = defaultConfig;
+                } else {
+                    if (lookup.endsWith(File.separator)) {
+                        frsConfigFile = lookup + "frs-config.xml";
+                    } else {
+                        frsConfigFile = lookup + File.separator + "frs-config.xml";
+                    }
+                }
+            }
+            if (logger.isDebugEnabled()) {
+                logger.debug("frsConfigFile:{}", frsConfigFile);
             }
             JAXBContext jaxbContext = JAXBContext.newInstance(FrsConfig.class);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             Resource res = new PathMatchingResourcePatternResolver().getResource(frsConfigFile);
+
             if (res == null || !res.exists() || !res.isReadable()) {
                 logger.error("Configuration XML file ({}) doesn't exist, or not readable", frsConfigFile);
                 throw new InvalidConfigurationException(frsConfigFile);

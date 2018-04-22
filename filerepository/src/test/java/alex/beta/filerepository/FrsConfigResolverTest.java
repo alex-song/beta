@@ -33,7 +33,7 @@ public class FrsConfigResolverTest {
     @Before
     public void setUp() {
         FrsConfigResolver resolver = new FrsConfigResolver();
-        resolver.setFrsConfigFile("classpath:frs-config-test.xml");
+        resolver.setDefaultConfig("classpath:frs-config-test.xml");
         frsConfig = resolver.getFrsConfig();
     }
 

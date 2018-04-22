@@ -37,7 +37,7 @@ management:
     roles: ROLE_FRS_ADMIN
 
 frs:
-  configFile: ${frs.config:classpath:frs-config.xml}
+  defaultConfig: classpath:frs-config.xml
   housekeeping:
     enabled: true
     numOfThreads: 2

@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class)
-@TestPropertySource(properties = "frs.config=classpath:frs-config-test.xml")
+@TestPropertySource(properties = "frs.defaultConfig=classpath:frs-config-test.xml")
 public abstract class AbstractServerTest {
 
     protected static final Logger logger = LoggerFactory.getLogger(FrsConfigResolverTest.class);

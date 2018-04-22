@@ -6,6 +6,5 @@ VOLUME /devlogs
 ADD filerepository-0.0.1.war filerepository.war
 RUN sh -c 'touch /filerepository.war'
 ENV JAVA_OPTS="-server -Duser.timezone=GMT+08"
-ENV DATABASE_OPTS=""
-ENV FRS_OPTS=""
-ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS $DATABASE_OPTS $FRS_OPTS -Djava.security.egd=file:/dev/./urandom -jar /filerepository.war" ]
+ENV LOOKUP_OPTS=""
+ENTRYPOINT [ "sh", "-c", "java $JAVA_OPTS $LOOKUP_OPTS -Djava.security.egd=file:/dev/./urandom -jar /filerepository.war" ]
