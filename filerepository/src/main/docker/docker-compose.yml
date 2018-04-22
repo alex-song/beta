@@ -1,24 +1,21 @@
 version: '3'
 services:
-#  mongo:
-#    image: mongo:3.6
-#    ports:
-#      - "27017:27017"
-#    volumes:
-#      - /mongodata:/data/db
-#      - ./mongo/mongo-entrypoint:/docker-entrypoint-initdb.d
-#    command: [--auth]
+  mongo:
+    image: mongo:3.6
+    ports:
+      - "27017:27017"
+    volumes:
+      - /mongodata:/data/db
+      - ./mongo/mongo-entrypoint:/docker-entrypoint-initdb.d
+    command: [--auth]
   filerepository:
     image: alexsong/filerepository:0.0.1
     ports:
       - "31002:7070"
     volumes:
-      - /Volumes/MyData/devlogs:/devlogs
-      - /Volumes/MyData/lookup:/lookup
+      - /devlogs:/devlogs
+      - /lookup:/lookup
     links:
       - mongo
     environment:
-      LOOKUP_OPTS:
-        - "-Dlookup.dir=/lookup"
-#      DATABASE_OPTS:
-#        - "-Dspring.data.mongodb.authentication-database=frs -Dspring.data.mongodb.database=frs -Dspring.data.mongodb.host=songlp.ddns.net -Dspring.data.mongodb.username=frs -Dspring.data.mongodb.password=frs"
+      - lookup.dir=file:/lookup
