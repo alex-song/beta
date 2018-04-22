@@ -3,6 +3,8 @@ MAINTAINER Alex Song <song_liping@hotmail.com>
 EXPOSE 7070
 RUN mkdir /devlogs
 VOLUME /devlogs
+RUN mkdir /lookup
+VOLUME /lookup
 ADD filerepository-0.0.1.war filerepository.war
 RUN sh -c 'touch /filerepository.war'
 ENV JAVA_OPTS="-server -Duser.timezone=GMT+08"
