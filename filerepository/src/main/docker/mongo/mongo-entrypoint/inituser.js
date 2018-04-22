@@ -10,7 +10,7 @@ db.createUser(
 );
 
 // Create frs-grid database, that persists large files using grid fs
-db = db.getSiblingDB('frs-grid');
+// db = db.getSiblingDB('frs-grid');
 // Create frs database
 db = db.getSiblingDB('frs');
 
@@ -19,7 +19,7 @@ db.createUser(
     {
         user:"frs",
         pwd:"frs",
-        roles:[{role:"dbOwner", db:"frs"}, {role:"dbOwner", db:"frs-grid"}]
+        roles:[{role:"dbOwner", db:"frs"}]
     }
 );
 
