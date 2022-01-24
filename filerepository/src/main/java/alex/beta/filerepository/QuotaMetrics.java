@@ -39,6 +39,7 @@ public class QuotaMetrics implements PublicMetrics {
         this.quotaService = quotaService;
     }
 
+    @SuppressWarnings("unchecked")
     private static void addMetrics(Set<Metric<?>> qms, @Nonnull String appid, long usedQuota, long maxQuota) {
         qms.add(new Metric("frs." + appid + ".usedQuota", usedQuota));
         qms.add(new Metric("frs." + appid + ".maxQuota", maxQuota));

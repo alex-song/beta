@@ -16,10 +16,7 @@ import alex.beta.commons.util.SocketUtils;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.google.common.io.Resources;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,6 +71,7 @@ public class CrawlerTest {
         builder.buildController().addEntryPoints("http://localhost:" + serverPort + "/1.html")
                 .buildCrawlerFactory().start(true);
         AssertionError error = AssertionErrorBus.getInstance().get(serverPort);
+//        Assert.assertNull(error);
         if (error != null) {
             throw error;
         }

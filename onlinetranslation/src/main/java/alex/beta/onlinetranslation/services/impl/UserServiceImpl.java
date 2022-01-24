@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetails loadUserByUsername(String username) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Load user by name \'{}\'.", username);
+            logger.debug("Load user by path \'{}\'.", username);
         }
         Objects.requireNonNull(username);
         UserEntity userEntity = userRepository.findTopByNameIgnoreCaseOrderByIdAsc(username);

@@ -90,7 +90,7 @@ public class TranslationRestEndpoint {
     }
 
     @GetMapping("/")
-    void home(HttpServletResponse response) throws IOException {
+    public void home(HttpServletResponse response) throws IOException {
         response.sendRedirect("api-spec/index.html");
     }
 

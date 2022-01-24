@@ -17,6 +17,7 @@ import alex.beta.filerepository.config.xmlbeans.IFrsConfig;
 import alex.beta.filerepository.persistence.entity.Quota;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.*;
 import org.mockito.invocation.InvocationOnMock;
@@ -36,6 +37,7 @@ import static org.mockito.Mockito.*;
  * @version ${project.version}
  * @Description
  */
+@Ignore
 public class QuotaRepositoryImplTest extends AbstractServerTest {
 
     @Mock

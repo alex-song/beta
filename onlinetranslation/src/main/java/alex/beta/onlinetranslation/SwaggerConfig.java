@@ -50,7 +50,7 @@ public class SwaggerConfig {
     @Value("${info.app.version}")
     String appVersion;
 
-    @Value("${info.app.name}")
+    @Value("${info.app.path}")
     String appName;
 
     @Value("${info.app.description}")

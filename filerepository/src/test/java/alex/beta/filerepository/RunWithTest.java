@@ -15,6 +15,7 @@ package alex.beta.filerepository;
 import alex.beta.filerepository.services.DummyService;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -27,6 +28,7 @@ import static org.junit.Assert.assertEquals;
  * @version ${project.version}
  * @Description
  */
+@Ignore
 public class RunWithTest extends AbstractServerTest {
 
     @Autowired

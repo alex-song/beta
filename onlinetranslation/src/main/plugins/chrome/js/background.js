@@ -32,7 +32,7 @@ function doTranslation(count, uuid, hostAddress, authorization, sendResponse) {
                 req.setRequestHeader('Authorization', authorization);
             }
         }).done(function (data) {
-            //console.info("status", data.status);
+            //console.info("status", inlineimage.status);
             if (data.status === 'SUBMITTED' || data.status === 'PROCESSING') {
                 timer = setTimeout(function () {
                     doTranslation(count, uuid, hostAddress, authorization, sendResponse);
@@ -42,7 +42,7 @@ function doTranslation(count, uuid, hostAddress, authorization, sendResponse) {
                 if (timer) {
                     clearTimeout(timer);
                 }
-                //console.info(data);
+                //console.info(inlineimage);
                 sendResponse(data);
             }
         }).fail(function (jqXHR, textStatus, errorThrown) {

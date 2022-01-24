@@ -27,6 +27,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.util.StringUtils;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -87,7 +88,10 @@ public class FrsConfigResolver {
                 logger.error("Configuration XML file ({}) doesn't exist, or not readable", frsConfigFile);
                 throw new InvalidConfigurationException(frsConfigFile);
             } else {
-                XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(res.getInputStream());
+                XMLInputFactory factory = XMLInputFactory.newInstance();
+                factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+                factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+                XMLStreamReader reader = factory.createXMLStreamReader(res.getInputStream());
                 return jaxbUnmarshaller.unmarshal(reader, FrsConfig.class).getValue();
             }
         } catch (IOException | XMLStreamException e1) {

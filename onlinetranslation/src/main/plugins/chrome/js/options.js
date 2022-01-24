@@ -7,7 +7,7 @@ function restore_options() {
         account_info_host = items['account_info_host'];
 
         if (account_info_name) {
-            $('#account-info-name').attr("value", account_info_name);
+            $('#account-info-path').attr("value", account_info_name);
         }
 
         if (account_info_password) {
@@ -25,10 +25,10 @@ restore_options();
 $(document).ready(function () {
     var timer = null;
 
-    $('#account-info-name').keyup(function () {
+    $('#account-info-path').keyup(function () {
         timer = setTimeout(function() {
             chrome.storage.local.set({
-                account_info_name: $('#account-info-name').val()
+                account_info_name: $('#account-info-path').val()
             });
             clearTimeout(timer);
         }, 200);

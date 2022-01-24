@@ -12,6 +12,12 @@
 	<name>commons</name>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>${guava_version}</version>
+		</dependency>
+
 		<!-- logger -->
 		<dependency>
 			<groupId>org.slf4j</groupId>

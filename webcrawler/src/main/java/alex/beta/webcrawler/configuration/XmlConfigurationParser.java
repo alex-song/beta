@@ -17,6 +17,7 @@ import com.google.common.io.Resources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -46,7 +47,10 @@ public class XmlConfigurationParser {
             Class<? extends IConfiguration> rootElementClass = Class.forName(XML_CONFIGURATION_BEAN).asSubclass(IConfiguration.class);
             JAXBContext jaxbContext = JAXBContext.newInstance(rootElementClass);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(Resources.getResource(filePath).openStream());
+            XMLInputFactory factory = XMLInputFactory.newInstance();
+//            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+//            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            XMLStreamReader reader = factory.createXMLStreamReader(Resources.getResource(filePath).openStream());
             return jaxbUnmarshaller.unmarshal(reader, rootElementClass).getValue();
         } catch (IOException | XMLStreamException e1) {
             logger.error("Failed to read configuration XML file, {}.", filePath, e1);

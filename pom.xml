@@ -19,11 +19,14 @@
         <module>onlinetranslation</module>
         <module>webcrawler</module>
         <module>filerepository</module>
+        <module>portable-cinema</module>
+        <module>torrentparser</module>
     </modules>
     <properties>
         <!-- compile parameters -->
         <compiler_source>1.8</compiler_source>
         <compiler_target>1.8</compiler_target>
+        <!--<compiler_verion>1.8</compiler_verion>-->
         <compiler_encoding>UTF-8</compiler_encoding>
 
         <docker-image-prefix>alexsong</docker-image-prefix>
@@ -49,7 +52,7 @@
         <springfox-swagger2_version>2.8.0</springfox-swagger2_version>
         <slf4j-api_version>1.7.25</slf4j-api_version>
         <logback_version>1.2.3</logback_version>
-        <h2_version>1.4.195</h2_version>
+        <h2_version>1.4.200</h2_version>
         <mongo-java-driver_version>3.6.3</mongo-java-driver_version>
         <postgresql_version>42.2.2</postgresql_version>
         <hibernate-core_version>5.2.10.Final</hibernate-core_version>
@@ -57,15 +60,18 @@
         <gson_version>2.2.4</gson_version>
         <guava_version>22.0</guava_version>
         <commons-lang3_version>3.7</commons-lang3_version>
+        <commons-text_version>1.9</commons-text_version>
         <commons-io_version>2.6</commons-io_version>
         <httpclient_version>4.5.5</httpclient_version>
-        <lombok_version>1.16.20</lombok_version>
+        <lombok_version>1.18.2</lombok_version>
         <crawler4j_version>4.3</crawler4j_version>
         <jsr305_version>3.0.2</jsr305_version>
         <junit_version>4.12</junit_version>
         <wiremock_version>2.15.0</wiremock_version>
         <jackson-datatype-jsr310_version>2.9.5</jackson-datatype-jsr310_version>
         <metrics-core_version>4.0.2</metrics-core_version>
+        <jxl_version>2.6.12</jxl_version>
+        <janino_version>2.5.16</janino_version>
 
         <!-- build parameters -->
         <test.failure.ignore>false</test.failure.ignore>
@@ -88,8 +94,12 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin_version}</version>
                 <configuration>
+                    <compilerArgument>-Xlint:unchecked</compilerArgument>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings>
                     <source>${compiler_source}</source>
                     <target>${compiler_target}</target>
+                    <compilerVersion>${compiler_verion}</compilerVersion>
                     <!-- 指定编码格式，否则在DOS下运行mvn compile命令时会出现莫名的错误，因为系统默认使用GBK编码 -->
                     <encoding>${compiler_encoding}</encoding>
                 </configuration>

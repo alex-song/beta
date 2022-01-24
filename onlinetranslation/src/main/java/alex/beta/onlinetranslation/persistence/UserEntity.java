@@ -22,7 +22,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "User",
-        indexes = {@Index(columnList = "name"), @Index(columnList = "name, password")})
+        indexes = {@Index(columnList = "name"), @Index(columnList = "path, password")})
 public class UserEntity {
     @Id
     private int id;

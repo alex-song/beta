@@ -5,7 +5,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - /mongodata:/data/db
+      - /mongodata:/inlineimage/db
       - ./mongo/mongo-entrypoint:/docker-entrypoint-initdb.d
     command: [--auth]
   filerepository:

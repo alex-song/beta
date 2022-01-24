@@ -25,6 +25,6 @@ import org.springframework.data.mongodb.repository.Query;
  */
 public interface FileInfoRepository extends MongoRepository<FileInfo, String> {
 
-    @Query(value = "{'appid' : {'$regex' : ?0 , '$options' : 'i'}, 'name' : {'$regex' : '^.*??1.*$' , '$options' : 'i'}}")
+    @Query(value = "{'appid' : {'$regex' : ?0 , '$options' : 'i'}, 'path' : {'$regex' : '^.*??1.*$' , '$options' : 'i'}}")
     Page<FileInfo> findByAppidAndNameIgnoreCase(String appid, String name, Pageable pageable);
 }

@@ -151,7 +151,7 @@ $(document).ready(function () {
         var target = $(e.target).hasClass('select-l') ? $(e.target) : $(e.target).parents('.select-l');
         e.stopPropagation();
         initSelectBtn();
-        if (target.attr('data-click') === 'no-click') {
+        if (target.attr('inlineimage-click') === 'no-click') {
             target.find('.selected-l').css('justify-content', 'flex-start').css('margin-left', '15px');
             if (target.hasClass('translate-from')) {
                 target.addClass('from-click');
@@ -159,9 +159,9 @@ $(document).ready(function () {
                 target.addClass('to-click');
             }
             target.children('.select-inner').slideDown(100);
-            target.attr('data-click', 'click');
+            target.attr('inlineimage-click', 'click');
         } else {
-            target.attr('data-click', 'no-click');
+            target.attr('inlineimage-click', 'no-click');
             target.children('.select-inner').slideUp(100);
         }
     }
@@ -173,7 +173,7 @@ $(document).ready(function () {
         target.siblings().removeClass('span-hover');
         target.addClass('span-hover');
 
-        target.parents('.select-l').attr('data-click', 'no-click').find('.selected-l-text').html(target.html()).attr('value', target.attr('value'));
+        target.parents('.select-l').attr('inlineimage-click', 'no-click').find('.selected-l-text').html(target.html()).attr('value', target.attr('value'));
         $('.select-inner').slideUp(100);
         initSelectBtn();
     }

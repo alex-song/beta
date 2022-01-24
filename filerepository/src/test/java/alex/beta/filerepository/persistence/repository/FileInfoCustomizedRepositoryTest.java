@@ -16,6 +16,7 @@ import alex.beta.filerepository.AbstractServerTest;
 import alex.beta.filerepository.persistence.entity.FileInfo;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -28,6 +29,7 @@ import static org.junit.Assert.assertNotNull;
  * @version ${project.version}
  * @Description
  */
+@Ignore
 public class FileInfoCustomizedRepositoryTest extends AbstractServerTest {
 
     @Autowired

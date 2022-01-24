@@ -70,7 +70,7 @@
             <version>${springfox-swagger2_version}</version>
         </dependency>
 
-        <!-- persistence -->
+        <!-- database -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
