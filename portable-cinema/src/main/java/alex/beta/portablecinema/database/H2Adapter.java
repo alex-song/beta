@@ -225,7 +225,7 @@ public class H2Adapter extends DatabaseAdapter {
     public FileInfo[] findByTags(@NonNull String... tags) throws DatabaseException {
         StringBuilder buffer = new StringBuilder(FIND_BY_TAG_QUERY);
         boolean isFirst = true;
-        for (String tag : tags) {
+        for (int i = tags.length; i > 0; i--) {
             if (isFirst) {
                 buffer.append(" WHERE");
                 isFirst = false;

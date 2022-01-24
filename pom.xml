@@ -26,7 +26,7 @@
         <!-- compile parameters -->
         <compiler_source>1.8</compiler_source>
         <compiler_target>1.8</compiler_target>
-        <!--<compiler_verion>1.8</compiler_verion>-->
+        <compiler_verion>1.9</compiler_verion>
         <compiler_encoding>UTF-8</compiler_encoding>
 
         <docker-image-prefix>alexsong</docker-image-prefix>

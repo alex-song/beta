@@ -10,6 +10,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
+import java.time.Duration;
 import java.util.*;
 
 @Setter
@@ -55,19 +56,6 @@ public class FileInfo {
     @Expose
     private long duration; // duration in seconds
 
-    public FileInfo(String otid, String path, String name, String cover1, String cover2, Date lastModifiedOn, int width, int height, long size, long duration, Set<String> tags) {
-        this.otid = otid;
-        this.path = path;
-        this.name = name;
-        this.cover1 = cover1;
-        this.cover2 = cover2;
-        this.lastModifiedOn = lastModifiedOn;
-        this.resolution = new Resolution(width, height);
-        this.tags = tags;
-        this.size = size;
-        this.duration = duration;
-    }
-
     //@formatter:off
     public static String randomOtid() {
         return UUID.randomUUID().toString();
@@ -78,48 +66,46 @@ public class FileInfo {
     }
 
     public static long parseDurationText(String formattedDuration) {
-        int hourIndex = formattedDuration.indexOf(HOUR);
-        int minIndex = formattedDuration.indexOf(MINUTE);
-        int secondIndex = formattedDuration.indexOf(SECOND);
-
-        String hourValueStr = (hourIndex <= 0 ? "0" : formattedDuration.substring(0, hourIndex));
-        String minValueStr = (hourIndex <= 0
-                ? (minIndex <= 0 ? "0" : formattedDuration.substring(0, minIndex))
-                : (minIndex <= 0 ? "0" : formattedDuration.substring(hourIndex + HOUR.length(), minIndex)));
-        String secondValueStr = (minIndex <= 0
-                ? (hourIndex <= 0
-                    ? (secondIndex <= 0 ? formattedDuration : formattedDuration.substring(0, secondIndex))
-                    : (secondIndex <= 0 ? "0" : (formattedDuration.substring(hourIndex + HOUR.length(), secondIndex))))
-                : (secondIndex <= 0
-                    ? "0"
-                    : (formattedDuration.substring(minIndex + MINUTE.length(), secondIndex))));
-
-        return toSeconds(Long.parseLong(hourValueStr), Long.parseLong(minValueStr), Long.parseLong(secondValueStr));
+        if (formattedDuration == null || StringUtils.isBlank(formattedDuration.trim())) {
+            return 0;
+        } else {
+            String text = formattedDuration.trim();
+            if (!text.endsWith(HOUR) && !text.endsWith(MINUTE) && !text.endsWith(SECOND)) {
+                text += SECOND;
+            }
+            text = text.replaceAll("\\s+", "")
+                    .replaceFirst("(\\d+d)", "P$1T")
+                    .replace("小时", "H")
+                    .replace("分钟", "M")
+                    .replace("秒", "S");
+            text = text.charAt(0) != 'P' ? "PT" + text : text;
+            return Duration.parse(text).getSeconds();
+        }
     }
 
-    private String getString(long t) {
+    private static String getString(long t) {
         return t > 0 ? String.valueOf(t) : "0";
     }
 
-    public long getDurationHours() {
+    public long getDurationHoursPart() {
         return duration / 3600;
     }
 
-    public long getDurationMins() {
+    public long getDurationMinsPart() {
         return (duration % 3600) / 60;
     }
 
-    public long getDurationSeconds() {
+    public long getDurationSecondsPart() {
         return duration % 60;
     }
 
     public String getFormattedDuration() {
         if (duration < 60) {
-            return getDurationSeconds() + SECOND;
+            return getDurationSecondsPart() + SECOND;
         } else if ((duration >= 60) && (duration < 3600)) {
-            return getString(getDurationMins()) + MINUTE + getString((getDurationSeconds())) + SECOND;
+            return getString(getDurationMinsPart()) + MINUTE + getString((getDurationSecondsPart())) + SECOND;
         } else {
-            return getString(getDurationHours()) + HOUR + getString(getDurationMins()) + MINUTE + getString((getDurationSeconds())) + SECOND;
+            return getString(getDurationHoursPart()) + HOUR + getString(getDurationMinsPart()) + MINUTE + getString((getDurationSecondsPart())) + SECOND;
         }
     }
 

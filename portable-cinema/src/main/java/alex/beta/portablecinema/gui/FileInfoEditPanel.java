@@ -197,9 +197,9 @@ public class FileInfoEditPanel extends JPanel {
             widthField.setText(String.valueOf(fileInfo.getResolution().getWidth()));
             heightField.setText(String.valueOf(fileInfo.getResolution().getHeight()));
         }
-        hoursField.setText(String.valueOf(fileInfo.getDurationHours()));
-        minsField.setText(String.valueOf(fileInfo.getDurationMins()));
-        secondsField.setText(String.valueOf(fileInfo.getDurationSeconds()));
+        hoursField.setText(String.valueOf(fileInfo.getDurationHoursPart()));
+        minsField.setText(String.valueOf(fileInfo.getDurationMinsPart()));
+        secondsField.setText(String.valueOf(fileInfo.getDurationSecondsPart()));
         if (fileInfo.getTags() != null)
             tagsField.setText(StringUtils.join(fileInfo.getTags(), System.lineSeparator()));
     }

@@ -73,7 +73,7 @@ public class HyperlinkActionHandler extends MouseAdapter {
                         } else if (href.startsWith("fileinfo://")) {
                             String otid = href.substring(11);
                             FileInfo fileInfo = new ViewCommand(otid).execute(config);
-                            JOptionPane.showMessageDialog(frame, fileInfo.toPrettyString(), fileInfo.getName(), JOptionPane.INFORMATION_MESSAGE, frame.LOGO_ICON_50);
+                            JOptionPane.showMessageDialog(frame, fileInfo.toPrettyString(), fileInfo.getName(), JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
                         } else {
                             try {
                                 Desktop.getDesktop().browse(new URI(href));

@@ -8,7 +8,15 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * It bridges a JTextArea with OutputStream, that can possibly linked with System.in/System.out/System.err
+ *
+ * It's not being used by this project. Keep it for further consideration.
+ *
+ * @deprecated
+ */
 @Deprecated
+@SuppressWarnings("squid:S1133")
 public class TextAreaOutputStream extends OutputStream {
 
 // *************************************************************************************************

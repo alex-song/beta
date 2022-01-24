@@ -7,6 +7,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.format.DateTimeParseException;
+
 public class FileInfoTest {
     private FileInfo fi1 = null;
     private FileInfo fi2 = null;
@@ -41,8 +43,10 @@ public class FileInfoTest {
         Assert.assertEquals(10, FileInfo.parseDurationText("10秒"));
         Assert.assertEquals(9605, FileInfo.parseDurationText("2小时40分钟5秒"));
         Assert.assertEquals(9605, FileInfo.parseDurationText("9605"));
-        Assert.assertEquals(9600, FileInfo.parseDurationText("2小时40分钟5"));
-        Assert.assertEquals(3600, FileInfo.parseDurationText("1小时40"));
+        Assert.assertEquals(9605, FileInfo.parseDurationText("2小时40分钟5"));
+        Assert.assertEquals(3640, FileInfo.parseDurationText("1小时40"));
+        Assert.assertEquals(1, FileInfo.parseDurationText("1"));
+        Assert.assertEquals(0, FileInfo.parseDurationText(""));
     }
 
     @Test
@@ -53,7 +57,7 @@ public class FileInfoTest {
                 try {
                     FileInfo.parseDurationText(actualValue.toString());
                     return false;
-                } catch (NumberFormatException e1) {
+                } catch (DateTimeParseException ex) {
                     return true;
                 } catch (Exception e2) {
                     e2.printStackTrace();
@@ -73,7 +77,7 @@ public class FileInfoTest {
         });
     }
 
-    @Test(expected = NumberFormatException.class)
+    @Test(expected = DateTimeParseException.class)
     public void testParseDurationTextWrongFormat2() throws Exception {
         FileInfo.parseDurationText("你好");
     }

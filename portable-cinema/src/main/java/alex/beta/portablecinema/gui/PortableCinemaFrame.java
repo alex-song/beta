@@ -33,7 +33,7 @@ public class PortableCinemaFrame extends JFrame {
 
     private static final Logger logger = LoggerFactory.getLogger(PortableCinemaFrame.class);
 
-    Icon LOGO_ICON_50;
+    Icon logo50Icon;
     private JButton rootChooserButton;
     private JButton scanButton;
     private JButton analyzeButton;
@@ -191,7 +191,7 @@ public class PortableCinemaFrame extends JFrame {
                 RESET_ICON = new ImageIcon(RESET_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
                 resetButton.setIcon(RESET_ICON);
 
-                LOGO_ICON_50 = new ImageIcon(LOGO_IMAGE.getScaledInstance(50, 50, Image.SCALE_SMOOTH));
+                logo50Icon = new ImageIcon(LOGO_IMAGE.getScaledInstance(50, 50, Image.SCALE_SMOOTH));
             } catch (IOException ex) {
                 logger.error("Failed to load icons", ex);
             }

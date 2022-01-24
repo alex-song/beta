@@ -40,13 +40,14 @@ public class ButtonActionHandler implements ActionListener {
 
     private static final String PRE_HTML_TAG = "<pre>%s</pre>";
 
-    private String FILEINFO_TABLE_TEMPLATE;
-    private String FILEINFO_TABLE_TR_TEMPLATE;
-    private String FILEINFO_TABLE_TR_A_TEMPLATE;
-    private String RESOLUTION_HD_IMG_TEMPLATE;
-    private String PREVIEW_IMG_TEMPLATE;
-    private String EDIT_IMG_TEMPLATE;
-    private String DETAIL_IMG_TEMPLATE;
+    private String fileinfoTableTemplate;
+    private String fileinfoTableTrTemplate;
+    private String fileinfoTableTrAHrefTemplate;
+
+    private String resolutionHdImgTemplate;
+    private String previewImgTemplate;
+    private String editImgTemplate;
+    private String detailImgTemplate;
 
     private PortableCinemaConfig config;
     private File rootFolder;
@@ -60,13 +61,13 @@ public class ButtonActionHandler implements ActionListener {
 
     public void loadTemplates() throws IOException {
         //read resource templates
-        FILEINFO_TABLE_TEMPLATE = readResource("templates/FileInfo-table.tpl");
-        FILEINFO_TABLE_TR_TEMPLATE = readResource("templates/FileInfo-table-tr.tpl");
-        FILEINFO_TABLE_TR_A_TEMPLATE = readResource("templates/FileInfo-table-tr-a.tpl");
-        RESOLUTION_HD_IMG_TEMPLATE = readResource("templates/FileInfo-HD-img.tpl");
-        PREVIEW_IMG_TEMPLATE = readResource("templates/FileInfo-preview-img.tpl");
-        EDIT_IMG_TEMPLATE = readResource("templates/FileInfo-edit-img.tpl");
-        DETAIL_IMG_TEMPLATE = readResource("templates/FileInfo-detail-img.tpl");
+        fileinfoTableTemplate = readResource("templates/FileInfo-table.tpl");
+        fileinfoTableTrTemplate = readResource("templates/FileInfo-table-tr.tpl");
+        fileinfoTableTrAHrefTemplate = readResource("templates/FileInfo-table-tr-a.tpl");
+        resolutionHdImgTemplate = readResource("templates/FileInfo-HD-img.tpl");
+        previewImgTemplate = readResource("templates/FileInfo-preview-img.tpl");
+        editImgTemplate = readResource("templates/FileInfo-edit-img.tpl");
+        detailImgTemplate = readResource("templates/FileInfo-detail-img.tpl");
     }
 
     @Override
@@ -81,7 +82,7 @@ public class ButtonActionHandler implements ActionListener {
                 performRoot(frame);
             } else {
                 if (rootFolder == null) {
-                    JOptionPane.showMessageDialog(frame, "请选择影库目录", TITLE, JOptionPane.INFORMATION_MESSAGE, frame.LOGO_ICON_50);
+                    JOptionPane.showMessageDialog(frame, "请选择影库目录", TITLE, JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
                     frame.appendResultText(HTML_LINE);
                     isRunning.set(false);
                 } else {
@@ -104,7 +105,7 @@ public class ButtonActionHandler implements ActionListener {
                 }
             }
         } else {
-            JOptionPane.showMessageDialog(frame, "当前指令正在执行，请稍后重试", TITLE, JOptionPane.INFORMATION_MESSAGE, frame.LOGO_ICON_50);
+            JOptionPane.showMessageDialog(frame, "当前指令正在执行，请稍后重试", TITLE, JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
         }
     }
 
@@ -130,7 +131,7 @@ public class ButtonActionHandler implements ActionListener {
                 "索引影库",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
-                frame.LOGO_ICON_50) == JOptionPane.YES_OPTION) {
+                frame.logo50Icon) == JOptionPane.YES_OPTION) {
             new ButtonWorker(frame, SCAN_ACTION).execute();
         } else {
             frame.appendResultText(HTML_LINE);
@@ -161,7 +162,7 @@ public class ButtonActionHandler implements ActionListener {
                 inputMessage,
                 TITLE,
                 JOptionPane.QUESTION_MESSAGE,
-                frame.LOGO_ICON_50, null, null);
+                frame.logo50Icon, null, null);
         if (NAME_ACTION.equalsIgnoreCase(action) && inputValue != null && isNotBlank(String.valueOf(inputValue))) {
             new QueryButtonWorker(frame, NAME_ACTION, String.valueOf(inputValue)).execute();
         } else if (TAG_ACTION.equalsIgnoreCase(action) && inputValue != null) {
@@ -182,7 +183,7 @@ public class ButtonActionHandler implements ActionListener {
                 "重置影库",
                 JOptionPane.CLOSED_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
-                frame.LOGO_ICON_50,
+                frame.logo50Icon,
                 choices,
                 defaultChoice);
         if (option == 2 && JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(frame,
@@ -190,14 +191,14 @@ public class ButtonActionHandler implements ActionListener {
                 "重置影库",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
-                frame.LOGO_ICON_50)) {
+                frame.logo50Icon)) {
             new ResetButtonWorker(frame, 2).execute();
         } else if (option == 1 && JOptionPane.YES_OPTION == JOptionPane.showConfirmDialog(frame,
                 "重置所有目录时间，是吗？",
                 "重置影库",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
-                frame.LOGO_ICON_50)) {
+                frame.logo50Icon)) {
             new ResetButtonWorker(frame, 1).execute();
         } else {
             frame.appendResultText(HTML_LINE);
@@ -232,7 +233,7 @@ public class ButtonActionHandler implements ActionListener {
             try {
                 String filePath = new ExportCommand(selectedFile.getCanonicalPath()).execute(config);
                 output("影库导出成功，" + filePath);
-                JOptionPane.showMessageDialog(frame, "影库导出成功", "导出影库", JOptionPane.INFORMATION_MESSAGE, frame.LOGO_ICON_50);
+                JOptionPane.showMessageDialog(frame, "影库导出成功", "导出影库", JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
             } catch (IOException ex) {
                 logger.error("Error when exporting database", ex);
                 output("影库导出失败（" + ex.getMessage() + "）");
@@ -331,7 +332,7 @@ public class ButtonActionHandler implements ActionListener {
         @Override
         protected void done() {
             super.done();
-            JOptionPane.showMessageDialog(frame, "影库重置成功", "重置影库", JOptionPane.INFORMATION_MESSAGE, frame.LOGO_ICON_50);
+            JOptionPane.showMessageDialog(frame, "影库重置成功", "重置影库", JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
         }
     }
 
@@ -424,13 +425,13 @@ public class ButtonActionHandler implements ActionListener {
                     String fileLinkText = HTML_SPACE;
                     if (!isBlank(fi.getPath())) {
                         String timestampText = (fi.getLastModifiedOn() == null ? "" : DateFormatUtils.format(fi.getLastModifiedOn(), PortableCinemaConfig.DATE_FORMATTER));
-                        fileLinkText = String.format(FILEINFO_TABLE_TR_A_TEMPLATE,
+                        fileLinkText = String.format(fileinfoTableTrAHrefTemplate,
                                 "file://" + UrlEscapers.urlFragmentEscaper().escape(fi.getPath()),
                                 timestampText,
                                 StringEscapeUtils.escapeHtml4(fi.getName()));
                     }
 
-                    String editLinkText = String.format(EDIT_IMG_TEMPLATE, fi.getOtid());
+                    String editLinkText = String.format(editImgTemplate, fi.getOtid());
 
                     String tagText = HTML_SPACE;
                     if (fi.getTags() != null && !fi.getTags().isEmpty()) {
@@ -441,25 +442,25 @@ public class ButtonActionHandler implements ActionListener {
                     if (fi.getResolution() != null) {
                         resolutionText = fi.getResolution().toString();
                         if (fi.getResolution().isHD()) {
-                            hdImg = String.format(RESOLUTION_HD_IMG_TEMPLATE, fi.getResolution().toString());
+                            hdImg = String.format(resolutionHdImgTemplate, fi.getResolution().toString());
                         }
                     }
                     String previewLinkText = HTML_SPACE;
                     if (!isBlank(fi.getCover1()) || !isBlank(fi.getCover2())) {
-                        previewLinkText = String.format(PREVIEW_IMG_TEMPLATE, fi.getOtid());
+                        previewLinkText = String.format(previewImgTemplate, fi.getOtid());
                     }
 
-                    String detailLinkText = String.format(DETAIL_IMG_TEMPLATE, fi.getOtid());
+                    String detailLinkText = String.format(detailImgTemplate, fi.getOtid());
 
                     String bgcolor = (i % 2 == 0 ? "white" : "silver");
-                    tbodyBuffer.append(String.format(FILEINFO_TABLE_TR_TEMPLATE, bgcolor,
+                    tbodyBuffer.append(String.format(fileinfoTableTrTemplate, bgcolor,
                             i + 1,
                             fileLinkText, previewLinkText, editLinkText, detailLinkText,
                             fi.getFormattedDuration(),
                             tagText,
                             resolutionText, hdImg)).append(System.lineSeparator());
                 }
-                return String.format(FILEINFO_TABLE_TEMPLATE, tbodyBuffer.toString());
+                return String.format(fileinfoTableTemplate, tbodyBuffer.toString());
             } else {
                 return null;
             }

@@ -64,8 +64,11 @@ public class EditCommand extends Command<Integer> {
                             gson.toJson(db, writer);
                             writer.flush();
                             //reset timestamp of current folder
-                            currentFolder.setLastModified(lastModifiedTime);
                             return UPDATE_SUCCESS;
+                        } finally {
+                            if (currentFolder.setLastModified(lastModifiedTime)) {
+                                logger.debug("Reset lastModifiedTime of [{}]", fileInfo.getPath());
+                            }
                         }
                     }
                 }

@@ -29,6 +29,7 @@ public class ClassUtils {
         //hide default public constructor
     }
 
+    @SuppressWarnings("deprecation")
     public static IShouldVisit customizedShouldVisit(String clazz) throws ConfigurationException {
         try {
             if (logger.isInfoEnabled()) {
@@ -41,6 +42,7 @@ public class ClassUtils {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public static IVisitor customizedVisitor(String clazz) throws ConfigurationException {
         try {
             if (logger.isInfoEnabled()) {
