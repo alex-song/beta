@@ -9,6 +9,8 @@ import org.junit.Test;
 
 import java.time.format.DateTimeParseException;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+
 public class FileInfoTest {
     private FileInfo fi1 = null;
     private FileInfo fi2 = null;
@@ -51,7 +53,7 @@ public class FileInfoTest {
 
     @Test
     public void testParseDurationTextWrongFormat1() throws Exception {
-        Assert.assertThat("1小时秒", new BaseMatcher<String>() {
+        assertThat("1小时秒", new BaseMatcher<String>() {
             @Override
             public boolean matches(Object actualValue) {
                 try {

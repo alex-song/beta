@@ -66,7 +66,7 @@
         <lombok_version>1.18.2</lombok_version>
         <crawler4j_version>4.3</crawler4j_version>
         <jsr305_version>3.0.2</jsr305_version>
-        <junit_version>4.12</junit_version>
+        <junit_version>4.13.1</junit_version>
         <wiremock_version>2.15.0</wiremock_version>
         <jackson-datatype-jsr310_version>2.9.5</jackson-datatype-jsr310_version>
         <metrics-core_version>4.0.2</metrics-core_version>
