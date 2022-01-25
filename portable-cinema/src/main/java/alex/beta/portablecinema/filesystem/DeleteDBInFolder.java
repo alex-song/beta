@@ -51,7 +51,9 @@ public class DeleteDBInFolder extends AbstractFolderVisitor {
         } catch (Exception ex) {
             logger.error("Failed to delete DB file [{}]", dbFile.getCanonicalPath(), ex);
         } finally {
-            currentFolder.setLastModified(lastModifiedTime);
+            if (currentFolder.setLastModified(lastModifiedTime)) {
+                logger.debug("Reset lastModifiedTime of [{}]", currentFolder.getCanonicalPath());
+            }
         }
     }
 }

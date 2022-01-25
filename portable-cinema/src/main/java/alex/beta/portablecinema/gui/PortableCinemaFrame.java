@@ -1,6 +1,5 @@
 package alex.beta.portablecinema.gui;
 
-import com.google.common.io.Resources;
 import com.google.common.net.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +14,10 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
+import static alex.beta.portablecinema.gui.classpath.ClasspathResourceConnection.resourceToByteArray;
 import static java.awt.Image.SCALE_SMOOTH;
 import static javax.imageio.ImageIO.read;
+import static org.apache.commons.lang3.StringUtils.toEncodedString;
 
 @SuppressWarnings({"squid:S1948", "squid:S3776"})
 public class PortableCinemaFrame extends JFrame {
@@ -66,7 +67,7 @@ public class PortableCinemaFrame extends JFrame {
     private void createUIComponents() {
         try {
             LOGO_IMAGE = read(this.getClass().getClassLoader().getResource("images/Logo_2.png"));
-            EMPTY_HTML_TEMPLATE = readResource("templates/Empty.tpl");
+            EMPTY_HTML_TEMPLATE = toEncodedString(resourceToByteArray("templates/Empty.tpl"), StandardCharsets.UTF_8);
         } catch (Exception ex) {
             logger.error("Failed to load icon or template files", ex);
             return;
@@ -196,10 +197,6 @@ public class PortableCinemaFrame extends JFrame {
                 logger.error("Failed to load icons", ex);
             }
         });
-    }
-
-    static String readResource(String resourceName) throws IOException {
-        return Resources.asCharSource(Resources.getResource(resourceName), StandardCharsets.UTF_8).read();
     }
 
     public void enableUIActions(ButtonActionHandler buttonActionHandler, HyperlinkActionHandler hyperlinkActionHandler) {

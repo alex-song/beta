@@ -1,10 +1,10 @@
 package alex.beta.portablecinema;
 
+import alex.beta.portablecinema.database.DatabaseException;
 import alex.beta.portablecinema.gui.ButtonActionHandler;
 import alex.beta.portablecinema.gui.HyperlinkActionHandler;
 import alex.beta.portablecinema.gui.PortableCinemaFrame;
 import alex.beta.portablecinema.gui.classpath.Handler;
-import alex.beta.portablecinema.database.DatabaseException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.slf4j.Logger;
@@ -14,7 +14,6 @@ import javax.swing.*;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.IOException;
 
 public class PortableCinemaGUI {
     private static Logger logger = LoggerFactory.getLogger(PortableCinemaGUI.class);
@@ -65,9 +64,6 @@ public class PortableCinemaGUI {
             } catch (DatabaseException ex) {
                 logger.error("Database initialization failed", ex);
                 frame.setErrorStatusText("数据库初始化失败");
-            } catch (IOException ex) {
-                logger.error("Failed to load templates", ex);
-                frame.setErrorStatusText("读取资源文件失败");
             }
         });
     }

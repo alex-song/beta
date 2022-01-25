@@ -28,6 +28,6 @@ public class Handler extends URLStreamHandler {
 
     @Override
     protected URLConnection openConnection(URL u) throws IOException {
-        return new ClassLoaderResourceConnection(u);
+        return new ClasspathResourceConnection(u);
     }
 }

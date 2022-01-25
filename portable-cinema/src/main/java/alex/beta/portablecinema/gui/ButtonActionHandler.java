@@ -22,6 +22,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -29,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static alex.beta.portablecinema.FolderVisitorFactory.Action.*;
 import static alex.beta.portablecinema.FolderVisitorFactory.newFolderVisitor;
 import static alex.beta.portablecinema.gui.PortableCinemaFrame.*;
+import static alex.beta.portablecinema.gui.classpath.ClasspathResourceConnection.resourceToByteArray;
 import static org.apache.commons.lang3.StringUtils.*;
 
 public class ButtonActionHandler implements ActionListener {
@@ -40,14 +42,14 @@ public class ButtonActionHandler implements ActionListener {
 
     private static final String PRE_HTML_TAG = "<pre>%s</pre>";
 
-    private String fileinfoTableTemplate;
-    private String fileinfoTableTrTemplate;
-    private String fileinfoTableTrAHrefTemplate;
+    private String FILEINFO_TABLE_TEMPLATE;
+    private String FILEINFO_TABLE_TR_TEMPLATE;
+    private String FILEINFO_TABLE_TR_A_TEMPLATE;
 
-    private String resolutionHdImgTemplate;
-    private String previewImgTemplate;
-    private String editImgTemplate;
-    private String detailImgTemplate;
+    private String RESOLUTION_HD_IMG_TEMPLATE;
+    private String GALLERY_IMG_TEMPLATE;
+    private String FILEINFO_EDIT_IMG_TEMPLATE;
+    private String FILEINFO_DETAIL_IMG_TEMPLATE;
 
     private PortableCinemaConfig config;
     private File rootFolder;
@@ -59,15 +61,15 @@ public class ButtonActionHandler implements ActionListener {
         this.confFile = confFile;
     }
 
-    public void loadTemplates() throws IOException {
+    public void loadTemplates() {
         //read resource templates
-        fileinfoTableTemplate = readResource("templates/FileInfo-table.tpl");
-        fileinfoTableTrTemplate = readResource("templates/FileInfo-table-tr.tpl");
-        fileinfoTableTrAHrefTemplate = readResource("templates/FileInfo-table-tr-a.tpl");
-        resolutionHdImgTemplate = readResource("templates/FileInfo-HD-img.tpl");
-        previewImgTemplate = readResource("templates/FileInfo-preview-img.tpl");
-        editImgTemplate = readResource("templates/FileInfo-edit-img.tpl");
-        detailImgTemplate = readResource("templates/FileInfo-detail-img.tpl");
+        FILEINFO_TABLE_TEMPLATE = toEncodedString(resourceToByteArray("templates/FileInfo-table.tpl"), StandardCharsets.UTF_8);
+        FILEINFO_TABLE_TR_TEMPLATE = toEncodedString(resourceToByteArray("templates/FileInfo-table-tr.tpl"), StandardCharsets.UTF_8);
+        FILEINFO_TABLE_TR_A_TEMPLATE = toEncodedString(resourceToByteArray("templates/FileInfo-table-tr-a.tpl"), StandardCharsets.UTF_8);
+        RESOLUTION_HD_IMG_TEMPLATE = toEncodedString(resourceToByteArray("templates/FileInfo-HD-img.tpl"), StandardCharsets.UTF_8);
+        GALLERY_IMG_TEMPLATE = toEncodedString(resourceToByteArray("templates/FileInfo-gallery-img.tpl"), StandardCharsets.UTF_8);
+        FILEINFO_EDIT_IMG_TEMPLATE = toEncodedString(resourceToByteArray("templates/FileInfo-edit-img.tpl"), StandardCharsets.UTF_8);
+        FILEINFO_DETAIL_IMG_TEMPLATE = toEncodedString(resourceToByteArray("templates/FileInfo-detail-img.tpl"), StandardCharsets.UTF_8);
     }
 
     @Override
@@ -425,13 +427,13 @@ public class ButtonActionHandler implements ActionListener {
                     String fileLinkText = HTML_SPACE;
                     if (!isBlank(fi.getPath())) {
                         String timestampText = (fi.getLastModifiedOn() == null ? "" : DateFormatUtils.format(fi.getLastModifiedOn(), PortableCinemaConfig.DATE_FORMATTER));
-                        fileLinkText = String.format(fileinfoTableTrAHrefTemplate,
+                        fileLinkText = String.format(FILEINFO_TABLE_TR_A_TEMPLATE,
                                 "file://" + UrlEscapers.urlFragmentEscaper().escape(fi.getPath()),
                                 timestampText,
                                 StringEscapeUtils.escapeHtml4(fi.getName()));
                     }
 
-                    String editLinkText = String.format(editImgTemplate, fi.getOtid());
+                    String editLinkText = String.format(FILEINFO_EDIT_IMG_TEMPLATE, fi.getOtid());
 
                     String tagText = HTML_SPACE;
                     if (fi.getTags() != null && !fi.getTags().isEmpty()) {
@@ -442,25 +444,25 @@ public class ButtonActionHandler implements ActionListener {
                     if (fi.getResolution() != null) {
                         resolutionText = fi.getResolution().toString();
                         if (fi.getResolution().isHD()) {
-                            hdImg = String.format(resolutionHdImgTemplate, fi.getResolution().toString());
+                            hdImg = String.format(RESOLUTION_HD_IMG_TEMPLATE, fi.getResolution().toString());
                         }
                     }
-                    String previewLinkText = HTML_SPACE;
+                    String galleryLinkText = HTML_SPACE;
                     if (!isBlank(fi.getCover1()) || !isBlank(fi.getCover2())) {
-                        previewLinkText = String.format(previewImgTemplate, fi.getOtid());
+                        galleryLinkText = String.format(GALLERY_IMG_TEMPLATE, fi.getOtid());
                     }
 
-                    String detailLinkText = String.format(detailImgTemplate, fi.getOtid());
+                    String detailLinkText = String.format(FILEINFO_DETAIL_IMG_TEMPLATE, fi.getOtid());
 
                     String bgcolor = (i % 2 == 0 ? "white" : "silver");
-                    tbodyBuffer.append(String.format(fileinfoTableTrTemplate, bgcolor,
+                    tbodyBuffer.append(String.format(FILEINFO_TABLE_TR_TEMPLATE, bgcolor,
                             i + 1,
-                            fileLinkText, previewLinkText, editLinkText, detailLinkText,
+                            fileLinkText, galleryLinkText, editLinkText, detailLinkText,
                             fi.getFormattedDuration(),
                             tagText,
                             resolutionText, hdImg)).append(System.lineSeparator());
                 }
-                return String.format(fileinfoTableTemplate, tbodyBuffer.toString());
+                return String.format(FILEINFO_TABLE_TEMPLATE, tbodyBuffer.toString());
             } else {
                 return null;
             }
