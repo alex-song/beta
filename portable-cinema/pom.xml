@@ -9,7 +9,14 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <version>1.0</version>
+
     <artifactId>portable-cinema</artifactId>
+
+    <properties>
+        <!--<buildTimestamp>${maven.build.timestamp}</buildTimestamp>-->
+        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+    </properties>
 
     <dependencies>
         <!-- https://mvnrepository.com/artifact/xuggle/xuggle-xuggler -->
@@ -101,12 +108,20 @@
                                     <mainClass>alex.beta.portablecinema.PortableCinemaGUI</mainClass>
                                 </manifest>
                             </archive>
-                            <finalName>portable-cinema</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <finalName>portable-cinema-${maven.build.timestamp}</finalName>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <!-- 是否替换@xx@表示的maven properties属性值 -->
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 
     <!-- dcm4che repo, to download xuggle -->

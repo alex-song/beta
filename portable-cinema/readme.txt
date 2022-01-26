@@ -12,6 +12,7 @@ A:
 8. [Cancel] Redirect outoput stream to console
 9. [Done] Async scan and aggregate
 10. [Done] Output message in console
+11. [Done] Build# in banner
 
 B:
 1. [Cancel] Add images array

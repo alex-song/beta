@@ -25,8 +25,6 @@ public class PortableCinemaCLI {
 
     public static void main(String[] args) throws IOException, DatabaseException {
         logger.info("### Portable Cinema Command Line Interface ###");
-        System.out.println(Banner.getBanner() + System.lineSeparator());
-
         String confFileName = PortableCinemaConfig.DEFAULT_CONFIGURATION_FILE_NAME;
         if (System.getProperty(PortableCinemaConfig.CONFIGURATION_PROPERTY_NAME) != null) {
             confFileName = System.getProperty(PortableCinemaConfig.CONFIGURATION_PROPERTY_NAME);
@@ -56,24 +54,21 @@ public class PortableCinemaCLI {
         } else if (!confFile.isFile()) {
             throw new IllegalArgumentException(String.format("Configuration file [%s] is not a valid file", confFileName));
         }
-
         logger.info("Root folder: [{}]", rootFolder.getCanonicalPath());
-        System.out.println(String.format("Root folder: [%s]", rootFolder.getCanonicalPath()));
         logger.info("Configuration file: [{}]", confFile.getCanonicalPath());
-        System.out.println(String.format("Configuration file: [%s]", confFile.getCanonicalPath()));
 
         PortableCinemaConfig config = new GsonBuilder().setDateFormat(PortableCinemaConfig.DATE_FORMATTER).create().fromJson(new FileReader(confFile), PortableCinemaConfig.class);
+        System.out.println(Banner.getBanner(ConsoleColors.BLACK_BOLD + confFile.getCanonicalPath() + ConsoleColors.RESET, config) + System.lineSeparator());
 
         if (logger.isInfoEnabled())
             logger.info(config.toString());
-        System.out.println(config.toString());
 
         if (DatabaseAdapter.getAdapter(DatabaseAdapter.Type.H2_IN_MEMORY) != null) {
             logger.info("Initializing database is done");
         }
-        System.out.println("########################################");
+        System.out.println("==============================================================================");
 
-        System.out.println("Folder " + action + ":");
+        System.out.println(action + ":");
         FolderVisitorFactory.FolderVisitor fv = FolderVisitorFactory.newFolderVisitor(action);
 
         if (FolderVisitorFactory.Action.SCAN == action) {
@@ -84,7 +79,7 @@ public class PortableCinemaCLI {
             System.out.println(fi);
         }
 
-        System.out.println("########################################");
+        System.out.println("==============================================================================");
 
         if (action == FolderVisitorFactory.Action.AGGREGATE) {
             boolean quit = false;

@@ -28,10 +28,10 @@ public class ClasspathResourceConnection extends URLConnection {
                 .recordStats()
                 .maximumSize(100)
                 .refreshAfterWrite(15, TimeUnit.MINUTES)
-                .build(CacheLoader.from(ClasspathResourceConnection::resourceToByteArray));
+                .build(CacheLoader.from(this::resourceToByteArray));
     }
 
-    public static byte[] resourceToByteArray(@NonNull String resourcePath) {
+    private byte[] resourceToByteArray(@NonNull String resourcePath) {
         try {
             return Resources.toByteArray(Resources.getResource(resourcePath));
         } catch (IOException ex) {

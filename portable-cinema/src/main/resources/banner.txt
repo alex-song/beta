@@ -5,8 +5,14 @@
 | |      | |_| || |    | |__ ( ( | || |_) )| |( (/ /   | \_____ | || | | |( (/ / | | | |( ( | |
 |_|       \___/ |_|     \___) \_||_||____/ |_| \____)   \______)|_||_| |_| \____)|_|_|_| \_||_|
 
+
+版本: @project.version@
+日期时间: @maven.build.timestamp@
+
 命令行使用方法：java -cp portable-cinema-all-in-one.jar -Dportable-cinema.conf=<configuration file> alex.beta.portablecinema.PortableCinemaCLI <action> <root folder>
 例如：java -cp portable-cinema-all-in-one.jar -Dportable-cinema.conf=portable_cinema_conf.json alex.beta.portablecinema.PortableCinemaCLI AGGREGATE .
+当前配置路径：@portable-cinema.conf@
+
 默认配置文件（configuration file）存放在运行目录，文件名为portable_cinema_conf.json。关键字库文件默认在同一目录，文件名为Glossary.json。
 格式如下：
 {
@@ -21,15 +27,6 @@
       "tags":[
         "tag11 of keyword1",
         "tag12 of keyword1"
-      ]
-    },
-    {
-      "text":"keyword2",
-      "alias":[
-        "alias21 of keyword2"
-      ],
-      "tags":[
-        "tag21 of keyword2"
       ]
     }
   ]

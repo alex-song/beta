@@ -44,7 +44,7 @@ public class PortableCinemaConfig {
 
     @Override
     public String toString() {
-        return "PortableCinemaConfig{" +
+        return "PortableCinemaConfig {" +
                 "rootFolderPath='" + rootFolderPath + '\'' +
                 ", dbFileName='" + dbFileName + '\'' +
                 ", imageFileSizeThreshold=" + imageFileSizeThreshold +

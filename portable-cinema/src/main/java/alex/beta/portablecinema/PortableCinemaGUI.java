@@ -14,6 +14,7 @@ import javax.swing.*;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 
 public class PortableCinemaGUI {
     private static Logger logger = LoggerFactory.getLogger(PortableCinemaGUI.class);
@@ -60,11 +61,15 @@ public class PortableCinemaGUI {
                 }
                 buttonActionHandler.loadTemplates();
                 frame.enableUIActions(buttonActionHandler, hyperlinkActionHandler);
-                frame.appendResultText("<pre>" + System.lineSeparator() + Banner.getBanner() + "</pre>" + System.lineSeparator());
+                frame.appendResultText("<pre>" + System.lineSeparator() + Banner.getBanner("<b>" + confFile.getCanonicalPath() + "</b>", config) + "</pre>" + System.lineSeparator());
             } catch (DatabaseException ex) {
                 logger.error("Database initialization failed", ex);
                 frame.setErrorStatusText("数据库初始化失败");
+            } catch (IOException ex) {
+                logger.error("Failed to load templates", ex);
+                frame.setErrorStatusText("读取资源文件失败");
             }
+
         });
     }
 }

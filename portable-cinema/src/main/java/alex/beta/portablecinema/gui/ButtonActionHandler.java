@@ -5,6 +5,7 @@ import alex.beta.portablecinema.command.*;
 import alex.beta.portablecinema.filesystem.VisitorMessageCallback;
 import alex.beta.portablecinema.pojo.FileInfo;
 import alex.beta.portablecinema.pojo.FolderInfo;
+import com.google.common.io.Resources;
 import com.google.common.net.UrlEscapers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -30,7 +31,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static alex.beta.portablecinema.FolderVisitorFactory.Action.*;
 import static alex.beta.portablecinema.FolderVisitorFactory.newFolderVisitor;
 import static alex.beta.portablecinema.gui.PortableCinemaFrame.*;
-import static alex.beta.portablecinema.gui.classpath.ClasspathResourceConnection.resourceToByteArray;
 import static org.apache.commons.lang3.StringUtils.*;
 
 public class ButtonActionHandler implements ActionListener {
@@ -61,15 +61,19 @@ public class ButtonActionHandler implements ActionListener {
         this.confFile = confFile;
     }
 
-    public void loadTemplates() {
+    public void loadTemplates() throws IOException {
         //read resource templates
-        FILEINFO_TABLE_TEMPLATE = toEncodedString(resourceToByteArray("templates/FileInfo-table.tpl"), StandardCharsets.UTF_8);
-        FILEINFO_TABLE_TR_TEMPLATE = toEncodedString(resourceToByteArray("templates/FileInfo-table-tr.tpl"), StandardCharsets.UTF_8);
-        FILEINFO_TABLE_TR_A_TEMPLATE = toEncodedString(resourceToByteArray("templates/FileInfo-table-tr-a.tpl"), StandardCharsets.UTF_8);
-        RESOLUTION_HD_IMG_TEMPLATE = toEncodedString(resourceToByteArray("templates/FileInfo-HD-img.tpl"), StandardCharsets.UTF_8);
-        GALLERY_IMG_TEMPLATE = toEncodedString(resourceToByteArray("templates/FileInfo-gallery-img.tpl"), StandardCharsets.UTF_8);
-        FILEINFO_EDIT_IMG_TEMPLATE = toEncodedString(resourceToByteArray("templates/FileInfo-edit-img.tpl"), StandardCharsets.UTF_8);
-        FILEINFO_DETAIL_IMG_TEMPLATE = toEncodedString(resourceToByteArray("templates/FileInfo-detail-img.tpl"), StandardCharsets.UTF_8);
+        FILEINFO_TABLE_TEMPLATE = readTemplate("templates/FileInfo-table.tpl");
+        FILEINFO_TABLE_TR_TEMPLATE = readTemplate("templates/FileInfo-table-tr.tpl");
+        FILEINFO_TABLE_TR_A_TEMPLATE = readTemplate("templates/FileInfo-table-tr-a.tpl");
+        RESOLUTION_HD_IMG_TEMPLATE = readTemplate("templates/FileInfo-HD-img.tpl");
+        GALLERY_IMG_TEMPLATE = readTemplate("templates/FileInfo-gallery-img.tpl");
+        FILEINFO_EDIT_IMG_TEMPLATE = readTemplate("templates/FileInfo-edit-img.tpl");
+        FILEINFO_DETAIL_IMG_TEMPLATE = readTemplate("templates/FileInfo-detail-img.tpl");
+    }
+
+    private String readTemplate(String resourcePath) throws IOException {
+        return Resources.asCharSource(Resources.getResource(resourcePath), StandardCharsets.UTF_8).read();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package alex.beta.portablecinema.gui;
 
+import com.google.common.io.Resources;
 import com.google.common.net.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +15,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
-import static alex.beta.portablecinema.gui.classpath.ClasspathResourceConnection.resourceToByteArray;
 import static java.awt.Image.SCALE_SMOOTH;
 import static javax.imageio.ImageIO.read;
-import static org.apache.commons.lang3.StringUtils.toEncodedString;
 
 @SuppressWarnings({"squid:S1948", "squid:S3776"})
 public class PortableCinemaFrame extends JFrame {
@@ -67,7 +66,7 @@ public class PortableCinemaFrame extends JFrame {
     private void createUIComponents() {
         try {
             LOGO_IMAGE = read(this.getClass().getClassLoader().getResource("images/Logo_2.png"));
-            EMPTY_HTML_TEMPLATE = toEncodedString(resourceToByteArray("templates/Empty.tpl"), StandardCharsets.UTF_8);
+            EMPTY_HTML_TEMPLATE = Resources.asCharSource(Resources.getResource("templates/Empty.tpl"), StandardCharsets.UTF_8).read();
         } catch (Exception ex) {
             logger.error("Failed to load icon or template files", ex);
             return;
@@ -156,7 +155,7 @@ public class PortableCinemaFrame extends JFrame {
         statusPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
         statusPanel.setPreferredSize(new Dimension(this.getWidth(), 24));
         statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.X_AXIS));
-        statusLabel = new JLabel("Portable cinema");
+        statusLabel = new JLabel("Portable Cinema");
         statusLabel.setHorizontalAlignment(SwingConstants.LEFT);
         statusLabel.setIcon(new ImageIcon(LOGO_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH)));
         statusPanel.add(statusLabel);

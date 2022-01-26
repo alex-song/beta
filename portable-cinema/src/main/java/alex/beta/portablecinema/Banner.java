@@ -13,9 +13,11 @@ final class Banner {
 
     }
 
-    public static String getBanner() {
+    public static String getBanner(String confPath, PortableCinemaConfig config) {
         try {
-            return Resources.asCharSource(Resources.getResource("banner.txt"), StandardCharsets.UTF_8).read();
+            String banner = Resources.asCharSource(Resources.getResource("banner.txt"), StandardCharsets.UTF_8).read();
+            return banner.replace("@" + PortableCinemaConfig.CONFIGURATION_PROPERTY_NAME + "@", confPath)
+                    .replace("@" + PortableCinemaConfig.CONFIGURATION_PROPERTY_NAME + ".content@", config.toString());
         } catch (Exception ex) {
             logger.error("Cannot read banner.txt", ex);
             return "Portable Cinema" + System.lineSeparator();
