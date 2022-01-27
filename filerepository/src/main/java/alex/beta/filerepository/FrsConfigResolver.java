@@ -89,8 +89,8 @@ public class FrsConfigResolver {
                 throw new InvalidConfigurationException(frsConfigFile);
             } else {
                 XMLInputFactory factory = XMLInputFactory.newInstance();
-                factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-                factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+//                factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+//                factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
                 XMLStreamReader reader = factory.createXMLStreamReader(res.getInputStream());
                 return jaxbUnmarshaller.unmarshal(reader, FrsConfig.class).getValue();
             }

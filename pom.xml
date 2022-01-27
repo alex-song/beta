@@ -40,9 +40,9 @@
         <maven-war-plugin_version>3.2.0</maven-war-plugin_version>
         <exec-maven-plugin_version>1.6.0</exec-maven-plugin_version>
         <jacoco-maven-plugin_version>0.8.0</jacoco-maven-plugin_version>
-        <maven-surefire-plugin_version>2.20.1</maven-surefire-plugin_version>
+        <maven-surefire-plugin_version>2.22.2</maven-surefire-plugin_version>
         <maven-failsafe-plugin_version>2.20.1</maven-failsafe-plugin_version>
-        <sonar-maven-plugin_version>3.4.0.905</sonar-maven-plugin_version>
+        <sonar-maven-plugin_version>3.5.0.1254</sonar-maven-plugin_version>
         <docker-maven-plugin_version>1.0.0</docker-maven-plugin_version>
         <maven-jaxb2-plugin_version>0.13.3</maven-jaxb2-plugin_version>
         <jaxb2-basics_version>0.11.1</jaxb2-basics_version>
