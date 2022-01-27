@@ -96,10 +96,10 @@ public class TagServiceTest {
     @Test
     public void testSimilarTags() throws Exception {
         Set<String> result = tagService.similarTags("TestActor-0G^&##");
-        Assert.assertTrue(result.size() == 1);
+        Assert.assertEquals(1,result.size());
 
         result = tagService.similarTags("TestActor-0G^&#ACTOR-1#");
-        Assert.assertTrue(result.size() == 2);
+        Assert.assertEquals(2, result.size());
 
         result = tagService.similarTags("term-alias-21");
         Assert.assertTrue(result.size() == 1 && result.contains("term-tag-2"));
@@ -111,9 +111,9 @@ public class TagServiceTest {
         Assert.assertTrue(result.size() >= 1);
 
         result = tagService.similarTags("term-text-0");
-        Assert.assertTrue(result.size() == 1);
+        Assert.assertEquals(1, result.size());
 
         result = tagService.similarTags("term-text-1");
-        Assert.assertTrue(result.size() == 2);
+        Assert.assertEquals(2, result.size());
     }
 }
