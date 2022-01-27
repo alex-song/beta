@@ -20,7 +20,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @SuppressWarnings({"squid:S106", "squid:S3776"})
 public class PortableCinemaCLI {
-    public static final String OUTPUT_PREFIX = ">>>";
+    static final String OUTPUT_PREFIX = ">>>";
     private static final Logger logger = LoggerFactory.getLogger(PortableCinemaCLI.class);
 
     public static void main(String[] args) throws IOException, DatabaseException {
@@ -58,7 +58,7 @@ public class PortableCinemaCLI {
         logger.info("Configuration file: [{}]", confFile.getCanonicalPath());
 
         PortableCinemaConfig config = new GsonBuilder().setDateFormat(PortableCinemaConfig.DATE_FORMATTER).create().fromJson(new FileReader(confFile), PortableCinemaConfig.class);
-        System.out.println(Banner.getBanner(ConsoleColors.BLACK_BOLD + confFile.getCanonicalPath() + ConsoleColors.RESET, config) + System.lineSeparator());
+        System.out.println(Banner.getInstance().read(ConsoleColors.BLACK_BOLD + confFile.getCanonicalPath() + ConsoleColors.RESET, config) + System.lineSeparator());
 
         if (logger.isInfoEnabled())
             logger.info(config.toString());
@@ -108,7 +108,6 @@ public class PortableCinemaCLI {
      *
      * @param inputStr Tag, Name, Where, Export, Analyze
      * @return
-     * @throws IllegalArgumentException
      */
     private static Command<?> getCommand(@NonNull String inputStr) {
         int seperatorIndex = inputStr.indexOf(' ');
@@ -181,8 +180,8 @@ public class PortableCinemaCLI {
                         StringBuilder buffer = new StringBuilder("下列影片大小一致，都是：")
                                 .append(result.getSimilarSizes().get(i)).append(System.lineSeparator());
                         FileInfo[] fis = result.getSimilarVideos().get(i);
-                        for (int j = 0; j < fis.length; j++) {
-                            buffer.append(fis[i]).append(System.lineSeparator());
+                        for (FileInfo fi : fis) {
+                            buffer.append(fi).append(System.lineSeparator());
                         }
                         outputInternal(buffer.toString(), prefix);
                     }
