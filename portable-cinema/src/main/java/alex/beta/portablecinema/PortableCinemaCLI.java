@@ -58,7 +58,7 @@ public class PortableCinemaCLI {
         logger.info("Configuration file: [{}]", confFile.getCanonicalPath());
 
         PortableCinemaConfig config = new GsonBuilder().setDateFormat(PortableCinemaConfig.DATE_FORMATTER).create().fromJson(new FileReader(confFile), PortableCinemaConfig.class);
-        System.out.println(Banner.getInstance().read(ConsoleColors.BLACK_BOLD + confFile.getCanonicalPath() + ConsoleColors.RESET, config) + System.lineSeparator());
+        System.out.println(Banner.getInstance().read4CLI(confFile.getCanonicalPath(), config) + System.lineSeparator());
 
         if (logger.isInfoEnabled())
             logger.info(config.toString());

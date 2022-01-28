@@ -61,7 +61,7 @@ public class PortableCinemaGUI {
                 }
                 buttonActionHandler.loadTemplates();
                 frame.enableUIActions(buttonActionHandler, hyperlinkActionHandler);
-                frame.appendResultText("<pre>" + System.lineSeparator() + Banner.getInstance().read("<b>" + confFile.getCanonicalPath() + "</b>", config) + "</pre>" + System.lineSeparator());
+                frame.appendResultText("<pre>" + System.lineSeparator() + Banner.getInstance().read4GUI(confFile.getCanonicalPath(), config) + "</pre>" + System.lineSeparator());
             } catch (DatabaseException ex) {
                 logger.error("Database initialization failed", ex);
                 frame.setErrorStatusText("数据库初始化失败");
