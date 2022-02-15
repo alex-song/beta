@@ -45,7 +45,7 @@ public final class Banner {
         }
     }
 
-    static synchronized Banner getInstance() {
+    static synchronized Banner read() {
         if (instance == null) {
             instance = new Banner();
             instance.template = instance.convertTimestamp(instance.template);
@@ -57,11 +57,11 @@ public final class Banner {
         return convertUTCTimestamp(convertNormalizedTimestamp(text));
     }
 
-    String read4CLI(String confPath, PortableCinemaConfig config) {
+    String forCLI(String confPath, PortableCinemaConfig config) {
         return read(ConsoleColors.BLACK_BOLD + confPath + ConsoleColors.RESET, config);
     }
 
-    String read4GUI(String confPath, PortableCinemaConfig config) {
+    String forGUI(String confPath, PortableCinemaConfig config) {
         return read("<b>" + confPath + "</b>", config);
     }
 

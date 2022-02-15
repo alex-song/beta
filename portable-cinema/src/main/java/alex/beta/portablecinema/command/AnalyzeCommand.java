@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 
 @NoArgsConstructor
 public class AnalyzeCommand extends Command<AnalyzeCommand.AnalyzeResult> {
@@ -24,10 +25,10 @@ public class AnalyzeCommand extends Command<AnalyzeCommand.AnalyzeResult> {
             DatabaseAdapter databaseAdapter = DatabaseAdapter.getAdapter(DatabaseAdapter.Type.H2_IN_MEMORY);
             result.setTotalVideos(databaseAdapter.count());
             result.setTagsInUse(databaseAdapter.listTagsAndOrderByCountDesc(0, 10));
-            Long[] ss = databaseAdapter.findBySameSize();
-            if (ss != null && ss.length > 0) {
-                for (Long size : ss)
-                    result.addSimilarVideos(size, databaseAdapter.findBySize(size));
+            Long[] fss = databaseAdapter.findBySameSize();
+            if (fss != null && fss.length > 0) {
+                for (Long fileSize : fss)
+                    result.addSimilarVideos(fileSize, databaseAdapter.findBySize(fileSize));
             }
         } catch (DatabaseException ex) {
             logger.error("Failed to analyze file info", ex);
@@ -35,7 +36,7 @@ public class AnalyzeCommand extends Command<AnalyzeCommand.AnalyzeResult> {
         return result;
     }
 
-    public class AnalyzeResult {
+    public static class AnalyzeResult {
         /**
          * 总电影数量
          */
@@ -80,9 +81,24 @@ public class AnalyzeCommand extends Command<AnalyzeCommand.AnalyzeResult> {
             return similarSizes;
         }
 
-        public void addSimilarVideos(long size, FileInfo[] videos) {
-            similarSizes.add(size);
-            similarVideos.add(videos);
+        public void addSimilarVideos(long fileSize, FileInfo[] videos) {
+            //Double check resolution of each file.
+            //The files are different, if the resolution are different, though the file size are the same.
+            FileInfo.Resolution r = videos[0].getResolution();
+            List<FileInfo> tmp = new ArrayList<>();
+            for (FileInfo video : videos)
+                if (Objects.equals(video.getResolution(), r))
+                    tmp.add(video);
+                else if (video.getResolution() != null && r == null && video.getResolution().getWidth() == 0 && video.getResolution().getHeight() == 0) {
+                    tmp.add(video);
+                } else if (r != null && video.getResolution() == null && r.getWidth() == 0 && r.getHeight() == 0) {
+                    tmp.add(video);
+                }
+
+            if (tmp.size() > 1) {
+                similarSizes.add(fileSize);
+                similarVideos.add(tmp.toArray(new FileInfo[]{}));
+            }
         }
     }
 }
