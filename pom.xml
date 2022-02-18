@@ -21,6 +21,7 @@
         <module>filerepository</module>
         <module>portable-cinema</module>
         <module>torrentparser</module>
+        <module>simpleocr</module>
     </modules>
     <properties>
         <!-- compile parameters -->
@@ -58,7 +59,7 @@
         <hibernate-core_version>5.2.10.Final</hibernate-core_version>
         <querydsl-jpa_version>4.1.4</querydsl-jpa_version>
         <gson_version>2.2.4</gson_version>
-        <guava_version>22.0</guava_version>
+        <guava_version>23.0</guava_version>
         <commons-lang3_version>3.7</commons-lang3_version>
         <commons-text_version>1.9</commons-text_version>
         <commons-io_version>2.6</commons-io_version>
