@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
+import java.util.Set;
 
 public abstract class DatabaseAdapter {
     protected static final Logger logger = LoggerFactory.getLogger(DatabaseAdapter.class);
@@ -124,6 +125,12 @@ public abstract class DatabaseAdapter {
      * @throws DatabaseException
      */
     public abstract FileInfo[] findBySize(long size) throws DatabaseException;
+
+    /**
+     * @return
+     * @throws DatabaseException
+     */
+    public abstract Set<String> findAllTags() throws DatabaseException;
 
     public enum Type {
         H2_IN_MEMORY

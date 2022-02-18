@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.join;
 
 @SuppressWarnings({"squid:S106", "squid:S3776"})
 public class PortableCinemaCLI {
@@ -162,6 +163,10 @@ public class PortableCinemaCLI {
             } else if (content instanceof AnalyzeCommand.AnalyzeResult) {
                 AnalyzeCommand.AnalyzeResult result = (AnalyzeCommand.AnalyzeResult) content;
                 outputInternal("影片数量：" + result.getTotalVideos() + "部影片", prefix);
+
+                if (result.getExtraTags() != null && !result.getExtraTags().isEmpty()) {
+                    outputInternal("新标签：" + join(result.getExtraTags(), ", "), prefix);
+                }
 
                 if (!result.getTagsInUse().isEmpty()) {
                     StringBuilder buffer = new StringBuilder("常用标签：").append(System.lineSeparator());

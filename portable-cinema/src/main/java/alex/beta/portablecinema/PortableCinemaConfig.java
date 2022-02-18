@@ -23,8 +23,9 @@ public class PortableCinemaConfig {
     private String videoFileExtensions;
     private String skipNameStartsWith;
     private String glossaryFileName;
+    private BaiduOCR baiduOCR;
 
-    public static final PortableCinemaConfig getDefault() {
+    public static PortableCinemaConfig getDefault() {
         PortableCinemaConfig config = new PortableCinemaConfig();
         config.rootFolderPath = DEFAULT_ROOT_FOLDER_NAME;
         config.dbFileName = DEFAULT_IN_FOLDER_DB_FILE_NAME;
@@ -54,5 +55,16 @@ public class PortableCinemaConfig {
                 ", skipNameStartsWith='" + skipNameStartsWith + '\'' +
                 ", glossaryFileName='" + glossaryFileName + '\'' +
                 '}';
+    }
+
+    @Setter
+    @Getter
+    @NoArgsConstructor
+    public static class BaiduOCR {
+        private String proxyHost;
+        private int proxyPort;
+        private String appId;
+        private String apiKey;
+        private String secretKey;
     }
 }

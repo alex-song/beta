@@ -4,12 +4,10 @@ import alex.beta.portablecinema.DatabaseAdapter;
 import alex.beta.portablecinema.PortableCinemaConfig;
 import alex.beta.portablecinema.database.DatabaseException;
 import alex.beta.portablecinema.pojo.FileInfo;
+import alex.beta.portablecinema.tag.TagService;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @NoArgsConstructor
 public class AnalyzeCommand extends Command<AnalyzeCommand.AnalyzeResult> {
@@ -30,6 +28,15 @@ public class AnalyzeCommand extends Command<AnalyzeCommand.AnalyzeResult> {
                 for (Long fileSize : fss)
                     result.addSimilarVideos(fileSize, databaseAdapter.findBySize(fileSize));
             }
+
+            Set<String> allTags = databaseAdapter.findAllTags();
+            Set<String> extraTags = new HashSet<>();
+            for (String tag : allTags) {
+                if (!TagService.getInstance(config).hasTag(tag)) {
+                    extraTags.add(tag);
+                }
+            }
+            result.setExtraTags(extraTags);
         } catch (DatabaseException ex) {
             logger.error("Failed to analyze file info", ex);
         }
@@ -41,6 +48,11 @@ public class AnalyzeCommand extends Command<AnalyzeCommand.AnalyzeResult> {
          * 总电影数量
          */
         private int totalVideos = 0;
+
+        /**
+         * 在Glossary里面没有，但是被使用的Tag
+         */
+        private Set<String> extraTags;
 
         /**
          * Tag及其被标签的电影数量（一个电影可以有多个标签）
@@ -79,6 +91,14 @@ public class AnalyzeCommand extends Command<AnalyzeCommand.AnalyzeResult> {
 
         public List<Long> getSimilarSizes() {
             return similarSizes;
+        }
+
+        public Set<String> getExtraTags() {
+            return extraTags;
+        }
+
+        public void setExtraTags(Set<String> extraTags) {
+            this.extraTags = extraTags;
         }
 
         public void addSimilarVideos(long fileSize, FileInfo[] videos) {

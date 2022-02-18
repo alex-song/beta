@@ -16,6 +16,7 @@
     <properties>
         <!--<buildTimestamp>${maven.build.timestamp}</buildTimestamp>-->
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+        <simpleocr_version>0.0.1</simpleocr_version>
     </properties>
 
     <dependencies>
@@ -31,6 +32,43 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>${gson_version}</version>
+        </dependency>
+
+        <!-- OCR for tag detection -->
+        <dependency>
+            <groupId>alex</groupId>
+            <artifactId>simpleocr</artifactId>
+            <version>${simpleocr_version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.aspose</groupId>
+                    <artifactId>aspose-ocr</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>software.amazon.awssdk</groupId>
+                    <artifactId>textract</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.code.gson</groupId>
+                    <artifactId>gson</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.projectlombok</groupId>
+                    <artifactId>lombok</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!--JXL-->
@@ -56,6 +94,17 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
             <version>${commons-text_version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-lang3</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commons-lang3_version}</version>
         </dependency>
 
         <!-- Efficient coding -->
@@ -67,14 +116,27 @@
 
         <!-- Logger -->
         <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j-api_version}</version>
+        </dependency>
+        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback_version}</version>
+            <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.codehaus.janino</groupId>
             <artifactId>janino</artifactId>
             <version>${janino_version}</version>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- In memory database -->

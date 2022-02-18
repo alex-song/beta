@@ -400,6 +400,8 @@ public class ButtonActionHandler implements ActionListener {
             logger.debug("analyzeButton::root folder is {}", config.getRootFolderPath());
             AnalyzeCommand.AnalyzeResult result = new AnalyzeCommand().execute(config);
             output("影片数量：" + result.getTotalVideos() + " 部影片");
+            if (result.getExtraTags() != null && !result.getExtraTags().isEmpty())
+                output("新标签：" + join(result.getExtraTags(), ", "));
             if (result.getTotalVideos() > 0) {
                 if (!result.getTagsInUse().isEmpty()) {
                     output("常用标签：" + join(result.getTagsInUse().keySet(), ", "));

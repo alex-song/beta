@@ -346,6 +346,33 @@ public class H2Adapter extends DatabaseAdapter {
         }.execute();
     }
 
+    @Override
+    public Set<String> findAllTags() throws DatabaseException {
+        return new ConnectionWrapper<Set<String>>() {
+            public Set<String> run(Connection connection) throws DatabaseException {
+                try (Statement queryStmt = connection.createStatement()) {
+                    Set<String> allTags = new HashSet<>();
+                    try (ResultSet resultSet = queryStmt.executeQuery(ALL_TAGS_QUERY)) {
+                        while (resultSet.next()) {
+                            Array tagsArray = resultSet.getArray(1);
+                            if (tagsArray != null) {
+                                Object[] tagsObjectArray = (Object[]) tagsArray.getArray();
+                                if (tagsObjectArray.length > 0) {
+                                    for (int i = 0; i < tagsObjectArray.length; i++) {
+                                        allTags.add(String.valueOf(tagsObjectArray[i]));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    return allTags;
+                } catch (SQLException ex) {
+                    throw new DatabaseException(String.format("Failed to execute query [%s]", ALL_TAGS_QUERY), ex);
+                }
+            }
+        }.execute();
+    }
+
     //TODO - Convert these code into SQL
     @Override
     @SuppressWarnings({"squid:S3776"})

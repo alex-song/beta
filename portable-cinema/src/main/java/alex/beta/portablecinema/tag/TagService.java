@@ -28,6 +28,9 @@ public class TagService {
 
     private PortableCinemaConfig config;
 
+    /**
+     * text:tags
+     */
     private Map<String, Set<String>> glossaryMap;
 
     private Set<String> actors;
@@ -155,6 +158,22 @@ public class TagService {
         return tags;
     }
 
+    /**
+     * @param tag
+     * @return
+     */
+    public boolean hasTag(@NonNull String tag) {
+        if (this.actors.contains(tag)) {
+            return true;
+        }
+        for (Set<String> tags : this.glossaryMap.values()) {
+            if (tags.contains(tag)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void detectByFile(@NonNull Set<String> tags, @NonNull File file) {
         //remove the extension path
         String tag = file.getName();
@@ -221,7 +240,7 @@ public class TagService {
 
             for (String t : termTexts) {
                 //文字中含有Glossary中的词条（大小写不敏感）
-                if (text.toLowerCase().indexOf(t.toLowerCase()) >= 0 && t.length() >= MINI_TERM_TEXT_LENGTH) {
+                if (text.toLowerCase().contains(t.toLowerCase()) && t.length() >= MINI_TERM_TEXT_LENGTH) {
                     likes.addAll(glossaryMap.get(t));
                 }
             }
@@ -246,7 +265,7 @@ public class TagService {
         }
 
         for (String kw : actors) {
-            if (text.toLowerCase().indexOf(kw.toLowerCase()) >= 0 && kw.length() >= MINI_TERM_TEXT_LENGTH) {
+            if (text.toLowerCase().contains(kw.toLowerCase()) && kw.length() >= MINI_TERM_TEXT_LENGTH) {
                 likes.add(kw);
             }
         }
