@@ -13,7 +13,11 @@ public class BaiduOcrTest {
 
     @Before
     public void setUp() {
-        ocr = OcrFactory.newInstance(OcrFactory.Provider.BAIDU);
+        try {
+            ocr = OcrFactory.newInstance(OcrFactory.Provider.BAIDU);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     @After

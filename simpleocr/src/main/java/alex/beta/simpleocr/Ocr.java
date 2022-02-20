@@ -1,7 +1,6 @@
 package alex.beta.simpleocr;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 public interface Ocr {
@@ -11,16 +10,16 @@ public interface Ocr {
      *
      * @param file Local file
      * @return List of recognized words
-     * @throws IOException
+     * @throws OcrException
      */
-    List<String> analyse(File file) throws IOException;
+    List<String> analyse(File file) throws OcrException;
 
     /**
      * 获取识别图片后的结果
      *
      * @param image Image data
      * @return List of recognized words
-     * @throws IOException
+     * @throws OcrException
      */
-    List<String> analyse(byte[] image) throws IOException;
+    List<String> analyse(byte[] image) throws OcrException;
 }

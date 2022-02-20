@@ -1,6 +1,7 @@
 package alex.beta.simpleocr.baidu;
 
 import alex.beta.simpleocr.Ocr;
+import alex.beta.simpleocr.OcrException;
 import com.baidu.aip.ocr.AipOcr;
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
@@ -43,11 +44,13 @@ public class BaiduOcr implements Ocr {
                 proxyPort = Integer.parseInt(configuration.getProperty(PROXY_PORT));
             }
             this.client.setHttpProxy(configuration.getProperty(PROXY_HOST), proxyPort);
+            this.client.setConnectionTimeoutInMillis(1000 * 60); //1 min
+            this.client.setSocketTimeoutInMillis(1000 * 60 * 3); //3 min
         }
     }
 
     @Override
-    public List<String> analyse(byte[] image) {
+    public List<String> analyse(byte[] image) throws OcrException {
         HashMap<String, String> options = new HashMap<>();
         //options.put("detect_language", "true");
         options.put("detect_direction", "true");
@@ -60,7 +63,7 @@ public class BaiduOcr implements Ocr {
         List<String> analyseResult = new ArrayList<>();
         String resultStr = result.toString();
         if (resultStr.contains(ERROR_MSG)) {
-            logger.error("Error in analysing the file, the error message is\n{}", resultStr);
+            throw new OcrException(OcrException.SERVER_ERROR_EXCEPTION).setServerErrorMsg(resultStr);
         } else {
             JSONArray jsonArray = result.getJSONArray("words_result");
             for (Object aResult : jsonArray) {
@@ -73,7 +76,11 @@ public class BaiduOcr implements Ocr {
     }
 
     @Override
-    public List<String> analyse(File file) throws IOException {
-        return analyse(Files.toByteArray(file));
+    public List<String> analyse(File file) throws OcrException {
+        try {
+            return analyse(Files.toByteArray(file));
+        } catch (IOException ex) {
+            throw new OcrException(OcrException.IMAGE_FILE_READ_EXCEPTION, ex);
+        }
     }
 }
