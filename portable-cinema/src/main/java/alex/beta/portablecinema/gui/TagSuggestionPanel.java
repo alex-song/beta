@@ -206,12 +206,10 @@ public class TagSuggestionPanel extends JPanel {
     public static boolean showDialog(PreviewPanel previewPanel, BaiduOcr ocrClient, String currentImg) {
         FileInfo fileInfo = previewPanel.getFileInfo();
         TagSuggestionPanel tsp = new TagSuggestionPanel(ocrClient, fileInfo, 800, 700, currentImg);
-        Object[] choices = {"取消", "确认"};
-        Object defaultChoice = choices[0];
         int option = JOptionPane.showOptionDialog(previewPanel, tsp, fileInfo.getName(),
-                JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, choices, defaultChoice);
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
 
-        if (option == 1) {
+        if (option == 0) {
             boolean isTagsChanged = false;
             Set<String> newTags = tsp.getSuggestedTags();
             Set<String> oldTags = fileInfo.getTags();

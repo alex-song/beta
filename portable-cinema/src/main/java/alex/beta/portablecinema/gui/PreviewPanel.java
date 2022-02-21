@@ -125,16 +125,14 @@ public class PreviewPanel extends JPanel {
     }
 
     public static void showDialog(Frame owner, FileInfo fileInfo, PortableCinemaConfig config) {
-        Object[] choices = {"关闭"};
-        Object defaultChoice = choices[0];
         JOptionPane.showOptionDialog(owner,
                 new PreviewPanel(config, fileInfo, 800, 700),
                 fileInfo.getName(),
                 JOptionPane.DEFAULT_OPTION,
                 JOptionPane.PLAIN_MESSAGE,
                 null,
-                choices,
-                defaultChoice);
+                null,
+                null);
     }
 
     private void createUIComponents() {

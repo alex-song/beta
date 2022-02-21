@@ -15,6 +15,7 @@ import javax.swing.text.html.HTMLDocument;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -68,12 +69,20 @@ public class HyperlinkActionHandler extends MouseAdapter {
                                     //NO_UPDATE
                                     msg = "编辑失败";
                                 }
-                                JOptionPane.showMessageDialog(frame, msg, fileInfo.getName(), JOptionPane.INFORMATION_MESSAGE);
+                                JOptionPane.showMessageDialog(frame, msg, fileInfo.getName(), JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
                             }
                         } else if (href.startsWith("fileinfo://")) {
                             String otid = href.substring(11);
                             FileInfo fileInfo = new ViewCommand(otid).execute(config);
                             JOptionPane.showMessageDialog(frame, fileInfo.toPrettyString(), fileInfo.getName(), JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
+                        } else if (href.startsWith("otid://")) {
+                            String otid = href.substring(7);
+                            FileInfo fileInfo = new ViewCommand(otid).execute(config);
+                            try {
+                                Desktop.getDesktop().open(new File(fileInfo.getPath()));
+                            } catch (Exception ex) {
+                                logger.warn("Cannot open video folder [{}]", fileInfo.getPath(), ex);
+                            }
                         } else {
                             try {
                                 Desktop.getDesktop().browse(new URI(href));

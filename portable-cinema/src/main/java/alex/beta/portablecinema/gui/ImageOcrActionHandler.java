@@ -72,7 +72,7 @@ public class ImageOcrActionHandler extends MouseAdapter {
                 //NO_UPDATE
                 msg = "标签编辑失败";
             }
-            JOptionPane.showMessageDialog(previewPanel, msg, fileInfo.getName(), JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(previewPanel, msg, fileInfo.getName(), JOptionPane.PLAIN_MESSAGE);
         }
     }
 }

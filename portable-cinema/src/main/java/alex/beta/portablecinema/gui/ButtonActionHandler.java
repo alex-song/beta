@@ -6,7 +6,6 @@ import alex.beta.portablecinema.filesystem.VisitorMessageCallback;
 import alex.beta.portablecinema.pojo.FileInfo;
 import alex.beta.portablecinema.pojo.FolderInfo;
 import com.google.common.io.Resources;
-import com.google.common.net.UrlEscapers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.AllArgsConstructor;
@@ -435,7 +434,7 @@ public class ButtonActionHandler implements ActionListener {
                     if (!isBlank(fi.getPath())) {
                         String timestampText = (fi.getLastModifiedOn() == null ? "" : DateFormatUtils.format(fi.getLastModifiedOn(), PortableCinemaConfig.DATE_FORMATTER));
                         fileLinkText = String.format(FILEINFO_TABLE_TR_A_TEMPLATE,
-                                "file://" + UrlEscapers.urlFragmentEscaper().escape(fi.getPath()),
+                                "otid://" + fi.getOtid(),
                                 timestampText,
                                 StringEscapeUtils.escapeHtml4(fi.getName()));
                     }
