@@ -20,5 +20,6 @@ B:
 3. [Cancel] Refactor status bar to display file info
 4. Update console UI after file info edit
 5. [Done] Improve help doc
+6. Double clicks on suggestion list
 
 

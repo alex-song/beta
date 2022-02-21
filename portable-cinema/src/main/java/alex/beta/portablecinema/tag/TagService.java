@@ -22,7 +22,7 @@ public class TagService {
 
     private static final double THRESHOLD = 0.85;
 
-    private static final int MINI_TERM_TEXT_LENGTH = 2;
+    public static final int MINI_TERM_TEXT_LENGTH = 2;
 
     private static TagService instance;
 
@@ -100,9 +100,7 @@ public class TagService {
                             if (glossaryMap.containsKey(term.getText())) {
                                 glossaryMap.get(term.getText()).addAll(term.getTags());
                             } else {
-                                Set<String> tmpS = new HashSet<>();
-                                tmpS.addAll(term.getTags());
-                                glossaryMap.put(term.getText(), tmpS);
+                                glossaryMap.put(term.getText(), new HashSet<>(term.getTags()));
                             }
                             //处理别名 - (加入text作为alias的tag?)
                             if (term.getAlias() != null && !term.getAlias().isEmpty()) {
@@ -110,9 +108,7 @@ public class TagService {
                                     if (glossaryMap.containsKey(a)) {
                                         glossaryMap.get(a).addAll(term.getTags());
                                     } else {
-                                        Set<String> tmpS = new HashSet<>();
-                                        tmpS.addAll(term.getTags());
-                                        glossaryMap.put(a, tmpS);
+                                        glossaryMap.put(a, new HashSet<>(term.getTags()));
                                     }
                                     //glossaryMap.get(a).add(term.getText());
                                 }
@@ -153,7 +149,7 @@ public class TagService {
         detectByFolder(tags, currentFolder);
 
         // 3. By other records, or content, source, web search
-        // TODO - AI/ML to detect other tags
+        // TODO - AI/ML to detect other tags, for instance OCR, possibility analytics
 
         return tags;
     }

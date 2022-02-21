@@ -48,7 +48,7 @@ public class HyperlinkActionHandler extends MouseAdapter {
                         if (href.startsWith("preview://")) {
                             String otid = href.substring(10);
                             FileInfo fileInfo = new ViewCommand(otid).execute(config);
-                            PreviewPanel.showDialog(frame, fileInfo, 800, 700);
+                            PreviewPanel.showDialog(frame, fileInfo, config);
                         } else if (href.startsWith("edit://")) {
                             String otid = href.substring(7);
                             FileInfo fileInfo = new ViewCommand(otid).execute(config);

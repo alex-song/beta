@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets;
 import static java.awt.Image.SCALE_SMOOTH;
 import static javax.imageio.ImageIO.read;
 
-@SuppressWarnings({"squid:S1948", "squid:S3776"})
+@SuppressWarnings({"squid:S1948", "squid:S3776", "squid:S116", "squid:S117", "squid:S110"})
 public class PortableCinemaFrame extends JFrame {
 
     public static final String TITLE = "移动电影院";
@@ -53,8 +53,6 @@ public class PortableCinemaFrame extends JFrame {
     private Icon EXPORT_ICON;
     private Icon RESET_ICON;
 
-    private String EMPTY_HTML_TEMPLATE;
-
     public PortableCinemaFrame() {
         super();
         //init UI
@@ -64,6 +62,7 @@ public class PortableCinemaFrame extends JFrame {
     }
 
     private void createUIComponents() {
+        String EMPTY_HTML_TEMPLATE;
         try {
             LOGO_IMAGE = read(this.getClass().getClassLoader().getResource("images/Logo_2.png"));
             EMPTY_HTML_TEMPLATE = Resources.asCharSource(Resources.getResource("templates/Empty.tpl"), StandardCharsets.UTF_8).read();

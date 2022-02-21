@@ -1,5 +1,6 @@
 package alex.beta.portablecinema.gui;
 
+import alex.beta.portablecinema.PortableCinemaConfig;
 import alex.beta.portablecinema.pojo.FileInfo;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,9 @@ import java.io.File;
 
 import static java.awt.Image.SCALE_SMOOTH;
 import static javax.imageio.ImageIO.read;
+import static javax.swing.Action.SHORT_DESCRIPTION;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Setter
 @Getter
@@ -27,17 +30,16 @@ public class PreviewPanel extends JPanel {
     public static final int THUMBNAIL_IMAGE_SIZE = 100;
     private static Logger logger = LoggerFactory.getLogger(PreviewPanel.class);
     private FileInfo fileInfo;
+    private PortableCinemaConfig config;
 
     private JLabel photographLabel;
     private JToolBar buttonBar;
     private MissingIcon placeholderIcon;
+    private String currentImg;
 
-    public PreviewPanel(FileInfo fileInfo) {
-        this(fileInfo, 780, 665);
-    }
-
-    public PreviewPanel(FileInfo fileInfo, int width, int height) {
+    public PreviewPanel(PortableCinemaConfig config, FileInfo fileInfo, int width, int height) {
         super(new BorderLayout());
+        this.config = config;
         this.fileInfo = fileInfo;
         this.setSize(width, height);
         this.setPreferredSize(new Dimension(width, height));
@@ -93,11 +95,11 @@ public class PreviewPanel extends JPanel {
                 if (icon != null) {
                     //Small pic
                     ImageIcon thumbnailIcon = new ImageIcon(getScaledImage(icon.getImage(), THUMBNAIL_IMAGE_SIZE, THUMBNAIL_IMAGE_SIZE));
-                    thumbAction = new ThumbnailAction(icon, thumbnailIcon, coverImageName);
+                    thumbAction = new ThumbnailAction(icon, thumbnailIcon, imgPath);
                 } else {
                     // the image failed to load for some reason
                     // so load a placeholder instead
-                    thumbAction = new ThumbnailAction(placeholderIcon, placeholderIcon, coverImageName);
+                    thumbAction = new ThumbnailAction(placeholderIcon, placeholderIcon, "");
                 }
                 publish(thumbAction);
             }
@@ -114,6 +116,7 @@ public class PreviewPanel extends JPanel {
                     buttonBar.add(thumbButton, buttonBar.getComponentCount() - 1);
                     if (!isFirstImageReady) {
                         photographLabel.setIcon(thumbAction.displayPhoto);
+                        currentImg = String.valueOf(thumbAction.getValue(SHORT_DESCRIPTION));
                         isFirstImageReady = true;
                     }
                 }
@@ -121,13 +124,13 @@ public class PreviewPanel extends JPanel {
         }.execute();
     }
 
-    public static void showDialog(Frame owner, FileInfo fileInfo, int dialogWidth, int dialogHeight) {
+    public static void showDialog(Frame owner, FileInfo fileInfo, PortableCinemaConfig config) {
         Object[] choices = {"关闭"};
         Object defaultChoice = choices[0];
         JOptionPane.showOptionDialog(owner,
-                new PreviewPanel(fileInfo, dialogWidth - 20, dialogHeight - 35),
+                new PreviewPanel(config, fileInfo, 800, 700),
                 fileInfo.getName(),
-                JOptionPane.CLOSED_OPTION,
+                JOptionPane.DEFAULT_OPTION,
                 JOptionPane.PLAIN_MESSAGE,
                 null,
                 choices,
@@ -144,6 +147,8 @@ public class PreviewPanel extends JPanel {
         photographLabel.setHorizontalTextPosition(SwingConstants.CENTER);
         photographLabel.setHorizontalAlignment(SwingConstants.CENTER);
         photographLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        if (config.getBaiduOCR() != null && isNotBlank(config.getBaiduOCR().getAppId()))
+            photographLabel.addMouseListener(new ImageOcrActionHandler(config, this));
 
         // We add two glue components. Later in process() we will add thumbnail buttons
         // to the toolbar inbetween thease glue compoents. This will center the
@@ -171,7 +176,7 @@ public class PreviewPanel extends JPanel {
             }
 
             if (img != null) {
-                if (img.getWidth() > (this.getWidth() - 20) || img.getHeight() > (this.getHeight() - THUMBNAIL_IMAGE_SIZE - 30.0d)) {
+                if (img.getWidth() > (this.getWidth() - 20.0d) || img.getHeight() > (this.getHeight() - THUMBNAIL_IMAGE_SIZE - 30.0d)) {
                     double ratio = Math.min((this.getWidth() - 20.0d) / img.getWidth(), (this.getHeight() - THUMBNAIL_IMAGE_SIZE - 30.0d) / img.getHeight());
                     return new ImageIcon(img.getScaledInstance((int) (img.getWidth() * ratio), (int) (img.getHeight() * ratio), SCALE_SMOOTH), description);
                 } else
@@ -214,15 +219,15 @@ public class PreviewPanel extends JPanel {
         private Icon displayPhoto;
 
         /**
-         * @param photo - The full size photo to show in the button.
-         * @param thumb - The thumbnail to show in the button.
-         * @param desc  - The description of the icon.
+         * @param photo   - The full size photo to show in the button.
+         * @param thumb   - The thumbnail to show in the button.
+         * @param imgPath - The description of the icon.
          */
-        public ThumbnailAction(Icon photo, Icon thumb, String desc) {
+        public ThumbnailAction(Icon photo, Icon thumb, String imgPath) {
             displayPhoto = photo;
 
             // The short description becomes the tooltip of a button.
-            putValue(SHORT_DESCRIPTION, desc);
+            putValue(SHORT_DESCRIPTION, imgPath);
 
             // The LARGE_ICON_KEY is the key for setting the
             // icon when an Action is applied to a button.
@@ -234,6 +239,7 @@ public class PreviewPanel extends JPanel {
          */
         public void actionPerformed(ActionEvent e) {
             photographLabel.setIcon(displayPhoto);
+            currentImg = String.valueOf(getValue(SHORT_DESCRIPTION));
         }
     }
 

@@ -77,10 +77,12 @@ public class AnalyzeCommand extends Command<AnalyzeCommand.AnalyzeResult> {
             this.totalVideos = totalVideos;
         }
 
+        @SuppressWarnings({"squid:S1319"})
         public LinkedHashMap<String, Integer> getTagsInUse() {
             return tagsInUse;
         }
 
+        @SuppressWarnings({"squid:S1319"})
         public void setTagsInUse(LinkedHashMap<String, Integer> tagsInUse) {
             this.tagsInUse = tagsInUse;
         }

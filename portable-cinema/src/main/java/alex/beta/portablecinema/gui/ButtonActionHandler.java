@@ -33,6 +33,7 @@ import static alex.beta.portablecinema.FolderVisitorFactory.newFolderVisitor;
 import static alex.beta.portablecinema.gui.PortableCinemaFrame.*;
 import static org.apache.commons.lang3.StringUtils.*;
 
+@SuppressWarnings({"squid:S116"})
 public class ButtonActionHandler implements ActionListener {
     private static final Logger logger = LoggerFactory.getLogger(ButtonActionHandler.class);
 
@@ -187,7 +188,7 @@ public class ButtonActionHandler implements ActionListener {
         int option = JOptionPane.showOptionDialog(frame,
                 "重置影库，请谨慎选择要进行的选择操作",
                 "重置影库",
-                JOptionPane.CLOSED_OPTION,
+                JOptionPane.DEFAULT_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
                 frame.logo50Icon,
                 choices,
@@ -378,7 +379,7 @@ public class ButtonActionHandler implements ActionListener {
 
         @Override
         protected void process(List<String> chunks) {
-            chunks.stream().forEach(msg -> frame.appendResultText(String.format(PRE_HTML_TAG, msg)));
+            chunks.forEach(msg -> frame.appendResultText(String.format(PRE_HTML_TAG, msg)));
         }
 
         @Override

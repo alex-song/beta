@@ -117,6 +117,7 @@ public abstract class DatabaseAdapter {
      * @return key - tag, value - count. Ordered by count desc.
      * @throws DatabaseException
      */
+    @SuppressWarnings({"squid:S1319"})
     public abstract LinkedHashMap<String, Integer> listTagsAndOrderByCountDesc(int minOccurs, int top) throws DatabaseException;
 
     /**
