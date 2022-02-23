@@ -17,6 +17,15 @@ import java.util.Set;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class TagSuggestionPanel extends JPanel {
+
+    public static final int DEFAULT_OPTION = JOptionPane.DEFAULT_OPTION;
+    public static final int SAVE_CHANGES_OPTION = 0;
+    public static final int SAVE_CHANGES_OPEN_EDITOR_OPTION = 1;
+    public static final int DISCARD_CHANGES_OPEN_EDITOR_OPTION = 2;
+    public static final int DISCARD_CHANGES_OPTION = 3;
+    public static final int NO_CHANGE_OPTION = 10;
+    public static final int NO_CHANGE_OPEN_EDITOR_OPTION = 11;
+
     private static final Logger logger = LoggerFactory.getLogger(TagSuggestionPanel.class);
     private static final String ANALYSING_MSG = "图片解析中……";
     private static final String ERROR_MSG = "图片分析失败";
@@ -107,15 +116,29 @@ public class TagSuggestionPanel extends JPanel {
      * @param previewPanel
      * @param ocrClient
      * @param currentImg
-     * @return true, if tags are changed
+     * @return Options:
+     * -1 - close dialog by clicking 'X' on top
+     * 0 - tags are changed
+     * 1 - tags are changed, and open edit dialog
+     * 2 - discard all changes, and open edit dialog
+     * 3 - discard all changes
+     * 10 - tags are not changed
+     * 11 - tags are not changed, and open edit dialog
      */
-    public static boolean showDialog(PreviewPanel previewPanel, BaiduOcr ocrClient, String currentImg) {
+    public static int showDialog(PreviewPanel previewPanel, BaiduOcr ocrClient, String currentImg) {
         FileInfo fileInfo = previewPanel.getFileInfo();
         TagSuggestionPanel tsp = new TagSuggestionPanel(ocrClient, fileInfo, 600, 300, currentImg);
-        int option = JOptionPane.showOptionDialog(previewPanel, tsp, fileInfo.getName(),
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+        Object[] choices = {"确定", "确定并编辑", "编辑", "取消"};
+        Object defaultChoice = choices[0];
 
-        if (option == 0) {
+        int option = JOptionPane.showOptionDialog(previewPanel, tsp, fileInfo.getName(),
+                DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, choices, defaultChoice);
+
+        if (option == 2) {
+            return DISCARD_CHANGES_OPEN_EDITOR_OPTION;
+        } else if (option == 3) {
+            return DISCARD_CHANGES_OPTION;
+        } else if (option == 0 || option == 1) {
             boolean isTagsChanged = false;
             Set<String> newTags = tsp.getSuggestedTags();
             Set<String> oldTags = fileInfo.getTags();
@@ -136,12 +159,20 @@ public class TagSuggestionPanel extends JPanel {
 
             if (isTagsChanged) {
                 fileInfo.setTags(tagsToPersist);
-                return true;
+                if (option == 0) {
+                    return SAVE_CHANGES_OPTION;
+                } else {
+                    return SAVE_CHANGES_OPEN_EDITOR_OPTION;
+                }
             } else {
-                return false;
+                if (option == 0) {
+                    return NO_CHANGE_OPTION;
+                } else {
+                    return NO_CHANGE_OPEN_EDITOR_OPTION;
+                }
             }
         } else
-            return false;
+            return DEFAULT_OPTION;
     }
 
     private void createUIComponents() {

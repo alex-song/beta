@@ -83,4 +83,19 @@ public class EditCommand extends Command<Integer> {
             return DB_FILE_UPDATE_ERROR;
         }
     }
+
+    public static String resultText(int result) {
+        switch (result) {
+            case UPDATE_SUCCESS:
+                return "编辑成功";
+            case DATABASE_UPDATE_ERROR:
+                return "数据库更新失败";
+            case DB_FILE_NOT_EXIST_ERROR:
+                return "数据文件不存在";
+            case DB_FILE_UPDATE_ERROR:
+                return "数据文件更新失败";
+            default:
+                return "编辑失败";
+        }
+    }
 }

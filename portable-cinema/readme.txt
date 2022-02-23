@@ -13,6 +13,8 @@ A:
 9. [Done] Async scan and aggregate
 10. [Done] Output message in console
 11. [Done] Build# in banner
+12. [Done] Edit dialog, after OCR
+13. Fine tune the text pane to reduce the memory usage and improve performance
 
 B:
 1. [Cancel] Add images array
@@ -21,5 +23,7 @@ B:
 4. Update console UI after file info edit
 5. [Done] Improve help doc
 6. Double clicks on suggestion list
+7. Double click to switch between original image and scaled image. New button to start OCR.
+
 
 

@@ -150,6 +150,8 @@ public class PortableCinemaFrame extends JFrame {
         resultPane.setEditable(false);
         resultScrollPane = new JScrollPane(resultPane);
         resultScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+//        resultScrollPane.getVerticalScrollBar().setUnitIncrement(1);
+        resultScrollPane.getViewport().setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
 //        resultScrollPane.setAutoscrolls(true);
 
         getContentPane().add(resultScrollPane, BorderLayout.CENTER);
@@ -251,8 +253,9 @@ public class PortableCinemaFrame extends JFrame {
         } finally {
             //auto scroll
             SwingUtilities.invokeLater(() -> {
-                if (resultScrollPane != null)
+                if (resultScrollPane != null) {
                     resultScrollPane.getVerticalScrollBar().setValue(resultScrollPane.getVerticalScrollBar().getMaximum());
+                }
                 if (false)
                     try {
                         HTMLDocument doc = (HTMLDocument) resultPane.getStyledDocument();

@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static alex.beta.portablecinema.command.EditCommand.*;
+import static alex.beta.portablecinema.command.EditCommand.resultText;
 
 public class HyperlinkActionHandler extends MouseAdapter {
 
@@ -60,20 +60,7 @@ public class HyperlinkActionHandler extends MouseAdapter {
                             if (FileInfoEditPanel.showDialog(frame, fileInfo)) {
                                 int result = new EditCommand(fileInfo).execute(config);
                                 logger.debug("Update file info [{}], result is [{}]", fileInfo, result);
-                                String msg = "编辑成功";
-                                if (result == UPDATE_SUCCESS) {
-                                    //TODO - Refresh ui after file info edit
-                                } else if (result == DATABASE_UPDATE_ERROR) {
-                                    msg = "数据库更新失败";
-                                } else if (result == DB_FILE_NOT_EXIST_ERROR) {
-                                    msg = "数据文件不存在";
-                                } else if (result == DB_FILE_UPDATE_ERROR) {
-                                    msg = "数据文件更新失败";
-                                } else {
-                                    //NO_UPDATE
-                                    msg = "编辑失败";
-                                }
-                                JOptionPane.showMessageDialog(frame, msg, fileInfo.getName(), JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
+                                JOptionPane.showMessageDialog(frame, resultText(result), fileInfo.getName(), JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
                             }
                         } else if (href.startsWith("fileinfo://")) {
                             String otid = href.substring(11);

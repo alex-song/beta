@@ -41,7 +41,7 @@ public class FileInfoEditPanel extends JPanel {
      * @param fileInfo
      * @return true, if there is any update on the file info
      */
-    public static boolean showDialog(Frame owner, FileInfo fileInfo) {
+    public static boolean showDialog(Component owner, FileInfo fileInfo) {
         FileInfoEditPanel panel = new FileInfoEditPanel(fileInfo);
         boolean isChanged = false;
         if (JOptionPane.OK_OPTION == JOptionPane.showConfirmDialog(owner,
@@ -111,7 +111,7 @@ public class FileInfoEditPanel extends JPanel {
             //check and update tags
             Set<String> newTags = new HashSet<>();
             try (BufferedReader reader = new BufferedReader(new StringReader(newTagsText))) {
-                String tagsLine = null;
+                String tagsLine;
                 while ((tagsLine = reader.readLine()) != null)
                     if (StringUtils.isNotBlank(tagsLine))
                         newTags.addAll(Arrays.stream(StringUtils.trim(tagsLine).split("[,，;；]")).map(StringUtils::trim).collect(Collectors.toSet()));
@@ -122,7 +122,7 @@ public class FileInfoEditPanel extends JPanel {
             if (newTags != null) {
                 //user input is valid
                 boolean isTagsChanged = false;
-                Set<String> tagsToPersist = new HashSet<>();
+                Set<String> tagsToPersist = new HashSet<>(newTags);
                 Set<String> oldTags = fileInfo.getTags();
                 if (oldTags == null) {
                     oldTags = new HashSet<>();
@@ -131,7 +131,6 @@ public class FileInfoEditPanel extends JPanel {
                     isTagsChanged = true;
                 }
 
-                tagsToPersist.addAll(newTags);
                 if (!isTagsChanged)
                     for (String t : oldTags)
                         if (!newTags.contains(t)) {

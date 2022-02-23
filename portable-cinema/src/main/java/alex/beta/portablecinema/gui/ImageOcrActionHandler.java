@@ -2,6 +2,7 @@ package alex.beta.portablecinema.gui;
 
 import alex.beta.portablecinema.PortableCinemaConfig;
 import alex.beta.portablecinema.command.EditCommand;
+import alex.beta.portablecinema.command.ViewCommand;
 import alex.beta.portablecinema.pojo.FileInfo;
 import alex.beta.simpleocr.baidu.BaiduOcr;
 import lombok.Getter;
@@ -15,7 +16,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Properties;
 
-import static alex.beta.portablecinema.command.EditCommand.*;
+import static alex.beta.portablecinema.command.EditCommand.resultText;
+import static alex.beta.portablecinema.gui.TagSuggestionPanel.*;
 import static alex.beta.simpleocr.OcrFactory.PROXY_HOST;
 import static alex.beta.simpleocr.OcrFactory.PROXY_PORT;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -54,25 +56,31 @@ public class ImageOcrActionHandler extends MouseAdapter {
     @Override
     public void mouseClicked(MouseEvent event) {
         final String currentImg = previewPanel.getCurrentImg();
-        if ((event.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(event) && isNotBlank(currentImg))
-                && (TagSuggestionPanel.showDialog(previewPanel, ocrClient, currentImg))) {
+        if ((event.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(event) && isNotBlank(currentImg))) {
+            int option = TagSuggestionPanel.showDialog(previewPanel, ocrClient, currentImg);
             FileInfo fileInfo = previewPanel.getFileInfo();
-            int result = new EditCommand(fileInfo).execute(config);
-            logger.debug("Update tags of file info [{}], result is [{}]", fileInfo, result);
-            String msg = "标签编辑成功";
-            if (result == UPDATE_SUCCESS) {
-                //TODO - Refresh ui after tags edit
-            } else if (result == DATABASE_UPDATE_ERROR) {
-                msg = "数据库更新失败";
-            } else if (result == DB_FILE_NOT_EXIST_ERROR) {
-                msg = "数据文件不存在";
-            } else if (result == DB_FILE_UPDATE_ERROR) {
-                msg = "数据文件更新失败";
-            } else {
-                //NO_UPDATE
-                msg = "标签编辑失败";
+            if (option == SAVE_CHANGES_OPTION || option == SAVE_CHANGES_OPEN_EDITOR_OPTION) {
+                int result = new EditCommand(fileInfo).execute(config);
+                logger.debug("Update tags of file info [{}], result is [{}]", fileInfo, result);
+                if (option == SAVE_CHANGES_OPTION)
+                    JOptionPane.showMessageDialog(previewPanel, resultText(result), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE);
+                else {
+                    //open editor
+                    showEditorDialog(fileInfo.getOtid());
+                }
+            } else if (option == DISCARD_CHANGES_OPEN_EDITOR_OPTION || option == NO_CHANGE_OPEN_EDITOR_OPTION) {
+                //open editor
+                showEditorDialog(fileInfo.getOtid());
             }
-            JOptionPane.showMessageDialog(previewPanel, msg, fileInfo.getName(), JOptionPane.PLAIN_MESSAGE);
+        }
+    }
+
+    private void showEditorDialog(String otid) {
+        FileInfo fileInfo = new ViewCommand(otid).execute(config);
+        if (FileInfoEditPanel.showDialog(previewPanel, fileInfo)) {
+            int result = new EditCommand(fileInfo).execute(config);
+            logger.debug("Update file info [{}], result is [{}]", fileInfo, result);
+            JOptionPane.showMessageDialog(previewPanel, resultText(result), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE);
         }
     }
 }
