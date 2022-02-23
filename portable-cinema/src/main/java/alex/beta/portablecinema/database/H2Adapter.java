@@ -52,7 +52,9 @@ public class H2Adapter extends DatabaseAdapter {
             "WHERE OTID = ?";
 
 
-    private static final String FIND_BY_NAME_QUERY = "SELECT * FROM FILEINFO WHERE LOWER(NAME) LIKE ?";
+    private static final String ORDER_BY = " ORDER BY PATH, NAME";
+
+    private static final String FIND_BY_NAME_QUERY = "SELECT * FROM FILEINFO WHERE LOWER(NAME) LIKE ?" + ORDER_BY;
 
     private static final String FIND_BY_OTID_QUERY = "SELECT * FROM FILEINFO WHERE OTID = ?";
 
@@ -62,7 +64,7 @@ public class H2Adapter extends DatabaseAdapter {
 
     private static final String FIND_BY_SAME_SIZE_QUERY = "SELECT SIZE, COUNT(1) FROM FILEINFO GROUP BY SIZE HAVING COUNT(1) > 1 ORDER BY COUNT(1) DESC";
 
-    private static final String FIND_BY_SIZE_QUERY = "SELECT * FROM FILEINFO WHERE SIZE = ?";
+    private static final String FIND_BY_SIZE_QUERY = "SELECT * FROM FILEINFO WHERE SIZE = ?" + ORDER_BY;
 
     private static final String ALL_TAGS_QUERY = "SELECT TAGS FROM FILEINFO";
 
@@ -235,6 +237,8 @@ public class H2Adapter extends DatabaseAdapter {
             buffer.append(" ARRAY_CONTAINS (TAGS, ?)");
         }
 
+        buffer.append(ORDER_BY);
+
         if (logger.isDebugEnabled())
             logger.debug("Query by tags: {}", buffer);
 
@@ -270,7 +274,7 @@ public class H2Adapter extends DatabaseAdapter {
                 if (StringUtils.isNotBlank(whereCause)) {
                     query += (" WHERE " + whereCause);
                 }
-                try (Statement queryStmt = connection.createStatement();) {
+                try (Statement queryStmt = connection.createStatement()) {
                     try (ResultSet resultSet = queryStmt.executeQuery(query)) {
                         List<FileInfo> infos = new ArrayList<>();
                         while (resultSet.next()) {
