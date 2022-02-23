@@ -57,9 +57,12 @@ public class TagSuggestionPanel extends JPanel {
                         }
                     } catch (OcrException ex) {
                         logger.error("Failed to read/analyse file {}", currentImg, ex);
-                        if (logger.isErrorEnabled() && isNotBlank(ex.getServerErrorMsg()))
+                        if (isNotBlank(ex.getServerErrorMsg())) {
                             logger.error(ex.getServerErrorMsg());
-                        publish(ERROR_MSG);
+                            publish(ERROR_MSG, ex.getMessage(), ex.getServerErrorMsg());
+                        } else {
+                            publish(ERROR_MSG, ex.getMessage());
+                        }
                     }
                     return null;
                 }
@@ -71,8 +74,13 @@ public class TagSuggestionPanel extends JPanel {
                         if (wordsModel.getSize() == 1 && ANALYSING_MSG.equals(wordsModel.get(0)))
                             wordsModel.clear();
                         String firstMsg = chunks.get(0);
-                        if (ERROR_MSG.equals(firstMsg) || NO_WORD_MSG.equals(firstMsg)) {
-                            wordsModel.addElement(firstMsg);
+                        if (NO_WORD_MSG.equals(firstMsg)) {
+                            wordsModel.addElement(NO_WORD_MSG);
+                        } else if (ERROR_MSG.equals(firstMsg)) {
+                            wordsModel.addElement(ERROR_MSG);
+                            for (int i = 1; i < chunks.size(); i++) {
+                                wordsArea.append(chunks.get(i) + System.lineSeparator());
+                            }
                         } else {
                             // enable action buttons
                             addButton.setEnabled(true);
@@ -82,7 +90,8 @@ public class TagSuggestionPanel extends JPanel {
                             // add eligible words into ui list
                             java.util.List<String> words = new ArrayList<>();
                             for (String ow : chunks)
-                                if ((isNotBlank(ow) && ow.trim().length() >= TagService.MINI_TERM_TEXT_LENGTH)
+                                // 可能的tag，长度介于2到12之间
+                                if ((isNotBlank(ow) && ow.trim().length() >= TagService.MINI_TERM_TEXT_LENGTH && ow.trim().length() <= 12)
                                         && (fileInfo == null || fileInfo.getTags() == null || !fileInfo.getTags().contains(ow.trim())))
                                     words.add(ow.trim());
                             if (!words.isEmpty())
@@ -94,9 +103,50 @@ public class TagSuggestionPanel extends JPanel {
         }
     }
 
+    /**
+     * @param previewPanel
+     * @param ocrClient
+     * @param currentImg
+     * @return true, if tags are changed
+     */
+    public static boolean showDialog(PreviewPanel previewPanel, BaiduOcr ocrClient, String currentImg) {
+        FileInfo fileInfo = previewPanel.getFileInfo();
+        TagSuggestionPanel tsp = new TagSuggestionPanel(ocrClient, fileInfo, 600, 300, currentImg);
+        int option = JOptionPane.showOptionDialog(previewPanel, tsp, fileInfo.getName(),
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+
+        if (option == 0) {
+            boolean isTagsChanged = false;
+            Set<String> newTags = tsp.getSuggestedTags();
+            Set<String> oldTags = fileInfo.getTags();
+            Set<String> tagsToPersist = new HashSet<>(newTags);
+            if (oldTags == null) {
+                oldTags = new HashSet<>();
+            }
+            if (newTags.size() != oldTags.size()) {
+                isTagsChanged = true;
+            }
+
+            if (!isTagsChanged)
+                for (String t : oldTags)
+                    if (!newTags.contains(t)) {
+                        isTagsChanged = true;
+                        break;
+                    }
+
+            if (isTagsChanged) {
+                fileInfo.setTags(tagsToPersist);
+                return true;
+            } else {
+                return false;
+            }
+        } else
+            return false;
+    }
+
     private void createUIComponents() {
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-        splitPane.setResizeWeight(0.8);
+        splitPane.setResizeWeight(0.5);
         splitPane.setOneTouchExpandable(true);
         splitPane.setContinuousLayout(true);
 
@@ -112,7 +162,7 @@ public class TagSuggestionPanel extends JPanel {
         c.weightx = 0.5;
         c.weighty = 1;
         JScrollPane wordsScroll = new JScrollPane(wordsList);
-        wordsScroll.setPreferredSize(new Dimension(200, 200));
+        wordsScroll.setPreferredSize(new Dimension(200, 120));
         tagSelectionPanel.add(wordsScroll, c);
 
         JToolBar buttonBar = new JToolBar();
@@ -141,7 +191,7 @@ public class TagSuggestionPanel extends JPanel {
         c.gridx = 2;
         c.weightx = 0.5;
         JScrollPane tagsScroll = new JScrollPane(tagsList);
-        tagsScroll.setPreferredSize(new Dimension(200, 200));
+        tagsScroll.setPreferredSize(new Dimension(200, 120));
         tagSelectionPanel.add(tagsScroll, c);
 
         splitPane.add(tagSelectionPanel);
@@ -195,46 +245,5 @@ public class TagSuggestionPanel extends JPanel {
         dlm.clear();
         previouslyLoadedEntities.forEach(dlm::addElement);
         entitiesToTransition.forEach(dlm::addElement);
-    }
-
-    /**
-     * @param previewPanel
-     * @param ocrClient
-     * @param currentImg
-     * @return true, if tags are changed
-     */
-    public static boolean showDialog(PreviewPanel previewPanel, BaiduOcr ocrClient, String currentImg) {
-        FileInfo fileInfo = previewPanel.getFileInfo();
-        TagSuggestionPanel tsp = new TagSuggestionPanel(ocrClient, fileInfo, 800, 700, currentImg);
-        int option = JOptionPane.showOptionDialog(previewPanel, tsp, fileInfo.getName(),
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
-
-        if (option == 0) {
-            boolean isTagsChanged = false;
-            Set<String> newTags = tsp.getSuggestedTags();
-            Set<String> oldTags = fileInfo.getTags();
-            Set<String> tagsToPersist = new HashSet<>(newTags);
-            if (oldTags == null) {
-                oldTags = new HashSet<>();
-            }
-            if (newTags.size() != oldTags.size()) {
-                isTagsChanged = true;
-            }
-
-            if (!isTagsChanged)
-                for (String t : oldTags)
-                    if (!newTags.contains(t)) {
-                        isTagsChanged = true;
-                        break;
-                    }
-
-            if (isTagsChanged) {
-                fileInfo.setTags(tagsToPersist);
-                return true;
-            } else {
-                return false;
-            }
-        } else
-            return false;
     }
 }

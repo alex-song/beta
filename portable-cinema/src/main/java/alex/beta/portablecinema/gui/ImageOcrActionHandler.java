@@ -54,7 +54,7 @@ public class ImageOcrActionHandler extends MouseAdapter {
     @Override
     public void mouseClicked(MouseEvent event) {
         final String currentImg = previewPanel.getCurrentImg();
-        if ((event.getClickCount() == 2 && event.getButton() == MouseEvent.BUTTON1 && isNotBlank(currentImg))
+        if ((event.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(event) && isNotBlank(currentImg))
                 && (TagSuggestionPanel.showDialog(previewPanel, ocrClient, currentImg))) {
             FileInfo fileInfo = previewPanel.getFileInfo();
             int result = new EditCommand(fileInfo).execute(config);

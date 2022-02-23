@@ -1,7 +1,6 @@
 package alex.beta.portablecinema.gui;
 
 import com.google.common.io.Resources;
-import com.google.common.net.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,12 +10,10 @@ import javax.swing.text.EditorKit;
 import javax.swing.text.Element;
 import javax.swing.text.html.HTMLDocument;
 import java.awt.*;
-import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
 import static java.awt.Image.SCALE_SMOOTH;
-import static javax.imageio.ImageIO.read;
 
 @SuppressWarnings({"squid:S1948", "squid:S3776", "squid:S116", "squid:S117", "squid:S110"})
 public class PortableCinemaFrame extends JFrame {
@@ -64,7 +61,7 @@ public class PortableCinemaFrame extends JFrame {
     private void createUIComponents() {
         String EMPTY_HTML_TEMPLATE;
         try {
-            LOGO_IMAGE = read(this.getClass().getClassLoader().getResource("images/Logo_2.png"));
+            LOGO_IMAGE = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Logo_2.png"));
             EMPTY_HTML_TEMPLATE = Resources.asCharSource(Resources.getResource("templates/Empty.tpl"), StandardCharsets.UTF_8).read();
         } catch (Exception ex) {
             logger.error("Failed to load icon or template files", ex);
@@ -141,7 +138,7 @@ public class PortableCinemaFrame extends JFrame {
 
         //TextPane - Result
         resultPane = new JTextPane();
-        resultPane.setContentType(MediaType.HTML_UTF_8.toString());
+        resultPane.setContentType("text/html; charset=utf-8");
         resultPane.setText(EMPTY_HTML_TEMPLATE);
         resultPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         resultPane.setEditable(false);
@@ -163,41 +160,40 @@ public class PortableCinemaFrame extends JFrame {
 
     private void loadResourcesLater() {
         SwingUtilities.invokeLater(() -> {
-            try {
-                Image FOLDER_IMAGE = read(this.getClass().getClassLoader().getResource("images/Scan-icon.png"));
-                FOLDER_ICON = new ImageIcon(FOLDER_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
-                rootChooserButton.setIcon(FOLDER_ICON);
+            Image FOLDER_IMAGE = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Scan-icon.png"));
+            FOLDER_ICON = new ImageIcon(FOLDER_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
+            rootChooserButton.setIcon(FOLDER_ICON);
 
-                Image SCAN_IMAGE = read(this.getClass().getClassLoader().getResource("images/Scan-icon.png"));
-                SCAN_ICON = new ImageIcon(SCAN_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
-                scanButton.setIcon(SCAN_ICON);
+            Image SCAN_IMAGE = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Scan-icon.png"));
+            SCAN_ICON = new ImageIcon(SCAN_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
+            scanButton.setIcon(SCAN_ICON);
 
-                Image ANALYZE_IMAGE = read(this.getClass().getClassLoader().getResource("images/Analyze-icon.png"));
-                ANALYZE_ICON = new ImageIcon(ANALYZE_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
-                analyzeButton.setIcon(ANALYZE_ICON);
+            Image ANALYZE_IMAGE = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Analyze-icon.png"));
+            ANALYZE_ICON = new ImageIcon(ANALYZE_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
+            analyzeButton.setIcon(ANALYZE_ICON);
 
-                Image SEARCH_IMAGE = read(this.getClass().getClassLoader().getResource("images/Search-icon.png"));
-                SEARCH_ICON = new ImageIcon(SEARCH_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
-                findByNameButton.setIcon(SEARCH_ICON);
-                findByTagButton.setIcon(SEARCH_ICON);
-                findByWhereButton.setIcon(SEARCH_ICON);
+            Image SEARCH_IMAGE = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Search-icon.png"));
+            SEARCH_ICON = new ImageIcon(SEARCH_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
+            findByNameButton.setIcon(SEARCH_ICON);
+            findByTagButton.setIcon(SEARCH_ICON);
+            findByWhereButton.setIcon(SEARCH_ICON);
 
-                Image EXPORT_IMAGE = read(this.getClass().getClassLoader().getResource("images/Export-icon.png"));
-                EXPORT_ICON = new ImageIcon(EXPORT_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
-                exportButton.setIcon(EXPORT_ICON);
+            Image EXPORT_IMAGE = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Export-icon.png"));
+            EXPORT_ICON = new ImageIcon(EXPORT_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
+            exportButton.setIcon(EXPORT_ICON);
 
-                Image RESET_IMAGE = read(this.getClass().getClassLoader().getResource("images/Reset-icon.png"));
-                RESET_ICON = new ImageIcon(RESET_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
-                resetButton.setIcon(RESET_ICON);
+            Image RESET_IMAGE = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Reset-icon.png"));
+            RESET_ICON = new ImageIcon(RESET_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
+            resetButton.setIcon(RESET_ICON);
 
-                logo50Icon = new ImageIcon(LOGO_IMAGE.getScaledInstance(50, 50, Image.SCALE_SMOOTH));
-            } catch (IOException ex) {
-                logger.error("Failed to load icons", ex);
-            }
+            logo50Icon = new ImageIcon(LOGO_IMAGE.getScaledInstance(50, 50, Image.SCALE_SMOOTH));
         });
     }
 
     public void enableUIActions(ButtonActionHandler buttonActionHandler, HyperlinkActionHandler hyperlinkActionHandler) {
+        //set frame in action handlers
+        buttonActionHandler.setFrame(this);
+        hyperlinkActionHandler.setFrame(this);
         //button action listener
         rootChooserButton.addActionListener(buttonActionHandler);
         scanButton.addActionListener(buttonActionHandler);

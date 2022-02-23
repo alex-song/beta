@@ -52,6 +52,7 @@ public class ButtonActionHandler implements ActionListener {
     private String FILEINFO_DETAIL_IMG_TEMPLATE;
 
     private PortableCinemaConfig config;
+    private PortableCinemaFrame frame;
     private File rootFolder;
     private File confFile;
     private AtomicBoolean isRunning = new AtomicBoolean(false);
@@ -59,6 +60,10 @@ public class ButtonActionHandler implements ActionListener {
     public ButtonActionHandler(File confFile, PortableCinemaConfig config) {
         this.config = config;
         this.confFile = confFile;
+    }
+
+    public void setFrame(PortableCinemaFrame frame) {
+        this.frame = frame;
     }
 
     public void loadTemplates() throws IOException {
@@ -78,8 +83,6 @@ public class ButtonActionHandler implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        //Locate PortableCinemaFrame
-        PortableCinemaFrame frame = (PortableCinemaFrame) ((JButton) e.getSource()).getRootPane().getParent();
         if (isRunning.compareAndSet(false, true)) {
             String action = e.getActionCommand();
             frame.appendResultText("[" + action.toUpperCase() + "]" + HTML_LINE);

@@ -28,16 +28,20 @@ public class HyperlinkActionHandler extends MouseAdapter {
 
     private PortableCinemaConfig config;
 
+    private PortableCinemaFrame frame;
+
     public HyperlinkActionHandler(PortableCinemaConfig config) {
         this.config = config;
+    }
+
+    public void setFrame(PortableCinemaFrame frame) {
+        this.frame = frame;
     }
 
     @Override
     @SuppressWarnings({"squid:S1135", "squid:S3776"})
     public void mouseClicked(MouseEvent e) {
-        PortableCinemaFrame frame = (PortableCinemaFrame) ((JTextPane) e.getSource()).getRootPane().getParent();
-
-        if (e.getButton() == MouseEvent.BUTTON1) {
+        if (SwingUtilities.isLeftMouseButton(e)) {
             Element h = getHyperlinkElement(e);
             if (h != null) {
                 Object attribute = h.getAttributes().getAttribute(HTML.Tag.A);
@@ -79,13 +83,19 @@ public class HyperlinkActionHandler extends MouseAdapter {
                             String otid = href.substring(7);
                             FileInfo fileInfo = new ViewCommand(otid).execute(config);
                             try {
-                                Desktop.getDesktop().open(new File(fileInfo.getPath()));
+                                if (Desktop.isDesktopSupported())
+                                    Desktop.getDesktop().open(new File(fileInfo.getPath()));
+                                else
+                                    JOptionPane.showMessageDialog(frame, fileInfo.getPath(), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE);
                             } catch (Exception ex) {
                                 logger.warn("Cannot open video folder [{}]", fileInfo.getPath(), ex);
                             }
                         } else {
                             try {
-                                Desktop.getDesktop().browse(new URI(href));
+                                if (Desktop.isDesktopSupported())
+                                    Desktop.getDesktop().browse(new URI(href));
+                                else
+                                    JOptionPane.showMessageDialog(frame, href, href, JOptionPane.PLAIN_MESSAGE);
                             } catch (IOException | URISyntaxException ex) {
                                 logger.warn("Cannot open video folder [{}]", href, ex);
                             }

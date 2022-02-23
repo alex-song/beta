@@ -6,6 +6,7 @@ import alex.beta.portablecinema.database.DatabaseException;
 import alex.beta.portablecinema.pojo.FileInfo;
 import alex.beta.portablecinema.tag.TagService;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
@@ -37,6 +38,9 @@ public class AnalyzeCommand extends Command<AnalyzeCommand.AnalyzeResult> {
                 }
             }
             result.setExtraTags(extraTags);
+            if (logger.isInfoEnabled()) {
+                logger.info("Extra tags: {}", StringUtils.join(result.getExtraTags(), ", "));
+            }
         } catch (DatabaseException ex) {
             logger.error("Failed to analyze file info", ex);
         }

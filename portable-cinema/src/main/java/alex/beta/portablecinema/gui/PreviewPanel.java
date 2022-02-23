@@ -9,14 +9,18 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.FileImageInputStream;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.util.Iterator;
 
 import static java.awt.Image.SCALE_SMOOTH;
-import static javax.imageio.ImageIO.read;
 import static javax.swing.Action.SHORT_DESCRIPTION;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -94,7 +98,7 @@ public class PreviewPanel extends JPanel {
                 ThumbnailAction thumbAction;
                 if (icon != null) {
                     //Small pic
-                    ImageIcon thumbnailIcon = new ImageIcon(getScaledImage(icon.getImage(), THUMBNAIL_IMAGE_SIZE, THUMBNAIL_IMAGE_SIZE));
+                    ImageIcon thumbnailIcon = new ImageIcon(icon.getImage().getScaledInstance(THUMBNAIL_IMAGE_SIZE, THUMBNAIL_IMAGE_SIZE, SCALE_SMOOTH));
                     thumbAction = new ThumbnailAction(icon, thumbnailIcon, imgPath);
                 } else {
                     // the image failed to load for some reason
@@ -135,6 +139,34 @@ public class PreviewPanel extends JPanel {
                 null);
     }
 
+    /**
+     * Gets image dimensions for given file
+     *
+     * @param imgFile image file
+     * @return dimensions of image
+     * @throws IOException if the file is not a known image
+     */
+    private static Dimension getImageDimension(File imgFile) throws IOException {
+        int pos = imgFile.getName().lastIndexOf('.');
+        if (pos == -1)
+            throw new IOException("No extension for file: " + imgFile.getCanonicalPath());
+        String suffix = imgFile.getName().substring(pos + 1);
+        Iterator<ImageReader> iter = ImageIO.getImageReadersBySuffix(suffix);
+        while (iter.hasNext()) {
+            ImageReader reader = iter.next();
+            try (ImageInputStream stream = new FileImageInputStream(imgFile)) {
+                reader.setInput(stream);
+                int width = reader.getWidth(reader.getMinIndex());
+                int height = reader.getHeight(reader.getMinIndex());
+                return new Dimension(width, height);
+            } finally {
+                reader.dispose();
+            }
+        }
+
+        throw new IOException("Not a known image file: " + imgFile.getCanonicalPath());
+    }
+
     private void createUIComponents() {
         photographLabel = new JLabel();
         buttonBar = new JToolBar();
@@ -167,18 +199,23 @@ public class PreviewPanel extends JPanel {
      */
     private ImageIcon createImageIcon(String path, String description) {
         try {
-            BufferedImage img = null;
+            Image img = null;
             File imgFile = new File(path);
             if (imgFile.exists() && imgFile.isFile()) {
-                img = read(imgFile);
+                img = Toolkit.getDefaultToolkit().createImage(path);
             }
 
             if (img != null) {
-                if (img.getWidth() > (this.getWidth() - 20.0d) || img.getHeight() > (this.getHeight() - THUMBNAIL_IMAGE_SIZE - 30.0d)) {
-                    double ratio = Math.min((this.getWidth() - 20.0d) / img.getWidth(), (this.getHeight() - THUMBNAIL_IMAGE_SIZE - 30.0d) / img.getHeight());
-                    return new ImageIcon(img.getScaledInstance((int) (img.getWidth() * ratio), (int) (img.getHeight() * ratio), SCALE_SMOOTH), description);
-                } else
+                Dimension imgDimension = getImageDimension(imgFile);
+                boolean respectWidth = ((imgDimension.getWidth() / imgDimension.getHeight()) > ((this.getWidth() - 20.0d) / (this.getHeight() - THUMBNAIL_IMAGE_SIZE - 30.0d)));
+
+                if (imgDimension.getWidth() <= this.getWidth() - 20 && imgDimension.getHeight() <= this.getHeight() - THUMBNAIL_IMAGE_SIZE - 30) {
                     return new ImageIcon(img, description);
+                } else if (respectWidth) {
+                    return new ImageIcon(img.getScaledInstance(this.getWidth() - 20, -1, SCALE_SMOOTH), description);
+                } else {
+                    return new ImageIcon(img.getScaledInstance(-1, this.getHeight() - THUMBNAIL_IMAGE_SIZE - 30, SCALE_SMOOTH), description);
+                }
             } else {
                 logger.info("Cover image [{}] does not exist, or it's not a valid image", path);
                 return null;
@@ -187,23 +224,6 @@ public class PreviewPanel extends JPanel {
             logger.info("Cover image [{}] does not exist, or it's not a valid image", path);
             return null;
         }
-    }
-
-    /**
-     * Resizes an image using a Graphics2D object backed by a BufferedImage.
-     *
-     * @param srcImg - source image to scale
-     * @param w      - desired width
-     * @param h      - desired height
-     * @return - the new resized image
-     */
-    private Image getScaledImage(Image srcImg, int w, int h) {
-        BufferedImage resizedImg = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-        Graphics2D g2 = resizedImg.createGraphics();
-        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g2.drawImage(srcImg, 0, 0, w, h, null);
-        g2.dispose();
-        return resizedImg;
     }
 
     /**
