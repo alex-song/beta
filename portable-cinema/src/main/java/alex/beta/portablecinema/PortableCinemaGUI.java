@@ -65,9 +65,11 @@ public class PortableCinemaGUI {
             } catch (DatabaseException ex) {
                 logger.error("Database initialization failed", ex);
                 frame.setErrorStatusText("数据库初始化失败");
+                UIManager.getLookAndFeel().provideErrorFeedback(frame);
             } catch (IOException ex) {
                 logger.error("Failed to load templates", ex);
                 frame.setErrorStatusText("读取资源文件失败");
+                UIManager.getLookAndFeel().provideErrorFeedback(frame);
             }
 
         });

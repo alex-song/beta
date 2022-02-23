@@ -65,6 +65,7 @@ public class PortableCinemaFrame extends JFrame {
             EMPTY_HTML_TEMPLATE = Resources.asCharSource(Resources.getResource("templates/Empty.tpl"), StandardCharsets.UTF_8).read();
         } catch (Exception ex) {
             logger.error("Failed to load icon or template files", ex);
+            UIManager.getLookAndFeel().provideErrorFeedback(this);
             return;
         }
         //Frame
@@ -140,9 +141,16 @@ public class PortableCinemaFrame extends JFrame {
         resultPane = new JTextPane();
         resultPane.setContentType("text/html; charset=utf-8");
         resultPane.setText(EMPTY_HTML_TEMPLATE);
+        if (resultPane.getDocument() != null) {
+            //For the sake of performance
+            //http://java-sl.com/JEditorPanePerformance.html
+            resultPane.getDocument().putProperty("i18n", Boolean.FALSE);
+        }
         resultPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         resultPane.setEditable(false);
         resultScrollPane = new JScrollPane(resultPane);
+        resultScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+//        resultScrollPane.setAutoscrolls(true);
 
         getContentPane().add(resultScrollPane, BorderLayout.CENTER);
 
@@ -242,18 +250,20 @@ public class PortableCinemaFrame extends JFrame {
             }
         } finally {
             //auto scroll
-            if (resultScrollPane != null)
-                resultScrollPane.getVerticalScrollBar().setValue(resultScrollPane.getVerticalScrollBar().getMaximum());
-            if (false)
-                try {
-                    HTMLDocument doc = (HTMLDocument) resultPane.getStyledDocument();
-                    EditorKit kit = resultPane.getEditorKit();
-                    StringWriter writer = new StringWriter();
-                    kit.write(writer, doc, 0, doc.getLength());
-                    System.out.println(writer.toString());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            SwingUtilities.invokeLater(() -> {
+                if (resultScrollPane != null)
+                    resultScrollPane.getVerticalScrollBar().setValue(resultScrollPane.getVerticalScrollBar().getMaximum());
+                if (false)
+                    try {
+                        HTMLDocument doc = (HTMLDocument) resultPane.getStyledDocument();
+                        EditorKit kit = resultPane.getEditorKit();
+                        StringWriter writer = new StringWriter();
+                        kit.write(writer, doc, 0, doc.getLength());
+                        System.out.println(writer.toString());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+            });
         }
     }
 
