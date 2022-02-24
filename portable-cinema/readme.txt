@@ -14,16 +14,16 @@ A:
 10. [Done] Output message in console
 11. [Done] Build# in banner
 12. [Done] Edit dialog, after OCR
-13. Fine tune the text pane to reduce the memory usage and improve performance
+13. [Done] Double click to switch between original image and scaled image. New button to start OCR.
 
 B:
 1. [Cancel] Add images array
 2. [Done] Folder last modified time reset
 3. [Cancel] Refactor status bar to display file info
-4. Update console UI after file info edit
-5. [Done] Improve help doc
+4. [Done] Improve help doc
+5. [Cancel] Update console UI after file info edit
 6. Double clicks on suggestion list
-7. Double click to switch between original image and scaled image. New button to start OCR.
+7. Fine tune the text pane to reduce the memory usage and improve performance
 
 
 

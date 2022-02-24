@@ -1,33 +1,40 @@
 package alex.beta.portablecinema.gui;
 
 import alex.beta.portablecinema.PortableCinemaConfig;
+import alex.beta.portablecinema.command.EditCommand;
+import alex.beta.portablecinema.command.ViewCommand;
 import alex.beta.portablecinema.pojo.FileInfo;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import alex.beta.simpleocr.baidu.BaiduOcr;
 import lombok.NonNull;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 
+import static alex.beta.portablecinema.command.EditCommand.resultText;
+import static alex.beta.portablecinema.gui.TagSuggestionPanel.*;
+import static alex.beta.simpleocr.OcrFactory.PROXY_HOST;
+import static alex.beta.simpleocr.OcrFactory.PROXY_PORT;
 import static java.awt.Image.SCALE_SMOOTH;
+import static javax.imageio.ImageIO.getImageReadersBySuffix;
 import static javax.swing.Action.SHORT_DESCRIPTION;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-@Setter
-@Getter
-@NoArgsConstructor
 @SuppressWarnings({"squid:S1948", "squid:S3776"})
 public class PreviewPanel extends JPanel {
 
@@ -36,10 +43,12 @@ public class PreviewPanel extends JPanel {
     private FileInfo fileInfo;
     private PortableCinemaConfig config;
 
+    private BaiduOcr ocrClient;
+
     private JLabel photographLabel;
     private JToolBar buttonBar;
-    private MissingIcon placeholderIcon;
-    private String currentImg;
+    private MissingIcon placeholderIcon = new MissingIcon();
+    private ThumbnailAction currentAction;
 
     public PreviewPanel(PortableCinemaConfig config, FileInfo fileInfo, int width, int height) {
         super(new BorderLayout());
@@ -69,7 +78,7 @@ public class PreviewPanel extends JPanel {
             @Override
             protected Void doInBackground() {
                 if (fileInfo == null || (isBlank(fileInfo.getCover1()) && isBlank(fileInfo.getCover2()))) {
-                    publish(new ThumbnailAction(placeholderIcon, placeholderIcon, "没有预览图片"));
+                    publish(new ThumbnailAction(placeholderIcon, placeholderIcon, placeholderIcon, ""));
                 } else {
                     if (fileInfo.getCover1() != null) {
                         publishImage(fileInfo.getPath(), fileInfo.getCover1());
@@ -93,50 +102,131 @@ public class PreviewPanel extends JPanel {
                 } else {
                     imgPath = folderPath + File.separator + coverImageName;
                 }
-                //Big pic
-                ImageIcon icon = createImageIcon(imgPath, coverImageName);
-                ThumbnailAction thumbAction;
-                if (icon != null) {
-                    //Small pic
-                    ImageIcon thumbnailIcon = new ImageIcon(icon.getImage().getScaledInstance(THUMBNAIL_IMAGE_SIZE, THUMBNAIL_IMAGE_SIZE, SCALE_SMOOTH));
-                    thumbAction = new ThumbnailAction(icon, thumbnailIcon, imgPath);
+                ImageIcon[] icons = createImageIcons(imgPath);
+                if (icons.length == 3) {
+                    //Full size pic
+                    ImageIcon fullsizeIcon = icons[0];
+                    //Big pic
+                    ImageIcon scaledImageIcon = icons[1];
+                    //Thumbnail pic
+                    ImageIcon thumbnailIcon = icons[2];
+                    publish(new ThumbnailAction(fullsizeIcon, scaledImageIcon, thumbnailIcon, imgPath));
                 } else {
-                    // the image failed to load for some reason
-                    // so load a placeholder instead
-                    thumbAction = new ThumbnailAction(placeholderIcon, placeholderIcon, "");
+                    publish(new ThumbnailAction(placeholderIcon, placeholderIcon, placeholderIcon, ""));
                 }
-                publish(thumbAction);
             }
 
             /**
              * Process all loaded images, and display the first image that is ready loaded
              */
             @Override
-            protected void process(java.util.List<ThumbnailAction> chunks) {
+            protected void process(List<ThumbnailAction> chunks) {
                 for (ThumbnailAction thumbAction : chunks) {
                     JButton thumbButton = new JButton(thumbAction);
                     // Add the new button BEFORE the last glue
                     // This centers the buttons in the toolbar
                     buttonBar.add(thumbButton, buttonBar.getComponentCount() - 1);
                     if (!isFirstImageReady) {
-                        photographLabel.setIcon(thumbAction.displayPhoto);
-                        currentImg = String.valueOf(thumbAction.getValue(SHORT_DESCRIPTION));
+                        photographLabel.setIcon(thumbAction.scaledImage);
+                        currentAction = thumbAction;
                         isFirstImageReady = true;
                     }
                 }
             }
         }.execute();
+
+        PortableCinemaConfig.BaiduOCR ocrConfig = config.getBaiduOCR();
+        if (ocrConfig != null && isNotBlank(ocrConfig.getAppId())) {
+            initOcrClient();
+        } else {
+            ocrClient = null;
+        }
     }
 
-    public static void showDialog(Frame owner, FileInfo fileInfo, PortableCinemaConfig config) {
-        JOptionPane.showOptionDialog(owner,
-                new PreviewPanel(config, fileInfo, 800, 700),
-                fileInfo.getName(),
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.PLAIN_MESSAGE,
-                null,
-                null,
-                null);
+    public String getCurrentImg() {
+        if (this.currentAction != null) {
+            return String.valueOf(this.currentAction.getValue(SHORT_DESCRIPTION));
+        } else {
+            return null;
+        }
+    }
+
+    public FileInfo getFileInfo() {
+        return fileInfo;
+    }
+
+    public static void showDialog(PortableCinemaFrame owner, FileInfo fileInfo, PortableCinemaConfig config) {
+        PreviewPanel pp = new PreviewPanel(config, fileInfo, 800, 700);
+        Object[] options;
+        if (pp.ocrClient != null) {
+            options = new Object[]{"确定", "文字识别"};
+        } else {
+            options = new Object[]{"确定"};
+        }
+        JOptionPane jop = new JOptionPane(pp, JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION, null, options, options[0]);
+        JDialog dialog = new JDialog(owner, fileInfo.getName(), true);
+        dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        dialog.setContentPane(jop);
+
+        jop.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (JOptionPane.VALUE_PROPERTY.equals(evt.getPropertyName())) {
+                    if (options[0].equals(evt.getNewValue())) {
+                        dialog.dispose();
+                    } else if (options.length > 1 && options[1].equals(evt.getNewValue()) && isNotBlank(pp.getCurrentImg())) {
+                        if (pp.ocrClient != null) {
+                            int option = TagSuggestionPanel.showDialog(pp, pp.ocrClient, pp.getCurrentImg());
+                            if (option == SAVE_CHANGES_OPTION || option == SAVE_CHANGES_OPEN_EDITOR_OPTION) {
+                                int result = new EditCommand(fileInfo).execute(config);
+                                logger.debug("Update tags of file info [{}], result is [{}]", fileInfo, result);
+                                if (option == SAVE_CHANGES_OPTION)
+                                    JOptionPane.showMessageDialog(pp, resultText(result), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE, owner.logo50Icon);
+                                else {
+                                    //open editor
+                                    showEditorDialog(fileInfo.getOtid());
+                                }
+                            } else if (option == DISCARD_CHANGES_OPEN_EDITOR_OPTION || option == NO_CHANGE_OPEN_EDITOR_OPTION) {
+                                //open editor
+                                showEditorDialog(fileInfo.getOtid());
+                            }
+                        } else {
+                            JOptionPane.showMessageDialog(pp, "请检查OCR程序配置", fileInfo.getName(), JOptionPane.PLAIN_MESSAGE, owner.logo50Icon);
+                        }
+                    }
+                }
+                jop.setValue(JOptionPane.UNINITIALIZED_VALUE);
+            }
+
+            private void showEditorDialog(String otid) {
+                FileInfo fileInfoToEdit = new ViewCommand(otid).execute(config);
+                if (FileInfoEditPanel.showDialog(pp, fileInfoToEdit)) {
+                    int result = new EditCommand(fileInfoToEdit).execute(config);
+                    logger.debug("Update file info [{}], result is [{}]", fileInfoToEdit, result);
+                    JOptionPane.showMessageDialog(pp, resultText(result), fileInfoToEdit.getName(), JOptionPane.PLAIN_MESSAGE, owner.logo50Icon);
+                }
+            }
+        });
+        dialog.pack();
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
+    }
+
+    private void initOcrClient() {
+        PortableCinemaConfig.BaiduOCR ocrConfig = config.getBaiduOCR();
+        Properties ocrProps = new Properties();
+        ocrProps.setProperty(BaiduOcr.BAIDU_API_KEY, ocrConfig.getApiKey());
+        ocrProps.setProperty(BaiduOcr.BAIDU_SECRET_KEY, ocrConfig.getSecretKey());
+        ocrProps.setProperty(BaiduOcr.BAIDU_APP_ID, ocrConfig.getAppId());
+        if (isNotBlank(ocrConfig.getProxyHost())) {
+            ocrProps.setProperty(PROXY_HOST, ocrConfig.getProxyHost());
+            if (ocrConfig.getProxyPort() == 0) {
+                ocrProps.setProperty(PROXY_PORT, "80");
+            } else {
+                ocrProps.setProperty(PROXY_PORT, String.valueOf(ocrConfig.getProxyPort()));
+            }
+        }
+        this.ocrClient = new BaiduOcr(ocrProps);
     }
 
     /**
@@ -146,19 +236,17 @@ public class PreviewPanel extends JPanel {
      * @return dimensions of image
      * @throws IOException if the file is not a known image
      */
-    private static Dimension getImageDimension(File imgFile) throws IOException {
+    private Dimension getImageDimension(File imgFile) throws IOException {
         int pos = imgFile.getName().lastIndexOf('.');
         if (pos == -1)
             throw new IOException("No extension for file: " + imgFile.getCanonicalPath());
         String suffix = imgFile.getName().substring(pos + 1);
-        Iterator<ImageReader> iter = ImageIO.getImageReadersBySuffix(suffix);
+        Iterator<ImageReader> iter = getImageReadersBySuffix(suffix);
         while (iter.hasNext()) {
             ImageReader reader = iter.next();
             try (ImageInputStream stream = new FileImageInputStream(imgFile)) {
                 reader.setInput(stream);
-                int width = reader.getWidth(reader.getMinIndex());
-                int height = reader.getHeight(reader.getMinIndex());
-                return new Dimension(width, height);
+                return new Dimension(reader.getWidth(reader.getMinIndex()), reader.getHeight(reader.getMinIndex()));
             } finally {
                 reader.dispose();
             }
@@ -170,15 +258,27 @@ public class PreviewPanel extends JPanel {
     private void createUIComponents() {
         photographLabel = new JLabel();
         buttonBar = new JToolBar();
-        placeholderIcon = new MissingIcon();
 
         // A label for displaying the pictures
         photographLabel.setVerticalTextPosition(SwingConstants.BOTTOM);
         photographLabel.setHorizontalTextPosition(SwingConstants.CENTER);
         photographLabel.setHorizontalAlignment(SwingConstants.CENTER);
         photographLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        if (config.getBaiduOCR() != null && isNotBlank(config.getBaiduOCR().getAppId()))
-            photographLabel.addMouseListener(new ImageOcrActionHandler(config, this));
+
+        photographLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent event) {
+                final String currentImg = getCurrentImg();
+                if ((event.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(event) && isNotBlank(currentImg))) {
+                    if (photographLabel.getIcon() == currentAction.fullsize) {
+                        photographLabel.setIcon(currentAction.scaledImage);
+                    } else {
+                        photographLabel.setIcon(currentAction.fullsize);
+                    }
+                    photographLabel.repaint();
+                }
+            }
+        });
 
         // We add two glue components. Later in process() we will add thumbnail buttons
         // to the toolbar inbetween thease glue compoents. This will center the
@@ -192,12 +292,14 @@ public class PreviewPanel extends JPanel {
     }
 
     /**
-     * Creates an ImageIcon if the path is valid, and adjust image size to fit the screen.
+     * Creates 3 ImageIcons if the path is valid.
+     * [0] - Full size image
+     * [1] - Image size to fit the screen.
+     * [2] - Image size to fit thumbnail button.
      *
-     * @param path        - resource path
-     * @param description - description of the file
+     * @param path - resource path
      */
-    private ImageIcon createImageIcon(String path, String description) {
+    private ImageIcon[] createImageIcons(String path) {
         try {
             Image img = null;
             File imgFile = new File(path);
@@ -210,19 +312,28 @@ public class PreviewPanel extends JPanel {
                 boolean respectWidth = ((imgDimension.getWidth() / imgDimension.getHeight()) > ((this.getWidth() - 20.0d) / (this.getHeight() - THUMBNAIL_IMAGE_SIZE - 30.0d)));
 
                 if (imgDimension.getWidth() <= this.getWidth() - 20 && imgDimension.getHeight() <= this.getHeight() - THUMBNAIL_IMAGE_SIZE - 30) {
-                    return new ImageIcon(img, description);
+                    return new ImageIcon[]{
+                            new ImageIcon(img),
+                            new ImageIcon(img),
+                            new ImageIcon(img.getScaledInstance(THUMBNAIL_IMAGE_SIZE, THUMBNAIL_IMAGE_SIZE, SCALE_SMOOTH))};
                 } else if (respectWidth) {
-                    return new ImageIcon(img.getScaledInstance(this.getWidth() - 20, -1, SCALE_SMOOTH), description);
+                    return new ImageIcon[]{
+                            new ImageIcon(img),
+                            new ImageIcon(img.getScaledInstance(this.getWidth() - 20, -1, SCALE_SMOOTH)),
+                            new ImageIcon(img.getScaledInstance(THUMBNAIL_IMAGE_SIZE, THUMBNAIL_IMAGE_SIZE, SCALE_SMOOTH))};
                 } else {
-                    return new ImageIcon(img.getScaledInstance(-1, this.getHeight() - THUMBNAIL_IMAGE_SIZE - 30, SCALE_SMOOTH), description);
+                    return new ImageIcon[]{
+                            new ImageIcon(img),
+                            new ImageIcon(img.getScaledInstance(-1, this.getHeight() - THUMBNAIL_IMAGE_SIZE - 30, SCALE_SMOOTH)),
+                            new ImageIcon(img.getScaledInstance(THUMBNAIL_IMAGE_SIZE, THUMBNAIL_IMAGE_SIZE, SCALE_SMOOTH))};
                 }
             } else {
                 logger.info("Cover image [{}] does not exist, or it's not a valid image", path);
-                return null;
+                return new ImageIcon[]{};
             }
         } catch (Exception ex) {
             logger.info("Cover image [{}] does not exist, or it's not a valid image", path);
-            return null;
+            return new ImageIcon[]{};
         }
     }
 
@@ -232,17 +343,24 @@ public class PreviewPanel extends JPanel {
     private class ThumbnailAction extends AbstractAction {
 
         /**
-         * The icon if the full image we want to display.
+         * The icon if the scaled image we want to display.
          */
-        private Icon displayPhoto;
+        private Icon scaledImage;
 
         /**
-         * @param photo   - The full size photo to show in the button.
-         * @param thumb   - The thumbnail to show in the button.
-         * @param imgPath - The description of the icon.
+         * The icon if the full size image we want to display
          */
-        public ThumbnailAction(Icon photo, Icon thumb, String imgPath) {
-            displayPhoto = photo;
+        private Icon fullsize;
+
+        /**
+         * @param fullsize    - The original size image to show in preview
+         * @param scaledImage - The scaled image to show in preview.
+         * @param thumb       - The thumbnail to show in the button.
+         * @param imgPath     - The path of the image.
+         */
+        public ThumbnailAction(Icon fullsize, Icon scaledImage, Icon thumb, String imgPath) {
+            this.fullsize = fullsize;
+            this.scaledImage = scaledImage;
 
             // The short description becomes the tooltip of a button.
             putValue(SHORT_DESCRIPTION, imgPath);
@@ -256,8 +374,8 @@ public class PreviewPanel extends JPanel {
          * Shows the big image in the main area.
          */
         public void actionPerformed(ActionEvent e) {
-            photographLabel.setIcon(displayPhoto);
-            currentImg = String.valueOf(getValue(SHORT_DESCRIPTION));
+            photographLabel.setIcon(scaledImage);
+            currentAction = this;
         }
     }
 
