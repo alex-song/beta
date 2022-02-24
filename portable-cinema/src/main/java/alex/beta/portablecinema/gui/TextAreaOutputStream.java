@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * It bridges a JTextArea with OutputStream, that can possibly linked with System.in/System.out/System.err
- *
+ * <p>
  * It's not being used by this project. Keep it for further consideration.
  *
  * @deprecated
