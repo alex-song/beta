@@ -31,7 +31,7 @@ public class PortableCinemaConfig {
         config.dbFileName = DEFAULT_IN_FOLDER_DB_FILE_NAME;
         config.imageFileSizeThreshold = 60 * 1024L;
         config.videoFileSizeThreshold = 100 * 1024 * 1024L;
-        config.imageFileExtensions = ".bmp, .jpg, .jpeg, .png";
+        config.imageFileExtensions = ".jpg, .jpeg, .png, .bmp, .gif";
         config.videoFileExtensions = ".avi, .mpg, .mpeg, .mpe, .mp4, .mkv, .mts, .mov, .m4v, .qt, .rmvb, .rm, .vob, .wmv";
         config.skipNameStartsWith = "., _";
         config.glossaryFileName = "Glossary.json";

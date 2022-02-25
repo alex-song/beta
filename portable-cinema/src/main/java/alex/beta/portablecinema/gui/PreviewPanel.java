@@ -9,6 +9,7 @@ import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
@@ -25,10 +26,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+import static alex.beta.portablecinema.command.EditCommand.UPDATE_SUCCESS;
 import static alex.beta.portablecinema.command.EditCommand.resultText;
 import static alex.beta.portablecinema.gui.TagSuggestionPanel.*;
 import static alex.beta.simpleocr.OcrFactory.PROXY_HOST;
 import static alex.beta.simpleocr.OcrFactory.PROXY_PORT;
+import static java.awt.Image.SCALE_DEFAULT;
 import static java.awt.Image.SCALE_SMOOTH;
 import static javax.imageio.ImageIO.getImageReadersBySuffix;
 import static javax.swing.Action.SHORT_DESCRIPTION;
@@ -38,8 +41,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @SuppressWarnings({"squid:S1948", "squid:S3776"})
 public class PreviewPanel extends JPanel {
 
-    public static final int THUMBNAIL_IMAGE_SIZE = 100;
     private static Logger logger = LoggerFactory.getLogger(PreviewPanel.class);
+    private static final int THUMBNAIL_IMAGE_SIZE = 100;
     private FileInfo fileInfo;
     private PortableCinemaConfig config;
 
@@ -143,7 +146,7 @@ public class PreviewPanel extends JPanel {
         }
     }
 
-    public String getCurrentImg() {
+    private String getCurrentImg() {
         if (this.currentAction != null) {
             return String.valueOf(this.currentAction.getValue(SHORT_DESCRIPTION));
         } else {
@@ -203,6 +206,9 @@ public class PreviewPanel extends JPanel {
                 if (FileInfoEditPanel.showDialog(pp, fileInfoToEdit)) {
                     int result = new EditCommand(fileInfoToEdit).execute(config);
                     logger.debug("Update file info [{}], result is [{}]", fileInfoToEdit, result);
+                    if (result == UPDATE_SUCCESS) {
+                        pp.fileInfo = fileInfoToEdit;
+                    }
                     JOptionPane.showMessageDialog(pp, resultText(result), fileInfoToEdit.getName(), JOptionPane.PLAIN_MESSAGE, owner.logo50Icon);
                 }
             }
@@ -236,17 +242,17 @@ public class PreviewPanel extends JPanel {
      * @return dimensions of image
      * @throws IOException if the file is not a known image
      */
-    private Dimension getImageDimension(File imgFile) throws IOException {
-        int pos = imgFile.getName().lastIndexOf('.');
-        if (pos == -1)
-            throw new IOException("No extension for file: " + imgFile.getCanonicalPath());
-        String suffix = imgFile.getName().substring(pos + 1);
+    static Dimension getImageDimension(File imgFile) throws IOException {
+        String suffix = imgFile.getName().substring(imgFile.getName().lastIndexOf('.') + 1);
         Iterator<ImageReader> iter = getImageReadersBySuffix(suffix);
         while (iter.hasNext()) {
             ImageReader reader = iter.next();
             try (ImageInputStream stream = new FileImageInputStream(imgFile)) {
                 reader.setInput(stream);
                 return new Dimension(reader.getWidth(reader.getMinIndex()), reader.getHeight(reader.getMinIndex()));
+            } catch (IOException ex) {
+                if (logger.isInfoEnabled())
+                    logger.info("Failed to read {} using {}", imgFile.getCanonicalPath(), reader.getClass().getSimpleName(), ex);
             } finally {
                 reader.dispose();
             }
@@ -302,9 +308,25 @@ public class PreviewPanel extends JPanel {
     private ImageIcon[] createImageIcons(String path) {
         try {
             Image img = null;
+            int hints = SCALE_SMOOTH;
             File imgFile = new File(path);
             if (imgFile.exists() && imgFile.isFile()) {
-                img = Toolkit.getDefaultToolkit().createImage(path);
+                int pos = imgFile.getName().lastIndexOf('.');
+                if (pos < 0) {
+                    logger.info("No extension for file [{}]", path);
+                    return new ImageIcon[]{};
+                } else {
+                    String suffix = imgFile.getName().substring(pos + 1);
+                    if ("bmp".equalsIgnoreCase(suffix)) {
+                        //Has to use BufferedImage for BMP images
+                        img = ImageIO.read(imgFile);
+                    } else {
+                        if ("gif".equalsIgnoreCase(suffix)) {
+                            hints = SCALE_DEFAULT;
+                        }
+                        img = Toolkit.getDefaultToolkit().createImage(path);
+                    }
+                }
             }
 
             if (img != null) {
@@ -315,17 +337,17 @@ public class PreviewPanel extends JPanel {
                     return new ImageIcon[]{
                             new ImageIcon(img),
                             new ImageIcon(img),
-                            new ImageIcon(img.getScaledInstance(THUMBNAIL_IMAGE_SIZE, THUMBNAIL_IMAGE_SIZE, SCALE_SMOOTH))};
+                            new ImageIcon(img.getScaledInstance(THUMBNAIL_IMAGE_SIZE, THUMBNAIL_IMAGE_SIZE, hints))};
                 } else if (respectWidth) {
                     return new ImageIcon[]{
                             new ImageIcon(img),
-                            new ImageIcon(img.getScaledInstance(this.getWidth() - 20, -1, SCALE_SMOOTH)),
-                            new ImageIcon(img.getScaledInstance(THUMBNAIL_IMAGE_SIZE, THUMBNAIL_IMAGE_SIZE, SCALE_SMOOTH))};
+                            new ImageIcon(img.getScaledInstance(this.getWidth() - 20, -1, hints)),
+                            new ImageIcon(img.getScaledInstance(THUMBNAIL_IMAGE_SIZE, THUMBNAIL_IMAGE_SIZE, hints))};
                 } else {
                     return new ImageIcon[]{
                             new ImageIcon(img),
-                            new ImageIcon(img.getScaledInstance(-1, this.getHeight() - THUMBNAIL_IMAGE_SIZE - 30, SCALE_SMOOTH)),
-                            new ImageIcon(img.getScaledInstance(THUMBNAIL_IMAGE_SIZE, THUMBNAIL_IMAGE_SIZE, SCALE_SMOOTH))};
+                            new ImageIcon(img.getScaledInstance(-1, this.getHeight() - THUMBNAIL_IMAGE_SIZE - 30, hints)),
+                            new ImageIcon(img.getScaledInstance(THUMBNAIL_IMAGE_SIZE, THUMBNAIL_IMAGE_SIZE, hints))};
                 }
             } else {
                 logger.info("Cover image [{}] does not exist, or it's not a valid image", path);
