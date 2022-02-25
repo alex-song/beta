@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import javax.swing.text.EditorKit;
-import javax.swing.text.Element;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.text.*;
 import javax.swing.text.html.HTMLDocument;
 import java.awt.*;
 import java.io.StringWriter;
@@ -141,11 +141,6 @@ public class PortableCinemaFrame extends JFrame {
         resultPane = new JTextPane();
         resultPane.setContentType("text/html; charset=utf-8");
         resultPane.setText(EMPTY_HTML_TEMPLATE);
-        if (resultPane.getDocument() != null) {
-            //For the sake of performance
-            //http://java-sl.com/JEditorPanePerformance.html
-            resultPane.getDocument().putProperty("i18n", Boolean.FALSE);
-        }
         resultPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         resultPane.setEditable(false);
         resultScrollPane = new JScrollPane(resultPane);
@@ -166,6 +161,9 @@ public class PortableCinemaFrame extends JFrame {
         statusLabel.setIcon(new ImageIcon(LOGO_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH)));
         statusPanel.add(statusLabel);
         getContentPane().add(statusPanel, BorderLayout.SOUTH);
+
+        //For the sake of performance
+        tryToFixMemory();
     }
 
     private void loadResourcesLater() {
@@ -199,6 +197,33 @@ public class PortableCinemaFrame extends JFrame {
             logo50Icon = new ImageIcon(LOGO_IMAGE.getScaledInstance(50, 50, Image.SCALE_SMOOTH));
         });
     }
+
+    /**
+     * Try to fix memory leak of JTextPane
+     */
+    private void tryToFixMemory() {
+        // https://stackoverflow.com/questions/30903003/how-to-prevent-memory-leak-in-jtextpane-setcaretpositionint
+        // disable caret updates
+        Caret caret = resultPane.getCaret();
+        if (caret instanceof DefaultCaret) {
+            ((DefaultCaret) caret).setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
+        } // end if DefaultCaret
+
+        // remove registered UndoableEditListeners if any
+        Document doc = resultPane.getDocument();
+        if (doc != null) {
+            //http://java-sl.com/JEditorPanePerformance.html
+            doc.putProperty("i18n", Boolean.FALSE);
+            if (doc instanceof AbstractDocument) {
+                UndoableEditListener[] undoListeners = ((AbstractDocument) doc).getUndoableEditListeners();
+                if (undoListeners.length > 0) {
+                    for (UndoableEditListener undoListener : undoListeners) {
+                        doc.removeUndoableEditListener(undoListener);
+                    } // end for undoListener
+                } // end if undoListeners
+            } // end if AbstractDocument
+        }
+    } // end method tryToFixMemory
 
     public void enableUIActions(ButtonActionHandler buttonActionHandler, HyperlinkActionHandler hyperlinkActionHandler) {
         //set frame in action handlers
