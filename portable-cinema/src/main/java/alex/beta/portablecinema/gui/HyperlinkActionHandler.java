@@ -41,14 +41,32 @@ public class HyperlinkActionHandler extends MouseAdapter {
     @Override
     @SuppressWarnings({"squid:S1135", "squid:S3776"})
     public void mouseClicked(MouseEvent e) {
+        long priorTimestamp = System.currentTimeMillis();
+        if (config.isEnablePerformanceLog()) logger.info("Mouse clicked on {}", priorTimestamp);
         if (SwingUtilities.isLeftMouseButton(e)) {
+            if (config.isEnablePerformanceLog()) {
+                logger.info("It takes {}ms to identify the button", System.currentTimeMillis() - priorTimestamp);
+                priorTimestamp = System.currentTimeMillis();
+            }
             Element h = getHyperlinkElement(e);
+            if (config.isEnablePerformanceLog()) {
+                logger.info("It takes {}ms to identify the HTML elment", System.currentTimeMillis() - priorTimestamp);
+                priorTimestamp = System.currentTimeMillis();
+            }
             if (h != null) {
                 Object attribute = h.getAttributes().getAttribute(HTML.Tag.A);
+                if (config.isEnablePerformanceLog()) {
+                    logger.info("It takes {}ms to identify the hyperlink tag", System.currentTimeMillis() - priorTimestamp);
+                    priorTimestamp = System.currentTimeMillis();
+                }
                 if (attribute instanceof AttributeSet) {
                     AttributeSet set = (AttributeSet) attribute;
                     String href = (String) set.getAttribute(HTML.Attribute.HREF);
                     if (href != null) {
+                        if (config.isEnablePerformanceLog()) {
+                            logger.info("It takes {}ms to extract href content", System.currentTimeMillis() - priorTimestamp);
+                            priorTimestamp = System.currentTimeMillis();
+                        }
                         logger.debug("hyper link::{}", href);
                         if (href.startsWith("preview://")) {
                             String otid = href.substring(10);
@@ -95,7 +113,7 @@ public class HyperlinkActionHandler extends MouseAdapter {
 
     @SuppressWarnings({"deprecation", "squid:S1874"}) //TO be compatible with Java 8
     private Element getHyperlinkElement(MouseEvent event) {
-        JEditorPane editor = (JEditorPane) event.getSource();
+        JEditorPane editor = frame.getResultPane();
         int pos = editor.getUI().viewToModel(editor, event.getPoint());
         if (pos >= 0 && editor.getDocument() instanceof HTMLDocument) {
             HTMLDocument hdoc = (HTMLDocument) editor.getDocument();

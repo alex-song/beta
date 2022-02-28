@@ -437,7 +437,7 @@ public class ButtonActionHandler implements ActionListener {
                     if (!isBlank(fi.getPath())) {
                         String timestampText = (fi.getLastModifiedOn() == null ? "" : DateFormatUtils.format(fi.getLastModifiedOn(), PortableCinemaConfig.DATE_FORMATTER));
                         fileLinkText = String.format(FILEINFO_TABLE_TR_A_TEMPLATE,
-                                "otid://" + fi.getOtid(),
+                                fi.getOtid(),
                                 timestampText,
                                 StringEscapeUtils.escapeHtml4(fi.getName()));
                     }

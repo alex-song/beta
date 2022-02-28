@@ -143,11 +143,11 @@ public class PortableCinemaFrame extends JFrame {
         resultPane.setText(EMPTY_HTML_TEMPLATE);
         resultPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         resultPane.setEditable(false);
+//        resultPane.setDoubleBuffered(true);
+        resultPane.setDragEnabled(false);
         resultScrollPane = new JScrollPane(resultPane);
         resultScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-//        resultScrollPane.getVerticalScrollBar().setUnitIncrement(1);
         resultScrollPane.getViewport().setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
-//        resultScrollPane.setAutoscrolls(true);
 
         getContentPane().add(resultScrollPane, BorderLayout.CENTER);
 
@@ -206,6 +206,9 @@ public class PortableCinemaFrame extends JFrame {
         // disable caret updates
         Caret caret = resultPane.getCaret();
         if (caret instanceof DefaultCaret) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("For the sake of performance, and avoid memory leak, we disable Caret update");
+            }
             ((DefaultCaret) caret).setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
         } // end if DefaultCaret
 
@@ -216,7 +219,7 @@ public class PortableCinemaFrame extends JFrame {
             doc.putProperty("i18n", Boolean.FALSE);
             if (doc instanceof AbstractDocument) {
                 UndoableEditListener[] undoListeners = ((AbstractDocument) doc).getUndoableEditListeners();
-                if (undoListeners.length > 0) {
+                if (undoListeners != null) {
                     for (UndoableEditListener undoListener : undoListeners) {
                         doc.removeUndoableEditListener(undoListener);
                     } // end for undoListener
@@ -224,6 +227,10 @@ public class PortableCinemaFrame extends JFrame {
             } // end if AbstractDocument
         }
     } // end method tryToFixMemory
+
+    JTextPane getResultPane() {
+        return resultPane;
+    }
 
     public void enableUIActions(ButtonActionHandler buttonActionHandler, HyperlinkActionHandler hyperlinkActionHandler) {
         //set frame in action handlers

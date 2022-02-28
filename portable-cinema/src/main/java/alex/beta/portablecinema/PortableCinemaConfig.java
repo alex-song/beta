@@ -24,6 +24,7 @@ public class PortableCinemaConfig {
     private String skipNameStartsWith;
     private String glossaryFileName;
     private BaiduOCR baiduOCR;
+    private boolean enablePerformanceLog;
 
     public static PortableCinemaConfig getDefault() {
         PortableCinemaConfig config = new PortableCinemaConfig();
@@ -35,6 +36,7 @@ public class PortableCinemaConfig {
         config.videoFileExtensions = ".avi, .mpg, .mpeg, .mpe, .mp4, .mkv, .mts, .mov, .m4v, .qt, .rmvb, .rm, .vob, .wmv";
         config.skipNameStartsWith = "., _";
         config.glossaryFileName = "Glossary.json";
+        config.enablePerformanceLog = false;
         return config;
     }
 
@@ -54,6 +56,7 @@ public class PortableCinemaConfig {
                 ", videoFileExtensions='" + videoFileExtensions + '\'' +
                 ", skipNameStartsWith='" + skipNameStartsWith + '\'' +
                 ", glossaryFileName='" + glossaryFileName + '\'' +
+                ", enablePerformanceLog='" + enablePerformanceLog + '\'' +
                 '}';
     }
 
