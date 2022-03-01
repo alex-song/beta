@@ -253,7 +253,8 @@ public class QueryResultPanel extends JPanel {
                 int row = fileInfoTable.getSelectedRow();
                 int col = fileInfoTable.getSelectedColumn();
 
-                if (fileInfos == null || row >= fileInfos.length || col >= fileInfoTableModel.getColumnCount()) return;
+                if (fileInfos == null || row < 0 || row >= fileInfos.length || col >= fileInfoTableModel.getColumnCount())
+                    return;
 
                 FileInfo fileInfo = fileInfos[row];
                 if (SwingUtilities.isLeftMouseButton(e) && col == 1 && (isNotBlank(fileInfo.getCover1()) || isNotBlank(fileInfo.getCover2()))) {
@@ -299,7 +300,7 @@ public class QueryResultPanel extends JPanel {
             public void mouseMoved(MouseEvent e) {
                 int row = fileInfoTable.rowAtPoint(e.getPoint());
                 int column = fileInfoTable.columnAtPoint(e.getPoint());
-                if (fileInfos == null || row >= fileInfos.length) return;
+                if (fileInfos == null || row >= fileInfos.length || row < 0) return;
                 FileInfo fileInfo = fileInfos[row];
                 if (column == 1 && (isNotBlank(fileInfo.getCover1()) || isNotBlank(fileInfo.getCover2()))) {
                     fileInfoTable.setCursor(Cursor.getPredefinedCursor(HAND_CURSOR));
@@ -318,6 +319,30 @@ public class QueryResultPanel extends JPanel {
             }
         });
 
+        fileInfoTable.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER && fileInfos != null
+                        && fileInfoTable.getSelectedRow() >= 0 && fileInfoTable.getSelectedRow() < fileInfos.length) {
+                    int row = fileInfoTable.getSelectedRow();
+                    FileInfo fileInfo = fileInfos[row];
+                    if (isNotBlank(fileInfo.getCover1()) || isNotBlank(fileInfo.getCover2())) {
+                        if (logger.isDebugEnabled())
+                            logger.debug("Open preview dialog of {}", fileInfo);
+                        if (PreviewPanel.showDialog(frame, fileInfo, config)) {
+                            fileInfos[row] = new ViewCommand(fileInfo.getOtid()).execute(config);
+                            fileInfoTableModel.fireTableRowsUpdated(row, row);
+                        }
+                    }
+                } else
+                    super.keyPressed(e);
+            }
+        });
+
+        userInputField.addKeyListener(newEnterKeyListener(refreshBtn));
+
+        refreshBtn.addKeyListener(newEnterKeyListener(refreshBtn));
+
         refreshBtn.addActionListener(e -> {
             String inputValue = userInputField.getText();
             if ((NAME_ACTION.equalsIgnoreCase((String) queryOptions.getSelectedItem()) && isBlank(inputValue))
@@ -327,7 +352,7 @@ public class QueryResultPanel extends JPanel {
                 executeQuery();
         });
 
-        userInputField.addKeyListener(newEnterKeyListener(refreshBtn));
+        jumpToField.addKeyListener(newEnterKeyListener(jumpToBtn));
 
         jumpToBtn.addActionListener(e -> {
             if (fileInfos == null || fileInfos.length == 0) return;
@@ -341,32 +366,11 @@ public class QueryResultPanel extends JPanel {
                 fileInfoTable.clearSelection();
             } else {
                 fileInfoTable.setRowSelectionInterval(jumpToRow - 1, jumpToRow - 1);
+                fileInfoTable.scrollRectToVisible(new Rectangle(fileInfoTable.getCellRect(jumpToRow - 1, 0, true)));
             }
         });
-
-        jumpToField.addKeyListener(newEnterKeyListener(jumpToBtn));
-
-        refreshBtn.addKeyListener(newEnterKeyListener(refreshBtn));
 
         jumpToBtn.addKeyListener(newEnterKeyListener(jumpToBtn));
-
-        fileInfoTable.addKeyListener(new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER && fileInfos != null
-                        && fileInfoTable.getSelectedRow() >= 0 && fileInfoTable.getSelectedRow() < fileInfos.length) {
-                    int row = fileInfoTable.getSelectedRow();
-                    FileInfo fileInfo = fileInfos[row];
-                    if (logger.isDebugEnabled())
-                        logger.debug("Open preview dialog of {}", fileInfo);
-                    if (PreviewPanel.showDialog(frame, fileInfo, config)) {
-                        fileInfos[row] = new ViewCommand(fileInfo.getOtid()).execute(config);
-                        fileInfoTableModel.fireTableRowsUpdated(row, row);
-                    }
-                } else
-                    super.keyPressed(e);
-            }
-        });
     }
 
     private KeyListener newEnterKeyListener(@NonNull JButton clickBtn) {

@@ -18,8 +18,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
@@ -145,6 +143,10 @@ public class PreviewPanel extends JPanel {
         } else {
             ocrClient = null;
         }
+
+        // short cut key to OCR, ctrl+R
+        if (ocrClient != null)
+            registerKeyboardAction(ae -> doOCR(), KeyStroke.getKeyStroke("ctrl R"), JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
 
     /**
@@ -153,11 +155,11 @@ public class PreviewPanel extends JPanel {
      * @param config
      * @return true, if file info is updated
      */
-    public static boolean showDialog(PortableCinemaFrame owner, FileInfo fileInfo, PortableCinemaConfig config) {
+    public static boolean showDialog(Frame owner, FileInfo fileInfo, PortableCinemaConfig config) {
         PreviewPanel pp = new PreviewPanel(config, fileInfo, 800, 700);
         Object[] options;
         if (pp.ocrClient != null) {
-            options = new Object[]{"确定", "文字识别"};
+            options = new Object[]{"确定", "文字识别(ctrl + R)"};
         } else {
             options = new Object[]{"确定"};
         }
@@ -166,51 +168,19 @@ public class PreviewPanel extends JPanel {
         dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         dialog.setContentPane(jop);
 
-        jop.addPropertyChangeListener(new PropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt) {
-                if (JOptionPane.VALUE_PROPERTY.equals(evt.getPropertyName())) {
-                    if (options[0].equals(evt.getNewValue())) {
-                        dialog.dispose();
-                    } else if (options.length > 1 && options[1].equals(evt.getNewValue()) && isNotBlank(pp.getCurrentImg())) {
-                        if (pp.ocrClient != null) {
-                            int option = TagSuggestionPanel.showDialog(pp, pp.ocrClient, pp.getCurrentImg());
-                            if (option == SAVE_CHANGES_OPTION || option == SAVE_CHANGES_OPEN_EDITOR_OPTION) {
-                                int result = new EditCommand(fileInfo).execute(config);
-                                logger.debug("Update tags of file info [{}], result is [{}]", fileInfo, result);
-                                if (option == SAVE_CHANGES_OPTION)
-                                    JOptionPane.showMessageDialog(pp, resultText(result), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE, owner == null ? null : owner.logo50Icon);
-                                else {
-                                    //open editor
-                                    showEditorDialog(fileInfo.getOtid());
-                                }
-                                pp.isUpdated = true;
-                            } else if (option == DISCARD_CHANGES_OPEN_EDITOR_OPTION || option == NO_CHANGE_OPEN_EDITOR_OPTION) {
-                                //open editor
-                                pp.isUpdated = showEditorDialog(fileInfo.getOtid());
-                            }
-                        } else {
-                            JOptionPane.showMessageDialog(pp, "请检查OCR程序配置", fileInfo.getName(), JOptionPane.PLAIN_MESSAGE, owner == null ? null : owner.logo50Icon);
-                        }
+        jop.addPropertyChangeListener(evt -> {
+            if (JOptionPane.VALUE_PROPERTY.equals(evt.getPropertyName())) {
+                if (options[0].equals(evt.getNewValue()) || evt.getNewValue().equals(JOptionPane.DEFAULT_OPTION) || evt.getNewValue().equals(JOptionPane.OK_OPTION)) {
+                    dialog.dispose();
+                } else if (options.length > 1 && options[1].equals(evt.getNewValue()) && isNotBlank(pp.getCurrentImg())) {
+                    if (pp.ocrClient != null) {
+                        pp.doOCR();
+                    } else {
+                        JOptionPane.showMessageDialog(pp, "请检查OCR程序配置", fileInfo.getName(), JOptionPane.PLAIN_MESSAGE, null);
                     }
                 }
-                jop.setValue(JOptionPane.UNINITIALIZED_VALUE);
             }
-
-            private boolean showEditorDialog(String otid) {
-                boolean isUpdated2 = false;
-                FileInfo fileInfoToEdit = new ViewCommand(otid).execute(config);
-                if (FileInfoEditPanel.showDialog(pp, fileInfoToEdit)) {
-                    int result = new EditCommand(fileInfoToEdit).execute(config);
-                    logger.debug("Update file info [{}], result is [{}]", fileInfoToEdit, result);
-                    if (result == UPDATE_SUCCESS) {
-                        pp.fileInfo = fileInfoToEdit;
-                        isUpdated2 = true;
-                    }
-                    JOptionPane.showMessageDialog(pp, resultText(result), fileInfoToEdit.getName(), JOptionPane.PLAIN_MESSAGE, owner == null ? null : owner.logo50Icon);
-                }
-                return isUpdated2;
-            }
+            jop.setValue(JOptionPane.UNINITIALIZED_VALUE);
         });
         dialog.pack();
         dialog.setLocationRelativeTo(null);
@@ -241,8 +211,40 @@ public class PreviewPanel extends JPanel {
                 reader.dispose();
             }
         }
-
         throw new IOException("Not a known image file: " + imgFile.getCanonicalPath());
+    }
+
+    private void doOCR() {
+        int option = TagSuggestionPanel.showDialog(this, ocrClient, getCurrentImg());
+        if (option == SAVE_CHANGES_OPTION || option == SAVE_CHANGES_OPEN_EDITOR_OPTION) {
+            int result = new EditCommand(fileInfo).execute(config);
+            logger.debug("Update tags of file info [{}], result is [{}]", fileInfo, result);
+            if (option == SAVE_CHANGES_OPTION)
+                JOptionPane.showMessageDialog(this, resultText(result), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE, null);
+            else {
+                //open editor
+                showEditorDialog(fileInfo.getOtid());
+            }
+            this.isUpdated = true;
+        } else if (option == DISCARD_CHANGES_OPEN_EDITOR_OPTION || option == NO_CHANGE_OPEN_EDITOR_OPTION) {
+            //open editor
+            this.isUpdated = showEditorDialog(fileInfo.getOtid());
+        }
+    }
+
+    private boolean showEditorDialog(String otid) {
+        boolean isUpdated2 = false;
+        FileInfo fileInfoToEdit = new ViewCommand(otid).execute(config);
+        if (FileInfoEditPanel.showDialog(this, fileInfoToEdit)) {
+            int result = new EditCommand(fileInfoToEdit).execute(config);
+            logger.debug("Update file info [{}], result is [{}]", fileInfoToEdit, result);
+            if (result == UPDATE_SUCCESS) {
+                this.fileInfo = fileInfoToEdit;
+                isUpdated2 = true;
+            }
+            JOptionPane.showMessageDialog(this, resultText(result), fileInfoToEdit.getName(), JOptionPane.PLAIN_MESSAGE, null);
+        }
+        return isUpdated2;
     }
 
     private String getCurrentImg() {
@@ -300,7 +302,7 @@ public class PreviewPanel extends JPanel {
         });
 
         // We add two glue components. Later in process() we will add thumbnail buttons
-        // to the toolbar inbetween thease glue compoents. This will center the
+        // to the toolbar in between thease glue compoents. This will center the
         // buttons in the toolbar.
         buttonBar.setFloatable(false);
         buttonBar.add(Box.createGlue());
