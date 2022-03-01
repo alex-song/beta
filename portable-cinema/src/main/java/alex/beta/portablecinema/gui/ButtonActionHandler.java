@@ -172,13 +172,20 @@ public class ButtonActionHandler implements ActionListener {
                 TITLE,
                 JOptionPane.QUESTION_MESSAGE,
                 frame.logo50Icon, null, null);
-        if (NAME_ACTION.equalsIgnoreCase(action) && inputValue != null && isNotBlank(String.valueOf(inputValue))) {
-            new QueryButtonWorker(frame, NAME_ACTION, String.valueOf(inputValue)).execute();
-        } else if (TAG_ACTION.equalsIgnoreCase(action) && inputValue != null) {
-            new QueryButtonWorker(frame, TAG_ACTION, String.valueOf(inputValue)).execute();
-        } else if (WHERE_ACTION.equalsIgnoreCase(action) && inputValue != null && isNotBlank(String.valueOf(inputValue))) {
-            new QueryButtonWorker(frame, WHERE_ACTION, String.valueOf(inputValue)).execute();
+        if (config.isEnableQueryResultHTML()) {
+            if (NAME_ACTION.equalsIgnoreCase(action) && inputValue != null && isNotBlank(String.valueOf(inputValue))) {
+                new QueryButtonWorker(frame, NAME_ACTION, String.valueOf(inputValue)).execute();
+            } else if (TAG_ACTION.equalsIgnoreCase(action) && inputValue != null) {
+                new QueryButtonWorker(frame, TAG_ACTION, String.valueOf(inputValue)).execute();
+            } else if (WHERE_ACTION.equalsIgnoreCase(action) && inputValue != null && isNotBlank(String.valueOf(inputValue))) {
+                new QueryButtonWorker(frame, WHERE_ACTION, String.valueOf(inputValue)).execute();
+            } else {
+                frame.appendResultText(HTML_LINE);
+                isRunning.set(false);
+            }
         } else {
+            if (inputValue != null)
+                QueryResultPanel.showDialog(frame, config, action, String.valueOf(inputValue));
             frame.appendResultText(HTML_LINE);
             isRunning.set(false);
         }

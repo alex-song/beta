@@ -43,10 +43,10 @@ public class PortableCinemaFrame extends JFrame {
     private JTextPane resultPane;
     private JScrollPane resultScrollPane;
     private Image LOGO_IMAGE;
+    private Icon SEARCH_ICON;
     private Icon FOLDER_ICON;
     private Icon SCAN_ICON;
     private Icon ANALYZE_ICON;
-    private Icon SEARCH_ICON;
     private Icon EXPORT_ICON;
     private Icon RESET_ICON;
 
@@ -85,14 +85,14 @@ public class PortableCinemaFrame extends JFrame {
         rootChooserButton.setMargin(new Insets(5, 10, 5, 10));
         toolbar.add(rootChooserButton);
 
-        toolbar.addSeparator();
+        toolbar.add(Box.createHorizontalStrut(10));
 
         scanButton = new JButton(SCAN_ACTION);
         scanButton.setToolTipText("检索并更新电影信息");
         scanButton.setMargin(new Insets(5, 10, 5, 10));
         toolbar.add(scanButton);
 
-        toolbar.addSeparator();
+        toolbar.add(Box.createHorizontalStrut(10));
 
         analyzeButton = new JButton(ANALYZE_ACTION);
         analyzeButton.setToolTipText("分析影库，查找重复影片");
@@ -108,29 +108,30 @@ public class PortableCinemaFrame extends JFrame {
         findByNameButton.setToolTipText("名字中包含指定关键字的电影");
         findByNameButton.setMargin(new Insets(5, 10, 5, 10));
         commonActionButtonPanel.add(findByNameButton);
+
         commonActionButtonPanel.add(Box.createHorizontalStrut(10));
 
         findByTagButton = new JButton(TAG_ACTION);
         findByTagButton.setToolTipText("带有指定标签的电影");
         findByTagButton.setMargin(new Insets(5, 10, 5, 10));
         commonActionButtonPanel.add(findByTagButton);
+
         commonActionButtonPanel.add(Box.createHorizontalStrut(10));
 
         findByWhereButton = new JButton(WHERE_ACTION);
         findByWhereButton.setToolTipText("满足指定查询条件的电影");
         findByWhereButton.setMargin(new Insets(5, 10, 5, 10));
         commonActionButtonPanel.add(findByWhereButton);
-        commonActionButtonPanel.add(Box.createHorizontalStrut(10));
+        toolbar.add(commonActionButtonPanel);
+
+        toolbar.addSeparator();
 
         exportButton = new JButton(EXPORT_ACTION);
         exportButton.setToolTipText("导出电影信息（支持JDON/XLS/XLSX格式）");
         exportButton.setMargin(new Insets(5, 10, 5, 10));
-        commonActionButtonPanel.add(exportButton);
-        commonActionButtonPanel.add(Box.createHorizontalGlue());
+        toolbar.add(exportButton);
 
-        toolbar.add(commonActionButtonPanel);
-
-        toolbar.addSeparator();
+        toolbar.add(Box.createHorizontalGlue());
 
         resetButton = new JButton(RESET_ACTION);
         resetButton.setToolTipText("删除影库中所有数据文件和数据库记录");

@@ -77,7 +77,8 @@ public class HyperlinkActionHandler extends MouseAdapter {
                             FileInfo fileInfo = new ViewCommand(otid).execute(config);
                             if (FileInfoEditPanel.showDialog(frame, fileInfo)) {
                                 int result = new EditCommand(fileInfo).execute(config);
-                                logger.debug("Update file info [{}], result is [{}]", fileInfo, result);
+                                if (logger.isDebugEnabled())
+                                    logger.debug("Update file info [{}], result is [{}]", fileInfo, result);
                                 JOptionPane.showMessageDialog(frame, resultText(result), fileInfo.getName(), JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
                             }
                         } else if (href.startsWith("fileinfo://")) {
@@ -93,7 +94,7 @@ public class HyperlinkActionHandler extends MouseAdapter {
                                 else
                                     JOptionPane.showMessageDialog(frame, fileInfo.getPath(), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE);
                             } catch (Exception ex) {
-                                logger.warn("Cannot open video folder [{}]", fileInfo.getPath(), ex);
+                                logger.warn("Cannot open folder [{}]", fileInfo.getPath(), ex);
                             }
                         } else {
                             try {

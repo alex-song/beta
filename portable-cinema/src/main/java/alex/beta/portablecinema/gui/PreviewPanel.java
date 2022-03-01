@@ -41,8 +41,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 @SuppressWarnings({"squid:S1948", "squid:S3776"})
 public class PreviewPanel extends JPanel {
 
-    private static Logger logger = LoggerFactory.getLogger(PreviewPanel.class);
     private static final int THUMBNAIL_IMAGE_SIZE = 100;
+    private static Logger logger = LoggerFactory.getLogger(PreviewPanel.class);
     private FileInfo fileInfo;
     private PortableCinemaConfig config;
 
@@ -52,6 +52,7 @@ public class PreviewPanel extends JPanel {
     private JToolBar buttonBar;
     private MissingIcon placeholderIcon = new MissingIcon();
     private ThumbnailAction currentAction;
+    private boolean isUpdated = false;
 
     public PreviewPanel(PortableCinemaConfig config, FileInfo fileInfo, int width, int height) {
         super(new BorderLayout());
@@ -146,19 +147,13 @@ public class PreviewPanel extends JPanel {
         }
     }
 
-    private String getCurrentImg() {
-        if (this.currentAction != null) {
-            return String.valueOf(this.currentAction.getValue(SHORT_DESCRIPTION));
-        } else {
-            return null;
-        }
-    }
-
-    public FileInfo getFileInfo() {
-        return fileInfo;
-    }
-
-    public static void showDialog(PortableCinemaFrame owner, FileInfo fileInfo, PortableCinemaConfig config) {
+    /**
+     * @param owner
+     * @param fileInfo
+     * @param config
+     * @return true, if file info is updated
+     */
+    public static boolean showDialog(PortableCinemaFrame owner, FileInfo fileInfo, PortableCinemaConfig config) {
         PreviewPanel pp = new PreviewPanel(config, fileInfo, 800, 700);
         Object[] options;
         if (pp.ocrClient != null) {
@@ -184,55 +179,44 @@ public class PreviewPanel extends JPanel {
                                 int result = new EditCommand(fileInfo).execute(config);
                                 logger.debug("Update tags of file info [{}], result is [{}]", fileInfo, result);
                                 if (option == SAVE_CHANGES_OPTION)
-                                    JOptionPane.showMessageDialog(pp, resultText(result), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE, owner.logo50Icon);
+                                    JOptionPane.showMessageDialog(pp, resultText(result), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE, owner == null ? null : owner.logo50Icon);
                                 else {
                                     //open editor
                                     showEditorDialog(fileInfo.getOtid());
                                 }
+                                pp.isUpdated = true;
                             } else if (option == DISCARD_CHANGES_OPEN_EDITOR_OPTION || option == NO_CHANGE_OPEN_EDITOR_OPTION) {
                                 //open editor
-                                showEditorDialog(fileInfo.getOtid());
+                                pp.isUpdated = showEditorDialog(fileInfo.getOtid());
                             }
                         } else {
-                            JOptionPane.showMessageDialog(pp, "请检查OCR程序配置", fileInfo.getName(), JOptionPane.PLAIN_MESSAGE, owner.logo50Icon);
+                            JOptionPane.showMessageDialog(pp, "请检查OCR程序配置", fileInfo.getName(), JOptionPane.PLAIN_MESSAGE, owner == null ? null : owner.logo50Icon);
                         }
                     }
                 }
                 jop.setValue(JOptionPane.UNINITIALIZED_VALUE);
             }
 
-            private void showEditorDialog(String otid) {
+            private boolean showEditorDialog(String otid) {
+                boolean isUpdated2 = false;
                 FileInfo fileInfoToEdit = new ViewCommand(otid).execute(config);
                 if (FileInfoEditPanel.showDialog(pp, fileInfoToEdit)) {
                     int result = new EditCommand(fileInfoToEdit).execute(config);
                     logger.debug("Update file info [{}], result is [{}]", fileInfoToEdit, result);
                     if (result == UPDATE_SUCCESS) {
                         pp.fileInfo = fileInfoToEdit;
+                        isUpdated2 = true;
                     }
-                    JOptionPane.showMessageDialog(pp, resultText(result), fileInfoToEdit.getName(), JOptionPane.PLAIN_MESSAGE, owner.logo50Icon);
+                    JOptionPane.showMessageDialog(pp, resultText(result), fileInfoToEdit.getName(), JOptionPane.PLAIN_MESSAGE, owner == null ? null : owner.logo50Icon);
                 }
+                return isUpdated2;
             }
         });
         dialog.pack();
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
-    }
-
-    private void initOcrClient() {
-        PortableCinemaConfig.BaiduOCR ocrConfig = config.getBaiduOCR();
-        Properties ocrProps = new Properties();
-        ocrProps.setProperty(BaiduOcr.BAIDU_API_KEY, ocrConfig.getApiKey());
-        ocrProps.setProperty(BaiduOcr.BAIDU_SECRET_KEY, ocrConfig.getSecretKey());
-        ocrProps.setProperty(BaiduOcr.BAIDU_APP_ID, ocrConfig.getAppId());
-        if (isNotBlank(ocrConfig.getProxyHost())) {
-            ocrProps.setProperty(PROXY_HOST, ocrConfig.getProxyHost());
-            if (ocrConfig.getProxyPort() == 0) {
-                ocrProps.setProperty(PROXY_PORT, "80");
-            } else {
-                ocrProps.setProperty(PROXY_PORT, String.valueOf(ocrConfig.getProxyPort()));
-            }
-        }
-        this.ocrClient = new BaiduOcr(ocrProps);
+        dialog.dispose();
+        return pp.isUpdated;
     }
 
     /**
@@ -259,6 +243,35 @@ public class PreviewPanel extends JPanel {
         }
 
         throw new IOException("Not a known image file: " + imgFile.getCanonicalPath());
+    }
+
+    private String getCurrentImg() {
+        if (this.currentAction != null) {
+            return String.valueOf(this.currentAction.getValue(SHORT_DESCRIPTION));
+        } else {
+            return null;
+        }
+    }
+
+    public FileInfo getFileInfo() {
+        return fileInfo;
+    }
+
+    private void initOcrClient() {
+        PortableCinemaConfig.BaiduOCR ocrConfig = config.getBaiduOCR();
+        Properties ocrProps = new Properties();
+        ocrProps.setProperty(BaiduOcr.BAIDU_API_KEY, ocrConfig.getApiKey());
+        ocrProps.setProperty(BaiduOcr.BAIDU_SECRET_KEY, ocrConfig.getSecretKey());
+        ocrProps.setProperty(BaiduOcr.BAIDU_APP_ID, ocrConfig.getAppId());
+        if (isNotBlank(ocrConfig.getProxyHost())) {
+            ocrProps.setProperty(PROXY_HOST, ocrConfig.getProxyHost());
+            if (ocrConfig.getProxyPort() == 0) {
+                ocrProps.setProperty(PROXY_PORT, "80");
+            } else {
+                ocrProps.setProperty(PROXY_PORT, String.valueOf(ocrConfig.getProxyPort()));
+            }
+        }
+        this.ocrClient = new BaiduOcr(ocrProps);
     }
 
     private void createUIComponents() {

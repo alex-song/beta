@@ -15,6 +15,7 @@ A:
 11. [Done] Build# in banner
 12. [Done] Edit dialog, after OCR
 13. [Done] Double click to switch between original image and scaled image. New button to start OCR.
+14. Use Swing JTable instead of HTML table, in order to reduce memory usage and improve performance.
 
 B:
 1. [Cancel] Add images array
@@ -23,7 +24,7 @@ B:
 4. [Done] Improve help doc
 5. [Cancel] Update console UI after file info edit
 6. Double clicks on suggestion list
-7. Fine tune the text pane to reduce the memory usage and improve performance
+7. [Cancel] Fine tune the text pane to reduce the memory usage and improve performance
 
 
 
