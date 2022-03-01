@@ -17,6 +17,9 @@ import java.util.Set;
 public class FileDB {
 
     @Expose
+    private String version = "1";
+
+    @Expose
     private Set<FileInfo> fileInfos = new HashSet<>();
 
     public synchronized void addFileInfos(FileInfo... fis) {
@@ -29,7 +32,8 @@ public class FileDB {
     @Override
     public String toString() {
         return "FileDB{" +
-                "fileInfos=[" + (fileInfos == null ? "" : StringUtils.join(fileInfos, ", " + System.lineSeparator())) +
+                "version='" + version + '\'' +
+                ", fileInfos=[" + (fileInfos == null ? "" : StringUtils.join(fileInfos, ", " + System.lineSeparator())) +
                 "]}";
     }
 
