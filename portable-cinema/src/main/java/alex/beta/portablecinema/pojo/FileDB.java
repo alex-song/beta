@@ -1,5 +1,6 @@
 package alex.beta.portablecinema.pojo;
 
+import alex.beta.portablecinema.PortableCinemaConfig;
 import com.google.gson.annotations.Expose;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,7 @@ import java.util.Set;
 public class FileDB {
 
     @Expose
-    private String version = "1";
+    private String version = PortableCinemaConfig.VERSION;
 
     @Expose
     private Set<FileInfo> fileInfos = new HashSet<>();

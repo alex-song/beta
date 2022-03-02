@@ -14,6 +14,8 @@ public class PortableCinemaConfig {
     public static final String DEFAULT_IN_FOLDER_DB_FILE_NAME = "portable_cinema_db.json";
     public static final String DATE_FORMATTER = "yyyy-MM-dd hh:mm:ss";
 
+    public static final String VERSION = "1";
+
     private String rootFolderPath;
     private String dbFileName;
     private long imageFileSizeThreshold;
