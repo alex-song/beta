@@ -8,7 +8,6 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 public class PortableCinemaConfig {
-
     public static final String CONFIGURATION_PROPERTY_NAME = "portable-cinema.conf";
     public static final String DEFAULT_CONFIGURATION_FILE_NAME = "portable_cinema_conf.json";
     public static final String DEFAULT_ROOT_FOLDER_NAME = ".";

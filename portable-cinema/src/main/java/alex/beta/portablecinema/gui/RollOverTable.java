@@ -2,22 +2,19 @@ package alex.beta.portablecinema.gui;
 
 import javax.swing.*;
 import javax.swing.event.MouseInputAdapter;
-import javax.swing.table.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 
 /**
  * https://stackoverflow.com/questions/27075493/how-can-to-create-a-rollover-effect-in-a-jtable
- * <p>
- * Add tooltip support
- * Disable reordering of column
- * Set font of header and cell
  */
 public class RollOverTable extends JTable {
 
-    //    private Color rollOverBackground = new Color(233,239,248);
-    private Color rollOverBackground = new Color(220, 220, 235);
+    private Color rollOverBackground = new Color(233, 239, 248);
     private Color rollOverForeground = UIManager.getDefaults().getColor("windowText");
 
     private int rollOverRowIndex = -1;
@@ -28,20 +25,6 @@ public class RollOverTable extends JTable {
     public RollOverTable(TableModel model) {
         super(model);
         lst = new RollOverListener();
-        // Customize L&F
-        setRowHeight(20);
-        setFont(new Font("Serif", Font.PLAIN, 12));
-        setDragEnabled(false);
-        setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        getColumnModel().setColumnSelectionAllowed(false);
-        DefaultTableCellRenderer renderer = (DefaultTableCellRenderer) getTableHeader().getDefaultRenderer();
-        renderer.setHorizontalAlignment(SwingConstants.CENTER);
-        getTableHeader().setReorderingAllowed(false);
-        getTableHeader().setFont(new Font("Serif", Font.PLAIN, 12));
-        getTableHeader().setPreferredSize(new Dimension(1, 24));
-        getTableHeader().setBackground(Color.GRAY);
-        getTableHeader().setForeground(Color.WHITE);
-
         addMouseMotionListener(lst);
         addMouseListener(lst);
         addMouseWheelListener(lst);
@@ -85,41 +68,9 @@ public class RollOverTable extends JTable {
             c.setBackground(getRollOverBackground());
         } else {
             c.setForeground(getForeground());
-            c.setBackground(row % 2 == 0 ? Color.LIGHT_GRAY : Color.WHITE);
+            c.setBackground(row % 2 == 0 ? Color.WHITE : Color.LIGHT_GRAY);
         }
         return c;
-    }
-
-    @Override
-    protected JTableHeader createDefaultTableHeader() {
-        return new JTableHeader(columnModel) {
-            @Override
-            public String getToolTipText(MouseEvent e) {
-                java.awt.Point p = e.getPoint();
-                int index = columnModel.getColumnIndexAtX(p.x);
-                int realIndex = columnModel.getColumn(index).getModelIndex();
-                return getModel().getColumnName(realIndex);
-            }
-        };
-    }
-
-    @Override
-    public String getToolTipText(MouseEvent e) {
-        if (e == null) return null;
-        String tip = null;
-        java.awt.Point p = e.getPoint();
-        int rowIndex = rowAtPoint(p);
-        int colIndex = columnAtPoint(p);
-
-        if (getModel().getColumnClass(colIndex).isAssignableFrom(Icon.class)) {
-            return null;
-        }
-        try {
-            tip = getValueAt(rowIndex, colIndex).toString();
-        } catch (RuntimeException e1) {
-            //catch null pointer exception if mouse is over an empty line
-        }
-        return tip;
     }
 
     protected void repaintRow(int row) {

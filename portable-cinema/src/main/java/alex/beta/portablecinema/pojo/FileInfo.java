@@ -13,6 +13,8 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 import java.time.Duration;
 import java.util.*;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 @Setter
 @Getter
 @NoArgsConstructor
@@ -102,7 +104,7 @@ public class FileInfo {
     public String getFormattedDuration() {
         if (duration < 60) {
             return getDurationSecondsPart() + SECOND;
-        } else if ((duration >= 60) && (duration < 3600)) {
+        } else if (duration < 3600) {
             return getString(getDurationMinsPart()) + MINUTE + getString((getDurationSecondsPart())) + SECOND;
         } else {
             return getString(getDurationHoursPart()) + HOUR + getString(getDurationMinsPart()) + MINUTE + getString((getDurationSecondsPart())) + SECOND;
@@ -112,6 +114,10 @@ public class FileInfo {
     public String toPrettyString() {
         Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat(PortableCinemaConfig.DATE_FORMATTER).create();
         return gson.toJson(this);
+    }
+
+    public boolean hasCover() {
+        return isNotBlank(cover1) || isNotBlank(cover2);
     }
     //@formatter:on
 

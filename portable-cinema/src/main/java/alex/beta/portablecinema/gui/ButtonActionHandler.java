@@ -464,7 +464,7 @@ public class ButtonActionHandler implements ActionListener {
                         }
                     }
                     String galleryLinkText = HTML_SPACE;
-                    if (!isBlank(fi.getCover1()) || !isBlank(fi.getCover2())) {
+                    if (fi.hasCover()) {
                         galleryLinkText = String.format(GALLERY_IMG_TEMPLATE, fi.getOtid());
                     }
 

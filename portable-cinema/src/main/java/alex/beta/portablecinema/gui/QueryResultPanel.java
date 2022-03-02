@@ -10,6 +10,9 @@ import org.slf4j.LoggerFactory;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableModel;
 import javax.swing.text.NumberFormatter;
 import java.awt.*;
 import java.awt.event.*;
@@ -31,12 +34,13 @@ public class QueryResultPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(QueryResultPanel.class);
 
     private static final String[] columnNames = new String[]{"序号", "预览", "编辑", "详细", "片名", "片长", "标签", "分辨率"};
+    private static final String[] columnHeaderTooltips = new String[]{"序号", "浏览封面图", "编辑影片信息", "查看详细信息", "片名", "片长", "标签", "分辨率"};
     private static final int[] columnWidths = new int[]{45, 28, 28, 28, 390, 120, 300, 120};
     private static final boolean[] resizableColumns = new boolean[]{false, false, false, false, true, false, true, false};
 
     private PortableCinemaFrame frame;
     private PortableCinemaConfig config;
-    private String queryOption;
+    private String initialOption;
     private String initialInput;
 
     private ImageIcon previewIcon;
@@ -55,16 +59,18 @@ public class QueryResultPanel extends JPanel {
         super(new BorderLayout());
         this.frame = frame;
         this.config = config;
-        this.queryOption = queryOption;
+        this.initialOption = queryOption;
         this.initialInput = userInput;
         this.fileInfos = fileInfos;
-
-        this.setSize(1000, 700);
-        this.setPreferredSize(new Dimension(1000, 700));
-
+        //init UI
         createUIComponents();
         enableUIActions();
-        initModelData();
+        // init data
+        if (initialOption != null)
+            queryOptions.setSelectedItem(initialOption);
+        if (initialInput != null)
+            userInputField.setText(initialInput);
+        executeQuery(initialOption, trimToEmpty(initialInput));
     }
 
     public static void showDialog(PortableCinemaFrame frame, PortableCinemaConfig config, String queryOption, String userInput) {
@@ -95,12 +101,7 @@ public class QueryResultPanel extends JPanel {
             logger.error("Failed to load preview/edit icon", ex);
             return;
         }
-        // render UI
-        add(initTopPanel(), BorderLayout.PAGE_START);
-        add(new JScrollPane(initResultTable()), BorderLayout.CENTER);
-    }
-
-    private JPanel initTopPanel() {
+        // create UI
         JPanel topPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -127,18 +128,29 @@ public class QueryResultPanel extends JPanel {
         NumberFormatter formatter = new NumberFormatter(NumberFormat.getInstance()) {
             @Override
             public Object stringToValue(String s) throws ParseException {
-                if (isBlank(s)) {
-                    return null;
-                } else
-                    return super.stringToValue(s);
+                return isBlank(s) ? null : super.stringToValue(s);
+            }
+
+            @Override
+            public Class getValueClass() {
+                return Integer.class;
+            }
+
+            @Override
+            public boolean getAllowsInvalid() {
+                return false;
+            }
+
+            @Override
+            public boolean getCommitsOnValidEdit() {
+                /**
+                 * If you want the value to be committed on each keystroke instead of focus lost
+                 */
+                return true;
             }
         };
-        formatter.setValueClass(Integer.class);
         formatter.setMinimum(fileInfos == null ? 0 : 1);
         formatter.setMaximum(fileInfos == null ? 0 : fileInfos.length);
-        formatter.setAllowsInvalid(false);
-        // If you want the value to be committed on each keystroke instead of focus lost
-        formatter.setCommitsOnValidEdit(true);
         jumpToField = new JFormattedTextField(formatter);
         jumpToField.setHorizontalAlignment(SwingConstants.TRAILING);
         jumpToField.setPreferredSize(new Dimension(100, 24));
@@ -151,102 +163,17 @@ public class QueryResultPanel extends JPanel {
         jumpToBtn = new JButton("跳转");
         jumpToBtn.setEnabled(false);
         topPanel.add(jumpToBtn, gbc);
+        add(topPanel, BorderLayout.PAGE_START);
 
-        return topPanel;
-    }
-
-    private JTable initResultTable() {
-        // init table model
-        fileInfoTable = new RollOverTable(initTableModel());
-        // column columnWidths
-        for (int i = 0; i < fileInfoTableModel.getColumnCount(); i++) {
-            if (!resizableColumns[i]) {
-                fileInfoTable.getColumnModel().getColumn(i).setMaxWidth(columnWidths[i]);
-                fileInfoTable.getColumnModel().getColumn(i).setMinWidth(columnWidths[i]);
-            }
-            fileInfoTable.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
-            fileInfoTable.getColumnModel().getColumn(i).setResizable(resizableColumns[i]);
-        }
-        return fileInfoTable;
-    }
-
-    private AbstractTableModel initTableModel() {
-        fileInfoTableModel = new AbstractTableModel() {
-            @Override
-            public int getColumnCount() {
-                return columnNames.length;
-            }
-
-            @Override
-            public int getRowCount() {
-                return fileInfos == null ? 0 : fileInfos.length;
-            }
-
-            @Override
-            public Class getColumnClass(int col) {
-                switch (col) {
-                    case 0:
-                        return Number.class;
-                    case 1:
-                    case 2:
-                    case 3:
-                        return Icon.class;
-                    case 4:
-                    case 5:
-                    case 6:
-                    case 7:
-                    default:
-                        return String.class;
-                }
-            }
-
-            @Override
-            public String getColumnName(int col) {
-                return col < 8 ? columnNames[col] : null;
-            }
-
-            @Override
-            public Object getValueAt(int row, int col) {
-                if (row >= getRowCount()) {
-                    return null;
-                }
-                FileInfo fileInfo = fileInfos[row];
-                switch (col) {
-                    case 0:
-                        return row + 1;
-                    case 1:
-                        if (isNotBlank(fileInfo.getCover1()) || isNotBlank(fileInfo.getCover2()))
-                            return previewIcon;
-                        else
-                            return null;
-                    case 2:
-                        return editIcon;
-                    case 3:
-                        return detailIcon;
-                    case 4:
-                        return fileInfo.getName();
-                    case 5:
-                        return fileInfo.getFormattedDuration();
-                    case 6:
-                        if (fileInfo.getTags() != null && !fileInfo.getTags().isEmpty())
-                            return join(fileInfo.getTags(), ", ");
-                        else
-                            return null;
-                    case 7:
-                        if (fileInfo.getResolution() != null)
-                            return fileInfo.getResolution().toString();
-                        else
-                            return null;
-                    default:
-                        return null;
-                }
-            }
-        };
-        return fileInfoTableModel;
+        fileInfoTableModel = new QueryTableModel();
+        fileInfoTable = new QueryResultTable(fileInfoTableModel);
+        add(new JScrollPane(fileInfoTable), BorderLayout.CENTER);
     }
 
     private void enableUIActions() {
-        // mouse click and cursor
+        /**
+         * Customize mouse click actions
+         */
         fileInfoTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -257,7 +184,7 @@ public class QueryResultPanel extends JPanel {
                     return;
 
                 FileInfo fileInfo = fileInfos[row];
-                if (SwingUtilities.isLeftMouseButton(e) && col == 1 && (isNotBlank(fileInfo.getCover1()) || isNotBlank(fileInfo.getCover2()))) {
+                if (SwingUtilities.isLeftMouseButton(e) && col == 1 && fileInfo.hasCover()) {
                     if (logger.isDebugEnabled())
                         logger.debug("Open preview dialog of {}", fileInfo);
                     if (PreviewPanel.showDialog(frame, fileInfo, config)) {
@@ -295,6 +222,9 @@ public class QueryResultPanel extends JPanel {
             }
         });
 
+        /**
+         * Customize mouse cursor
+         */
         fileInfoTable.addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
@@ -302,7 +232,7 @@ public class QueryResultPanel extends JPanel {
                 int column = fileInfoTable.columnAtPoint(e.getPoint());
                 if (fileInfos == null || row >= fileInfos.length || row < 0) return;
                 FileInfo fileInfo = fileInfos[row];
-                if (column == 1 && (isNotBlank(fileInfo.getCover1()) || isNotBlank(fileInfo.getCover2()))) {
+                if (column == 1 && fileInfo.hasCover()) {
                     fileInfoTable.setCursor(Cursor.getPredefinedCursor(HAND_CURSOR));
                 } else if (column == 2 || column == 3) {
                     fileInfoTable.setCursor(Cursor.getPredefinedCursor(HAND_CURSOR));
@@ -312,6 +242,9 @@ public class QueryResultPanel extends JPanel {
             }
         });
 
+        /**
+         * Set jump to value, on row selection
+         */
         fileInfoTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && fileInfos != null) {
                 int row = fileInfoTable.getSelectedRow();
@@ -319,6 +252,9 @@ public class QueryResultPanel extends JPanel {
             }
         });
 
+        /**
+         * Open preview dialog, on key ENTER
+         */
         fileInfoTable.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -326,7 +262,7 @@ public class QueryResultPanel extends JPanel {
                         && fileInfoTable.getSelectedRow() >= 0 && fileInfoTable.getSelectedRow() < fileInfos.length) {
                     int row = fileInfoTable.getSelectedRow();
                     FileInfo fileInfo = fileInfos[row];
-                    if (isNotBlank(fileInfo.getCover1()) || isNotBlank(fileInfo.getCover2())) {
+                    if (fileInfo.hasCover()) {
                         if (logger.isDebugEnabled())
                             logger.debug("Open preview dialog of {}", fileInfo);
                         if (PreviewPanel.showDialog(frame, fileInfo, config)) {
@@ -339,21 +275,42 @@ public class QueryResultPanel extends JPanel {
             }
         });
 
+        /**
+         * Click refresh button on key ENTER, when user input field is focused
+         */
         userInputField.addKeyListener(newEnterKeyListener(refreshBtn));
 
+        /**
+         * Click refresh button on key ENTER, when refresh button is focused
+         */
         refreshBtn.addKeyListener(newEnterKeyListener(refreshBtn));
 
+        /**
+         * User input is mandatory, when query according to name or do advanced search
+         * Do query according to given condition
+         */
         refreshBtn.addActionListener(e -> {
-            String inputValue = userInputField.getText();
+            String inputValue = trimToEmpty(userInputField.getText());
             if ((NAME_ACTION.equalsIgnoreCase((String) queryOptions.getSelectedItem()) && isBlank(inputValue))
-                    || (WHERE_ACTION.equalsIgnoreCase((String) queryOptions.getSelectedItem()) && isBlank(inputValue))) {
+                    || (WHERE_ACTION.equalsIgnoreCase((String) queryOptions.getSelectedItem()) && isBlank(inputValue)))
                 JOptionPane.showMessageDialog(this, "请输入查询条件", TITLE, JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
-            } else
-                executeQuery();
+            else
+                executeQuery(String.valueOf(queryOptions.getSelectedItem()), inputValue);
         });
 
+        /**
+         * Click jump to button on key ENTER, when jump to field is focused
+         */
         jumpToField.addKeyListener(newEnterKeyListener(jumpToBtn));
 
+        /**
+         * Click jump to button on key ENTER, when jump to button is focused
+         */
+        jumpToBtn.addKeyListener(newEnterKeyListener(jumpToBtn));
+
+        /**
+         * Select specific row and jump to it
+         */
         jumpToBtn.addActionListener(e -> {
             if (fileInfos == null || fileInfos.length == 0) return;
             int jumpToRow = 0;
@@ -369,8 +326,6 @@ public class QueryResultPanel extends JPanel {
                 fileInfoTable.scrollRectToVisible(new Rectangle(fileInfoTable.getCellRect(jumpToRow - 1, 0, true)));
             }
         });
-
-        jumpToBtn.addKeyListener(newEnterKeyListener(jumpToBtn));
     }
 
     private KeyListener newEnterKeyListener(@NonNull JButton clickBtn) {
@@ -387,21 +342,20 @@ public class QueryResultPanel extends JPanel {
         };
     }
 
-    private void initModelData() {
-        if (queryOption != null)
-            queryOptions.setSelectedItem(queryOption);
-        if (initialInput != null) {
-            userInputField.setText(initialInput);
-        }
-        executeQuery();
-    }
-
-    private void executeQuery() {
+    private void executeQuery(final String option, final String inputValue) {
         if (config != null)
             new SwingWorker<Void, FileInfo[]>() {
                 @Override
                 protected Void doInBackground() {
-                    publish(doQuery());
+                    if (NAME_ACTION.equalsIgnoreCase(option)
+                            && isNotBlank(inputValue)) {
+                        publish(new NameCommand(inputValue).execute(config));
+                    } else if (TAG_ACTION.equalsIgnoreCase(option)) {
+                        publish(new TagCommand(split(inputValue, ",")).execute(config));
+                    } else if (WHERE_ACTION.equalsIgnoreCase(option)
+                            && isNotBlank(inputValue)) {
+                        publish(new WhereCommand(inputValue).execute(config));
+                    }
                     return null;
                 }
 
@@ -422,24 +376,193 @@ public class QueryResultPanel extends JPanel {
                     jumpToBtn.setEnabled(true);
                     refreshBtn.setEnabled(true);
                 }
-
-                private FileInfo[] doQuery() {
-                    String inputValue = userInputField.getText();
-                    if (NAME_ACTION.equalsIgnoreCase((String) queryOptions.getSelectedItem())
-                            && isNotBlank(inputValue)) {
-                        return new NameCommand(inputValue.trim()).execute(config);
-                    } else if (TAG_ACTION.equalsIgnoreCase((String) queryOptions.getSelectedItem())) {
-                        return new TagCommand(split(inputValue, ",")).execute(config);
-                    } else if (WHERE_ACTION.equalsIgnoreCase((String) queryOptions.getSelectedItem())
-                            && isNotBlank(inputValue)) {
-                        return new WhereCommand(inputValue).execute(config);
-                    }
-                    return new FileInfo[]{};
-                }
             }.execute();
         else {
             jumpToBtn.setEnabled(true);
             refreshBtn.setEnabled(true);
+        }
+    }
+
+    public class QueryTableModel extends AbstractTableModel {
+        @Override
+        public int getColumnCount() {
+            return columnNames.length;
+        }
+
+        @Override
+        public int getRowCount() {
+            return fileInfos == null ? 0 : fileInfos.length;
+        }
+
+        @Override
+        public Class getColumnClass(int col) {
+            switch (col) {
+                case 0:
+                    return Number.class;
+                case 1:
+                case 2:
+                case 3:
+                    return Icon.class;
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                default:
+                    return String.class;
+            }
+        }
+
+        @Override
+        public String getColumnName(int col) {
+            return col < getColumnCount() ? columnNames[col] : null;
+        }
+
+        @Override
+        public Object getValueAt(int row, int col) {
+            if (row >= getRowCount()) {
+                return null;
+            }
+            FileInfo fileInfo = fileInfos[row];
+            switch (col) {
+                case 0:
+                    return row + 1;
+                case 1:
+                    if (fileInfo.hasCover())
+                        return previewIcon;
+                    else
+                        return null;
+                case 2:
+                    return editIcon;
+                case 3:
+                    return detailIcon;
+                case 4:
+                    return fileInfo.getName();
+                case 5:
+                    return fileInfo.getFormattedDuration();
+                case 6:
+                    if (fileInfo.getTags() != null && !fileInfo.getTags().isEmpty())
+                        return join(fileInfo.getTags(), ", ");
+                    else
+                        return null;
+                case 7:
+                    if (fileInfo.getResolution() != null)
+                        return fileInfo.getResolution().toString();
+                    else
+                        return null;
+                default:
+                    return null;
+            }
+        }
+    }
+
+    /**
+     * Add tooltip support
+     * Disable reordering of column
+     * Set font of header and cell
+     */
+    @SuppressWarnings({"squid:S110"})
+    public class QueryResultTable extends RollOverTable {
+        private static final String TOOLTIP_FORMAT = "<html>%s<br/>更新时间：%s</html>";
+        private Font tableFont = new Font(Font.SERIF, Font.PLAIN, 12);
+
+        public QueryResultTable(TableModel model) {
+            super(model);
+            // customize table
+            setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            getColumnModel().setColumnSelectionAllowed(false);
+            // customize header
+            DefaultTableCellRenderer renderer = (DefaultTableCellRenderer) getTableHeader().getDefaultRenderer();
+            renderer.setHorizontalAlignment(SwingConstants.CENTER);
+            // column columnWidths
+            for (int i = 0; i < model.getColumnCount(); i++) {
+                if (!resizableColumns[i]) {
+                    getColumnModel().getColumn(i).setMaxWidth(columnWidths[i]);
+                    getColumnModel().getColumn(i).setMinWidth(columnWidths[i]);
+                }
+                getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
+                getColumnModel().getColumn(i).setResizable(resizableColumns[i]);
+            }
+        }
+
+        @Override
+        public int getRowHeight() {
+            return 20;
+        }
+
+        @Override
+        public Font getFont() {
+            return tableFont;
+        }
+
+        @Override
+        public boolean getDragEnabled() {
+            return false;
+        }
+
+        @Override
+        protected JTableHeader createDefaultTableHeader() {
+            return new JTableHeader(columnModel) {
+                private Dimension headerPreferredSize = new Dimension(1, 24);
+                private Font headerFont = new Font(Font.SERIF, Font.PLAIN, 12);
+
+                @Override
+                public String getToolTipText(MouseEvent e) {
+                    if (e != null) {
+                        /**
+                         * 如果考虑列的拖动，那就需要计算model里面real index
+                         * columnModel.getColumn(columnModel.getColumnIndexAtX(e.getPoint().x)).getModelIndex()
+                         */
+                        int realIndex = columnAtPoint(e.getPoint());
+                        if (realIndex >= 0 && realIndex < columnHeaderTooltips.length)
+                            return columnHeaderTooltips[realIndex];
+                    }
+                    return null;
+                }
+
+                @Override
+                public boolean getReorderingAllowed() {
+                    return false;
+                }
+
+                @Override
+                public Color getBackground() {
+                    return Color.GRAY;
+                }
+
+                @Override
+                public Color getForeground() {
+                    return Color.WHITE;
+                }
+
+                @Override
+                public Dimension getPreferredSize() {
+                    return headerPreferredSize;
+                }
+
+                @Override
+                public Font getFont() {
+                    return headerFont;
+                }
+            };
+        }
+
+        @Override
+        public String getToolTipText(MouseEvent e) {
+            String tip = null;
+            if (e != null) {
+                Point p = e.getPoint();
+                int rowIndex = rowAtPoint(p);
+                int colIndex = columnAtPoint(p);
+                if (colIndex != 1 && colIndex != 2 && colIndex != 3)
+                    try {
+                        tip = getValueAt(rowIndex, colIndex).toString();
+                        if (colIndex == 4)
+                            tip = String.format(TOOLTIP_FORMAT, tip, fileInfos[rowIndex].getLastModifiedOn());
+                    } catch (Exception e1) {
+                        //catch null pointer exception if mouse is over an empty line
+                    }
+            }
+            return tip;
         }
     }
 }

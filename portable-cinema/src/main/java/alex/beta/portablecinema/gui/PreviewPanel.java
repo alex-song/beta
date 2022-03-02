@@ -79,13 +79,13 @@ public class PreviewPanel extends JPanel {
              */
             @Override
             protected Void doInBackground() {
-                if (fileInfo == null || (isBlank(fileInfo.getCover1()) && isBlank(fileInfo.getCover2()))) {
+                if (fileInfo == null || !fileInfo.hasCover()) {
                     publish(new ThumbnailAction(placeholderIcon, placeholderIcon, placeholderIcon, ""));
                 } else {
-                    if (fileInfo.getCover1() != null) {
+                    if (isNotBlank(fileInfo.getCover1())) {
                         publishImage(fileInfo.getPath(), fileInfo.getCover1());
                     }
-                    if (fileInfo.getCover2() != null) {
+                    if (isNotBlank(fileInfo.getCover2())) {
                         publishImage(fileInfo.getPath(), fileInfo.getCover2());
                     }
                 }
