@@ -146,7 +146,7 @@ public class PreviewPanel extends JPanel {
 
         // short cut key to OCR, ctrl+R
         if (ocrClient != null)
-            registerKeyboardAction(ae -> doOCR(), KeyStroke.getKeyStroke("ctrl R"), JComponent.WHEN_IN_FOCUSED_WINDOW);
+            registerKeyboardAction(ae -> doOCR(), KeyStroke.getKeyStroke("Ctrl R"), JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
 
     /**
@@ -248,11 +248,7 @@ public class PreviewPanel extends JPanel {
     }
 
     private String getCurrentImg() {
-        if (this.currentAction != null) {
-            return String.valueOf(this.currentAction.getValue(SHORT_DESCRIPTION));
-        } else {
-            return null;
-        }
+        return this.currentAction != null ? String.valueOf(this.currentAction.getValue(SHORT_DESCRIPTION)) : null;
     }
 
     public FileInfo getFileInfo() {

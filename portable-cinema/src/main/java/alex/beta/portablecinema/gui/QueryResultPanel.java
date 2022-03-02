@@ -4,6 +4,7 @@ import alex.beta.portablecinema.PortableCinemaConfig;
 import alex.beta.portablecinema.command.*;
 import alex.beta.portablecinema.pojo.FileInfo;
 import lombok.NonNull;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,16 +28,15 @@ import static java.awt.Cursor.DEFAULT_CURSOR;
 import static java.awt.Cursor.HAND_CURSOR;
 import static org.apache.commons.lang3.StringUtils.*;
 
-/**
- * https://docs.oracle.com/javase/tutorial/uiswing/components/table.html
- */
 public class QueryResultPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(QueryResultPanel.class);
 
-    private static final String[] columnNames = new String[]{"序号", "预览", "编辑", "详细", "片名", "片长", "标签", "分辨率"};
-    private static final String[] columnHeaderTooltips = new String[]{"序号", "浏览封面图", "编辑影片信息", "查看详细信息", "片名", "片长", "标签", "分辨率"};
-    private static final int[] columnWidths = new int[]{45, 28, 28, 28, 390, 120, 300, 120};
-    private static final boolean[] resizableColumns = new boolean[]{false, false, false, false, true, false, true, false};
+    private static final Font HEADER_FONT = new Font(Font.SERIF, Font.PLAIN, 12);
+    private static final Font TABLE_FONT = new Font(Font.SERIF, Font.PLAIN, 12);
+    private static final String[] COLUMN_NAMES = new String[]{"序号", "预览", "编辑", "详细", "片名", "片长", "标签", "分辨率"};
+    private static final String[] COLUMN_HEADER_TOOLTIPS = new String[]{"序号", "浏览封面图", "编辑影片信息", "查看详细信息", "片名", "影片时长", "标签", "影片分辨率"};
+    private static final int[] COLUMN_WIDTHS = new int[]{45, 28, 28, 28, 390, 120, 300, 120};
+    private static final boolean[] COLUMN_RESIZABLE = new boolean[]{false, false, false, false, true, false, true, false};
 
     private PortableCinemaFrame frame;
     private PortableCinemaConfig config;
@@ -46,6 +46,7 @@ public class QueryResultPanel extends JPanel {
     private ImageIcon previewIcon;
     private ImageIcon editIcon;
     private ImageIcon detailIcon;
+    private ImageIcon hdIcon;
     private JComboBox<String> queryOptions;
     private JTextField userInputField;
     private JButton refreshBtn;
@@ -97,6 +98,7 @@ public class QueryResultPanel extends JPanel {
             previewIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Preview-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
             editIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Edit-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
             detailIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Detail-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
+            hdIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/HD-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
         } catch (Exception ex) {
             logger.error("Failed to load preview/edit icon", ex);
             return;
@@ -386,7 +388,7 @@ public class QueryResultPanel extends JPanel {
     public class QueryTableModel extends AbstractTableModel {
         @Override
         public int getColumnCount() {
-            return columnNames.length;
+            return COLUMN_NAMES.length;
         }
 
         @Override
@@ -406,7 +408,9 @@ public class QueryResultPanel extends JPanel {
                 case 4:
                 case 5:
                 case 6:
+                    return String.class;
                 case 7:
+                    return FileInfo.Resolution.class;
                 default:
                     return String.class;
             }
@@ -414,7 +418,7 @@ public class QueryResultPanel extends JPanel {
 
         @Override
         public String getColumnName(int col) {
-            return col < getColumnCount() ? columnNames[col] : null;
+            return col < getColumnCount() ? COLUMN_NAMES[col] : null;
         }
 
         @Override
@@ -445,8 +449,8 @@ public class QueryResultPanel extends JPanel {
                     else
                         return null;
                 case 7:
-                    if (fileInfo.getResolution() != null)
-                        return fileInfo.getResolution().toString();
+                    if (fileInfo != null)
+                        return fileInfo.getResolution();
                     else
                         return null;
                 default:
@@ -463,7 +467,6 @@ public class QueryResultPanel extends JPanel {
     @SuppressWarnings({"squid:S110"})
     public class QueryResultTable extends RollOverTable {
         private static final String TOOLTIP_FORMAT = "<html>%s<br/>更新时间：%s</html>";
-        private Font tableFont = new Font(Font.SERIF, Font.PLAIN, 12);
 
         public QueryResultTable(TableModel model) {
             super(model);
@@ -475,13 +478,27 @@ public class QueryResultPanel extends JPanel {
             renderer.setHorizontalAlignment(SwingConstants.CENTER);
             // column columnWidths
             for (int i = 0; i < model.getColumnCount(); i++) {
-                if (!resizableColumns[i]) {
-                    getColumnModel().getColumn(i).setMaxWidth(columnWidths[i]);
-                    getColumnModel().getColumn(i).setMinWidth(columnWidths[i]);
+                if (!COLUMN_RESIZABLE[i]) {
+                    getColumnModel().getColumn(i).setMaxWidth(COLUMN_WIDTHS[i]);
+                    getColumnModel().getColumn(i).setMinWidth(COLUMN_WIDTHS[i]);
                 }
-                getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
-                getColumnModel().getColumn(i).setResizable(resizableColumns[i]);
+                getColumnModel().getColumn(i).setPreferredWidth(COLUMN_WIDTHS[i]);
+                getColumnModel().getColumn(i).setResizable(COLUMN_RESIZABLE[i]);
             }
+            // customize resolution column renderer
+            setDefaultRenderer(FileInfo.Resolution.class, new DefaultTableCellRenderer() {
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+                    JLabel r = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+                    if (value != null && value instanceof FileInfo.Resolution) {
+                        r.setHorizontalTextPosition(SwingConstants.LEADING);
+                        r.setHorizontalAlignment(SwingConstants.CENTER);
+                        r.setIcon(((FileInfo.Resolution) value).isHD() ? hdIcon : null);
+                        r.setText(value.toString());
+                    }
+                    return r;
+                }
+            });
         }
 
         @Override
@@ -491,7 +508,7 @@ public class QueryResultPanel extends JPanel {
 
         @Override
         public Font getFont() {
-            return tableFont;
+            return TABLE_FONT;
         }
 
         @Override
@@ -503,7 +520,6 @@ public class QueryResultPanel extends JPanel {
         protected JTableHeader createDefaultTableHeader() {
             return new JTableHeader(columnModel) {
                 private Dimension headerPreferredSize = new Dimension(1, 24);
-                private Font headerFont = new Font(Font.SERIF, Font.PLAIN, 12);
 
                 @Override
                 public String getToolTipText(MouseEvent e) {
@@ -513,8 +529,8 @@ public class QueryResultPanel extends JPanel {
                          * columnModel.getColumn(columnModel.getColumnIndexAtX(e.getPoint().x)).getModelIndex()
                          */
                         int realIndex = columnAtPoint(e.getPoint());
-                        if (realIndex >= 0 && realIndex < columnHeaderTooltips.length)
-                            return columnHeaderTooltips[realIndex];
+                        if (realIndex >= 0 && realIndex < COLUMN_HEADER_TOOLTIPS.length)
+                            return COLUMN_HEADER_TOOLTIPS[realIndex];
                     }
                     return null;
                 }
@@ -541,7 +557,7 @@ public class QueryResultPanel extends JPanel {
 
                 @Override
                 public Font getFont() {
-                    return headerFont;
+                    return HEADER_FONT;
                 }
             };
         }
@@ -555,10 +571,15 @@ public class QueryResultPanel extends JPanel {
                 int colIndex = columnAtPoint(p);
                 if (colIndex != 1 && colIndex != 2 && colIndex != 3)
                     try {
-                        tip = getValueAt(rowIndex, colIndex).toString();
+                        Object v = getValueAt(rowIndex, colIndex);
+                        tip = (v == null ? null : v.toString());
                         if (colIndex == 4)
-                            tip = String.format(TOOLTIP_FORMAT, tip, fileInfos[rowIndex].getLastModifiedOn());
-                    } catch (Exception e1) {
+                            if (fileInfos[rowIndex].getLastModifiedOn() != null) {
+                                tip = String.format(TOOLTIP_FORMAT, tip, DateFormatUtils.format(fileInfos[rowIndex].getLastModifiedOn(), PortableCinemaConfig.DATE_FORMATTER));
+                            } else {
+                                tip = String.format(TOOLTIP_FORMAT, tip, "N/A");
+                            }
+                    } catch (Exception ex) {
                         //catch null pointer exception if mouse is over an empty line
                     }
             }
