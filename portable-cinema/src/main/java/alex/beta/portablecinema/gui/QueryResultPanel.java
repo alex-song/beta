@@ -573,12 +573,13 @@ public class QueryResultPanel extends JPanel {
                     try {
                         Object v = getValueAt(rowIndex, colIndex);
                         tip = (v == null ? null : v.toString());
-                        if (colIndex == 4)
+                        if (colIndex == 4) {
                             if (fileInfos[rowIndex].getLastModifiedOn() != null) {
                                 tip = String.format(TOOLTIP_FORMAT, tip, DateFormatUtils.format(fileInfos[rowIndex].getLastModifiedOn(), PortableCinemaConfig.DATE_FORMATTER));
                             } else {
                                 tip = String.format(TOOLTIP_FORMAT, tip, "N/A");
                             }
+                        }
                     } catch (Exception ex) {
                         //catch null pointer exception if mouse is over an empty line
                     }
