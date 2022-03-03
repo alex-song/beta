@@ -168,11 +168,11 @@ public class PortableCinemaCLI {
                     outputInternal("新标签：" + join(result.getExtraTags(), ", "), prefix);
                 }
 
-                if (!result.getTagsInUse().isEmpty()) {
+                if (!result.getTop10TagsInUse().isEmpty()) {
                     StringBuilder buffer = new StringBuilder("常用标签：").append(System.lineSeparator());
-                    String[] tagsInUse = result.getTagsInUse().keySet().toArray(new String[]{});
-                    for (int i = 0; i < 10 && i < tagsInUse.length; i++) {
-                        buffer.append(tagsInUse[i]).append(" : ").append(result.getTagsInUse().get(tagsInUse[i]))
+                    String[] topTags = result.getTop10TagsInUse().keySet().toArray(new String[]{});
+                    for (int i = 0; i < 10 && i < topTags.length; i++) {
+                        buffer.append(topTags[i]).append(" : ").append(result.getTop10TagsInUse().get(topTags[i]))
                                 .append("部影片").append(System.lineSeparator());
                     }
                     outputInternal(buffer.toString(), prefix);

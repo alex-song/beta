@@ -170,6 +170,18 @@ public class TagService {
         return false;
     }
 
+    /**
+     * @param tag
+     * @return true, if given tag is defined in glossary keywords list
+     */
+    public boolean hasKeyword(@NonNull String tag) {
+        Collection<Set<String>> tagss = glossaryMap.values();
+        for (Set<String> tags : tagss)
+            if (tags.contains(tag))
+                return true;
+        return false;
+    }
+
     private void detectByFile(@NonNull Set<String> tags, @NonNull File file) {
         //remove the extension path
         String tag = file.getName();

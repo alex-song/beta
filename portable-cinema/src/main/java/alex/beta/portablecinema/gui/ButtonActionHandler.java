@@ -413,8 +413,8 @@ public class ButtonActionHandler implements ActionListener {
             if (result.getExtraTags() != null && !result.getExtraTags().isEmpty())
                 output("新标签：" + join(result.getExtraTags(), ", "));
             if (result.getTotalVideos() > 0) {
-                if (!result.getTagsInUse().isEmpty()) {
-                    output("常用标签：" + join(result.getTagsInUse().keySet(), ", "));
+                if (!result.getTop10TagsInUse().isEmpty()) {
+                    output("常用标签：" + join(result.getTop10TagsInUse().keySet(), ", "));
                 } else {
                     output("无常用标签");
                 }

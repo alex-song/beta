@@ -23,7 +23,7 @@ public class AnalyzeCommand extends Command<AnalyzeCommand.AnalyzeResult> {
         try {
             DatabaseAdapter databaseAdapter = DatabaseAdapter.getAdapter(DatabaseAdapter.Type.H2_IN_MEMORY);
             result.setTotalVideos(databaseAdapter.count());
-            result.setTagsInUse(databaseAdapter.listTagsAndOrderByCountDesc(0, 10));
+            result.setTop10TagsInUse(databaseAdapter.listTagsAndOrderByCountDesc(0, 10));
             Long[] fss = databaseAdapter.findBySameSize();
             if (fss != null && fss.length > 0) {
                 for (Long fileSize : fss)
@@ -38,8 +38,18 @@ public class AnalyzeCommand extends Command<AnalyzeCommand.AnalyzeResult> {
                 }
             }
             result.setExtraTags(extraTags);
+            Set<String> tagsExcludeKeywords = new HashSet<>();
+            for (String tag : allTags) {
+                if (!TagService.getInstance(config).hasKeyword(tag)) {
+                    tagsExcludeKeywords.add(tag);
+                }
+            }
+            result.setTagsExcludeKeywords(tagsExcludeKeywords);
+
             if (logger.isInfoEnabled()) {
                 logger.info("Extra tags: {}", StringUtils.join(result.getExtraTags(), ", "));
+                logger.info("Extra tags exclude keywords: {}", StringUtils.join(result.getTagsExcludeKeywords(), ", "));
+                logger.info("All tags: {}", StringUtils.join(allTags, ", "));
             }
         } catch (DatabaseException ex) {
             logger.error("Failed to analyze file info", ex);
@@ -61,7 +71,9 @@ public class AnalyzeCommand extends Command<AnalyzeCommand.AnalyzeResult> {
         /**
          * Tag及其被标签的电影数量（一个电影可以有多个标签）
          */
-        private LinkedHashMap<String, Integer> tagsInUse = new LinkedHashMap<>();
+        private LinkedHashMap<String, Integer> top10TagsInUse = new LinkedHashMap<>();
+
+        private Set<String> tagsExcludeKeywords;
 
         /**
          * 相同大小的电影
@@ -82,13 +94,13 @@ public class AnalyzeCommand extends Command<AnalyzeCommand.AnalyzeResult> {
         }
 
         @SuppressWarnings({"squid:S1319"})
-        public LinkedHashMap<String, Integer> getTagsInUse() {
-            return tagsInUse;
+        public LinkedHashMap<String, Integer> getTop10TagsInUse() {
+            return top10TagsInUse;
         }
 
         @SuppressWarnings({"squid:S1319"})
-        public void setTagsInUse(LinkedHashMap<String, Integer> tagsInUse) {
-            this.tagsInUse = tagsInUse;
+        public void setTop10TagsInUse(LinkedHashMap<String, Integer> top10TagsInUse) {
+            this.top10TagsInUse = top10TagsInUse;
         }
 
         public List<FileInfo[]> getSimilarVideos() {
@@ -105,6 +117,14 @@ public class AnalyzeCommand extends Command<AnalyzeCommand.AnalyzeResult> {
 
         public void setExtraTags(Set<String> extraTags) {
             this.extraTags = extraTags;
+        }
+
+        public Set<String> getTagsExcludeKeywords() {
+            return tagsExcludeKeywords;
+        }
+
+        public void setTagsExcludeKeywords(Set<String> tagsExcludeKeywords) {
+            this.tagsExcludeKeywords = tagsExcludeKeywords;
         }
 
         public void addSimilarVideos(long fileSize, FileInfo[] videos) {
