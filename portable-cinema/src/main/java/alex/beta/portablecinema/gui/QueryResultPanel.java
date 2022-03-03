@@ -151,6 +151,7 @@ public class QueryResultPanel extends JPanel {
                 return true;
             }
         };
+        ((NumberFormat) formatter.getFormat()).setGroupingUsed(false);
         formatter.setMinimum(fileInfos == null ? 0 : 1);
         formatter.setMaximum(fileInfos == null ? 0 : fileInfos.length);
         jumpToField = new JFormattedTextField(formatter);
