@@ -146,7 +146,7 @@ public class PreviewPanel extends JPanel {
 
         // short cut key to OCR, ctrl+R
         if (ocrClient != null)
-            registerKeyboardAction(ae -> doOCR(), KeyStroke.getKeyStroke("Ctrl R"), JComponent.WHEN_IN_FOCUSED_WINDOW);
+            registerKeyboardAction(ae -> doOCR(), KeyStroke.getKeyStroke("ctrl R"), JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
 
     /**
@@ -159,7 +159,7 @@ public class PreviewPanel extends JPanel {
         PreviewPanel pp = new PreviewPanel(config, fileInfo, 800, 700);
         Object[] options;
         if (pp.ocrClient != null) {
-            options = new Object[]{"确定", "文字识别(ctrl + R)"};
+            options = new Object[]{"确定", "文字识别(Ctrl + R)"};
         } else {
             options = new Object[]{"确定"};
         }
