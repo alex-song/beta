@@ -1,0 +1,33 @@
+<Glossary>
+  <!--Zero or more repetitions:-->
+  <actor>
+    <keyword>string</keyword>
+    <!--Zero or more repetitions:-->
+    <alias>string</alias>
+    <!--Zero or more repetitions:-->
+    <tag>string1</tag>
+    <tag>string2</tag>
+    <tag>string3</tag>
+  </actor>
+  <!--Zero or more repetitions:-->
+  <category>
+    <keyword>string</keyword>
+    <!--Zero or more repetitions:-->
+    <alias>string</alias>
+    <!--Zero or more repetitions:-->
+    <tag>string</tag>
+    <tag>string</tag>
+  </category>
+  <!--Zero or more repetitions:-->
+  <producer>
+    <keyword>string</keyword>
+  </producer>
+  <!--Zero or more repetitions:-->
+  <other>
+    <keyword>string</keyword>
+    <!--Zero or more repetitions:-->
+    <alias>string</alias>
+    <!--Zero or more repetitions:-->
+    <tag>string</tag>
+  </other>
+</Glossary>

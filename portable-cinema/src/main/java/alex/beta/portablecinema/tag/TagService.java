@@ -1,22 +1,24 @@
 package alex.beta.portablecinema.tag;
 
 import alex.beta.portablecinema.PortableCinemaConfig;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import alex.beta.portablecinema.tag.xml.Glossary;
+import alex.beta.portablecinema.tag.xml.Term;
 import lombok.NonNull;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLInputFactory;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
 import static org.apache.commons.lang3.StringUtils.*;
 
-@SuppressWarnings("squid:S3776")
 public class TagService {
     private static final Logger logger = LoggerFactory.getLogger(TagService.class);
 
@@ -32,8 +34,6 @@ public class TagService {
      * text:tags
      */
     private Map<String, Set<String>> glossaryMap;
-
-    private Set<String> actors;
 
     private TagService(PortableCinemaConfig config) {
         //private constructor
@@ -74,62 +74,72 @@ public class TagService {
      */
     private void initialize(Glossary glossary) {
         glossaryMap = Collections.synchronizedMap(new HashMap<>());
-        actors = Collections.synchronizedSet(new HashSet<>());
         try {
-            Glossary tmpG = null;
+            Glossary tmpG;
             if (glossary == null) {
                 File glossaryFile = new File(config.getRootFolderPath(), config.getGlossaryFileName());
+                JAXBContext jaxbContext = JAXBContext.newInstance(Glossary.class);
+                XMLInputFactory factory = XMLInputFactory.newInstance();
+                factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+                factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
                 if (glossaryFile.exists() && glossaryFile.isFile()) {
-                    tmpG = new GsonBuilder().setDateFormat(PortableCinemaConfig.DATE_FORMATTER).create().fromJson(new FileReader(glossaryFile), Glossary.class);
-                } else if (!glossaryFile.exists()) {
+                    Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+                    tmpG = (Glossary) jaxbUnmarshaller.unmarshal(glossaryFile);
+                } else {
                     tmpG = new Glossary();
-                    FileWriter writer = new FileWriter(glossaryFile);
-                    Gson gson = new GsonBuilder().setPrettyPrinting().setDateFormat(PortableCinemaConfig.DATE_FORMATTER).create();
-                    gson.toJson(tmpG, writer);
-                    writer.flush();
+                    Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+                    jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+                    jaxbMarshaller.marshal(tmpG, glossaryFile);
                 }
             } else {
                 tmpG = glossary;
             }
 
             if (tmpG != null) {
-                if (tmpG.getKeywords() != null) {
-                    for (Glossary.Term term : tmpG.getKeywords()) {
-                        if (isNotBlank(term.getText()) && term.getTags() != null && !term.getTags().isEmpty()) {
-                            //处理text，加入tags
-                            if (glossaryMap.containsKey(term.getText())) {
-                                glossaryMap.get(term.getText()).addAll(term.getTags());
-                            } else {
-                                glossaryMap.put(term.getText(), new HashSet<>(term.getTags()));
-                            }
-                            //处理别名 - (加入text作为alias的tag?)
-                            if (term.getAlias() != null && !term.getAlias().isEmpty()) {
-                                for (String a : term.getAlias()) {
-                                    if (glossaryMap.containsKey(a)) {
-                                        glossaryMap.get(a).addAll(term.getTags());
-                                    } else {
-                                        glossaryMap.put(a, new HashSet<>(term.getTags()));
-                                    }
-                                    //glossaryMap.get(a).add(term.getText());
-                                }
-                            }
-                        }
-                    }
-                }
-                logger.debug("There are {} keywords found in {}", glossaryMap.size(), config.getGlossaryFileName());
+                processTerms(tmpG.getActor());
+                if (logger.isDebugEnabled())
+                    logger.debug("There are {} actors", tmpG.getActor().size());
 
-                if (isNotBlank(tmpG.getActors())) {
-                    String[] as = split(tmpG.getActors(), "\\,");
-                    for (String a : as) {
-                        actors.add(a.trim());
-                    }
+                processTerms(tmpG.getCategory());
+                if (logger.isDebugEnabled())
+                    logger.debug("There are {} categories", tmpG.getCategory().size());
+
+                processTerms(tmpG.getProducer());
+                if (logger.isDebugEnabled())
+                    logger.debug("There are {} producers", tmpG.getProducer().size());
+
+                processTerms(tmpG.getOther());
+                if (logger.isDebugEnabled())
+                    logger.debug("There are {} others", tmpG.getOther().size());
+
+                if (logger.isInfoEnabled()) {
+                    logger.info("There are {} terms in total", glossaryMap.size());
                 }
-                logger.debug("There are {} actors found in {}", actors.size(), config.getGlossaryFileName());
+            } else {
+                logger.info("Glossary is empty");
             }
         } catch (Exception ex) {
-            logger.warn("Failed to load Glossary.json", ex);
+            logger.warn("Failed to load Glossary.xml", ex);
             glossaryMap = Collections.synchronizedMap(new HashMap<>());
-            actors = Collections.synchronizedSet(new HashSet<>());
+        }
+    }
+
+    private void processTerms(List<Term> terms) {
+        for (Term term : terms) {
+            String keyword = term.getKeyword();
+            Set<String> tags = term.getTag();
+            if (tags.isEmpty())
+                tags.add(keyword);
+            registerKeyword(keyword, tags);
+            term.getAlias().forEach(a -> registerKeyword(a, tags));
+        }
+    }
+
+    private void registerKeyword(String keyword, Set<String> tags) {
+        if (glossaryMap.containsKey(keyword)) {
+            tags.forEach(t -> glossaryMap.get(keyword).add(t));
+        } else {
+            glossaryMap.put(keyword, new HashSet<>(tags));
         }
     }
 
@@ -155,33 +165,9 @@ public class TagService {
     }
 
     /**
-     * @param tag
-     * @return
+     * @param tags
+     * @param file
      */
-    public boolean hasTag(@NonNull String tag) {
-        if (this.actors.contains(tag)) {
-            return true;
-        }
-        for (Set<String> tags : this.glossaryMap.values()) {
-            if (tags.contains(tag)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @param tag
-     * @return true, if given tag is defined in glossary keywords list
-     */
-    public boolean hasKeyword(@NonNull String tag) {
-        Collection<Set<String>> tagss = glossaryMap.values();
-        for (Set<String> tags : tagss)
-            if (tags.contains(tag))
-                return true;
-        return false;
-    }
-
     private void detectByFile(@NonNull Set<String> tags, @NonNull File file) {
         //remove the extension path
         String tag = file.getName();
@@ -190,7 +176,7 @@ public class TagService {
         }
         if (isNotBlank(tag)) {
             //tags.add(tag);
-            tags.addAll(similarTags(tag));
+            tags.addAll(suggest(tag));
         }
     }
 
@@ -200,13 +186,13 @@ public class TagService {
         if (folder.getCanonicalPath().equalsIgnoreCase(config.getRootFolderPath())) {
             return;
         }
-        validateFolderName(tags, folder.getName());
+        proceedFolderName(tags, folder.getName());
         if (folder.getParent() != null) {
             detectByFolder(tags, folder.getParentFile());
         }
     }
 
-    private void validateFolderName(@NonNull Set<String> tags, @NonNull String folderName) {
+    private void proceedFolderName(@NonNull Set<String> tags, @NonNull String folderName) {
         // 去除无效字符
         if (isNotEmpty(folderName) && !isNumeric(folderName)) {
             String laundaryStr = folderName.replace("\\.", "")
@@ -228,15 +214,21 @@ public class TagService {
                     .replace("\\*", "")
                     .replace("\\(", "")
                     .replace("\\)", "");
-            if (isNotEmpty(laundaryStr) && !isNumeric(laundaryStr)) {
+            if (isNotBlank(laundaryStr) && !isNumeric(laundaryStr)) {
                 String tmp = folderName.trim();
                 //tags.add(tmp);
-                tags.addAll(similarTags(tmp));
+                tags.addAll(suggest(tmp));
             }
         }
     }
 
-    public Set<String> similarTags(String text) {
+    /**
+     * Suggest tags according to given text
+     *
+     * @param text
+     * @return
+     */
+    public Set<String> suggest(final String text) {
         Set<String> likes = new HashSet<>();
 
         if (glossaryMap.containsKey(text)) {
@@ -254,7 +246,7 @@ public class TagService {
             }
 
             JaroWinklerSimilarity jwSimilarity = new JaroWinklerSimilarity();
-            Collections.sort(termTexts, (o1, o2) -> {
+            termTexts.sort((o1, o2) -> {
                 double similarity = jwSimilarity.apply(o2.toLowerCase(), text.toLowerCase()) - jwSimilarity.apply(o1.toLowerCase(), text.toLowerCase());
                 if (similarity > 0) {
                     return 1;
@@ -272,12 +264,16 @@ public class TagService {
             }
         }
 
-        for (String kw : actors) {
-            if (text.toLowerCase().contains(kw.toLowerCase()) && kw.length() >= MINI_TERM_TEXT_LENGTH) {
-                likes.add(kw);
-            }
-        }
-
         return likes;
+    }
+
+    /**
+     * @param tag
+     * @return true, if given tag is defined in glossary tag list
+     */
+    public boolean hasTag(@NonNull String tag) {
+        for (Set<String> tags : this.glossaryMap.values())
+            if (tags.contains(tag)) return true;
+        return false;
     }
 }

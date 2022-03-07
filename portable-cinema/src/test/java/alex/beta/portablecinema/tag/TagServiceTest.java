@@ -1,7 +1,8 @@
 package alex.beta.portablecinema.tag;
 
 import alex.beta.portablecinema.PortableCinemaConfig;
-import org.apache.commons.lang3.StringUtils;
+import alex.beta.portablecinema.tag.xml.Glossary;
+import alex.beta.portablecinema.tag.xml.Term;
 import org.apache.commons.text.similarity.EditDistance;
 import org.apache.commons.text.similarity.JaroWinklerDistance;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
@@ -11,7 +12,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.HashSet;
 import java.util.Set;
 
 public class TagServiceTest {
@@ -24,49 +24,37 @@ public class TagServiceTest {
 
         Glossary g = new Glossary();
 
-        Set<String> actors = new HashSet<>();
-        actors.add("actor-0");
-        actors.add("actor-1");
-        actors.add("actor-2");
-        g.setActors(StringUtils.join(actors, Glossary.DELIMITER));
+        g.getActor().add(new Term("actor-0"));
+        g.getActor().add(new Term("actor-1"));
+        g.getActor().add(new Term("actor-2"));
 
-        Glossary.Term[] ts = new Glossary.Term[3];
 
-        ts[0] = new Glossary.Term();
-        ts[0].setText("term-text-0");
-        Set<String> alias0 = new HashSet<>();
-        alias0.add("term-alias-00");
-        alias0.add("term-alias-01");
-        alias0.add("term-alias-02");
-        ts[0].setAlias(alias0);
-        Set<String> tag0 = new HashSet<>();
-        tag0.add("term-tag-0");
-        ts[0].setTags(tag0);
+        Term[] ts = new Term[3];
 
-        ts[1] = new Glossary.Term();
-        ts[1].setText("term-text-1");
-        Set<String> alias1 = new HashSet<>();
-        alias1.add("term-alias-10");
-        alias1.add("term-alias-01");
-        alias1.add("term-alias-12");
-        ts[1].setAlias(alias1);
-        Set<String> tag1 = new HashSet<>();
-        tag1.add("term-tag-10");
-        tag1.add("term-tag-11");
-        ts[1].setTags(tag1);
+        ts[0] = new Term();
+        ts[0].setKeyword("term-text-0");
+        ts[0].getAlias().add("term-alias-00");
+        ts[0].getAlias().add("term-alias-01");
+        ts[0].getAlias().add("term-alias-02");
+        ts[0].getTag().add("term-tag-0");
+        g.getOther().add(ts[0]);
 
-        ts[2] = new Glossary.Term();
-        ts[2].setText("term-text-2");
-        Set<String> alias2 = new HashSet<>();
-        alias2.add("term-alias-20");
-        alias2.add("term-alias-21");
-        alias2.add("term-alias-22");
-        ts[2].setAlias(alias2);
-        Set<String> tag2 = new HashSet<>();
-        tag2.add("term-tag-2");
-        ts[2].setTags(tag2);
+        ts[1] = new Term();
+        ts[1].setKeyword("term-text-1");
+        ts[1].getAlias().add("term-alias-10");
+        ts[1].getAlias().add("term-alias-01");
+        ts[1].getAlias().add("term-alias-12");
+        ts[1].getTag().add("term-tag-10");
+        ts[1].getTag().add("term-tag-11");
+        g.getOther().add(ts[1]);
 
-        g.setKeywords(ts);
+        ts[2] = new Term();
+        ts[2].setKeyword("term-text-2");
+        ts[2].getAlias().add("term-alias-20");
+        ts[2].getAlias().add("term-alias-21");
+        ts[2].getAlias().add("term-alias-22");
+        ts[2].getTag().add("term-tag-2");
+        g.getOther().add(ts[2]);
 
         tagService = TagService.getInstance(config, g);
     }
@@ -76,44 +64,44 @@ public class TagServiceTest {
     }
 
     @Test
-    public void testJaroWinklerSimilarity() throws Exception {
+    public void testJaroWinklerSimilarity() {
         SimilarityScore<Double> similarity = new JaroWinklerSimilarity();
         double similarity1 = similarity.apply("光明酸奶", "蒙牛 风味酸牛奶 100克");
         double similarity2 = similarity.apply("酸奶", "蒙牛 风味酸牛奶 100克");
-        System.out.println(String.format("%s:%s", String.valueOf(similarity1), String.valueOf(similarity2)));
+        System.out.printf("%s:%s", similarity1, similarity2);
         Assert.assertTrue(similarity1 > similarity2);
     }
 
     @Test
-    public void testJaroWinklerDistance() throws Exception {
+    public void testJaroWinklerDistance() {
         EditDistance<Double> distance = new JaroWinklerDistance();
         double distance1 = distance.apply("光明酸奶", "蒙牛 风味酸牛奶 100克");
         double distance2 = distance.apply("酸奶", "蒙牛 风味酸牛奶 100克");
-        System.out.println(String.format("%s:%s", String.valueOf(distance1), String.valueOf(distance2)));
+        System.out.printf("%s:%s", distance1, distance2);
         Assert.assertTrue(distance1 > distance2);
     }
 
     @Test
     public void testSimilarTags() throws Exception {
-        Set<String> result = tagService.similarTags("TestActor-0G^&##");
-        Assert.assertEquals(1,result.size());
-
-        result = tagService.similarTags("TestActor-0G^&#ACTOR-1#");
-        Assert.assertEquals(2, result.size());
-
-        result = tagService.similarTags("term-alias-21");
-        Assert.assertTrue(result.size() == 1 && result.contains("term-tag-2"));
-
-        result = tagService.similarTags("AAAAterm-alias-01BBB555678CCCC###$$");
-        Assert.assertTrue(result.size() == 3 && result.contains("term-tag-0") && result.contains("term-tag-10") && result.contains("term-tag-11"));
-
-        result = tagService.similarTags("term-text");
-        Assert.assertTrue(result.size() >= 1);
-
-        result = tagService.similarTags("term-text-0");
+        Set<String> result = tagService.suggest("TestActor-0G^&##");
         Assert.assertEquals(1, result.size());
 
-        result = tagService.similarTags("term-text-1");
+        result = tagService.suggest("TestActor-0G^&#ACTOR-1#");
+        Assert.assertEquals(2, result.size());
+
+        result = tagService.suggest("term-alias-21");
+        Assert.assertTrue(result.size() == 1 && result.contains("term-tag-2"));
+
+        result = tagService.suggest("AAAAterm-alias-01BBB555678CCCC###$$");
+        Assert.assertTrue(result.size() == 3 && result.contains("term-tag-0") && result.contains("term-tag-10") && result.contains("term-tag-11"));
+
+        result = tagService.suggest("term-text");
+        Assert.assertTrue(result.size() >= 1);
+
+        result = tagService.suggest("term-text-0");
+        Assert.assertEquals(1, result.size());
+
+        result = tagService.suggest("term-text-1");
         Assert.assertEquals(2, result.size());
     }
 }

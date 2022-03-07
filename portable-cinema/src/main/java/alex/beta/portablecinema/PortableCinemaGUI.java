@@ -17,7 +17,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class PortableCinemaGUI {
-    private static Logger logger = LoggerFactory.getLogger(PortableCinemaGUI.class);
+    private static final Logger logger = LoggerFactory.getLogger(PortableCinemaGUI.class);
 
     public static void main(String[] args) throws Exception {
         logger.info("### Portable Cinema GUI ###");
@@ -61,7 +61,7 @@ public class PortableCinemaGUI {
                 }
                 buttonActionHandler.loadTemplates();
                 frame.enableUIActions(buttonActionHandler, hyperlinkActionHandler);
-                frame.appendResultText("<pre>" + System.lineSeparator() + Banner.read().forGUI(confFile.getCanonicalPath(), config) + "</pre>" + System.lineSeparator());
+                frame.appendResultText("<pre>" + System.lineSeparator() + Banner.read().forGUI(confFile.getCanonicalPath()) + "</pre>" + System.lineSeparator());
             } catch (DatabaseException ex) {
                 logger.error("Database initialization failed", ex);
                 frame.setErrorStatusText("数据库初始化失败");

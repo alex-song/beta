@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xs:element name="Glossary">
+		<xs:annotation>
+			<xs:documentation>Glossary definition for Portable Cinema</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="actor" type="Term" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="category" type="Term" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="producer" type="Term" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="other" type="Term" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="Term">
+		<xs:sequence>
+			<xs:element name="keyword" type="xs:string" nillable="false"/>
+			<xs:element name="alias" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="tag" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

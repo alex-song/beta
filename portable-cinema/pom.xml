@@ -17,6 +17,8 @@
         <!--<buildTimestamp>${maven.build.timestamp}</buildTimestamp>-->
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <simpleocr_version>0.0.1</simpleocr_version>
+        <jakarta.xml.bind-api_version>2.3.2</jakarta.xml.bind-api_version>
+        <jaxb-runtime_version>2.3.2</jaxb-runtime_version>
     </properties>
 
     <dependencies>
@@ -32,6 +34,24 @@
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>${gson_version}</version>
+        </dependency>
+
+        <!-- API, java.xml.bind module -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>${jakarta.xml.bind-api_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>${jaxb-runtime_version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>jakarta.xml.bind</groupId>
+                    <artifactId>jakarta.xml.bind-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- OCR for tag detection -->

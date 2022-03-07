@@ -37,7 +37,7 @@ public class PortableCinemaConfig {
         config.imageFileExtensions = ".jpg, .jpeg, .png, .bmp, .gif";
         config.videoFileExtensions = ".avi, .mpg, .mpeg, .mpe, .mp4, .mkv, .mts, .mov, .m4v, .qt, .rmvb, .rm, .vob, .wmv";
         config.skipNameStartsWith = "., _";
-        config.glossaryFileName = "Glossary.json";
+        config.glossaryFileName = "Glossary.xml";
         config.enablePerformanceLog = false;
         config.enableQueryResultHTML = false;
         return config;

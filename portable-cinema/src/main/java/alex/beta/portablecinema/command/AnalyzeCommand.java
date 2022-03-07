@@ -40,7 +40,7 @@ public class AnalyzeCommand extends Command<AnalyzeCommand.AnalyzeResult> {
             result.setExtraTags(extraTags);
             Set<String> tagsExcludeKeywords = new HashSet<>();
             for (String tag : allTags) {
-                if (!TagService.getInstance(config).hasKeyword(tag)) {
+                if (!TagService.getInstance(config).hasTag(tag)) {
                     tagsExcludeKeywords.add(tag);
                 }
             }

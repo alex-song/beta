@@ -13,22 +13,7 @@
 例如：java -cp portable-cinema-all-in-one.jar -Dportable-cinema.conf=portable_cinema_conf.json alex.beta.portablecinema.PortableCinemaCLI AGGREGATE .
 当前配置路径：#{config.path}
 
-配置文件（configuration file）默认存放在运行目录，文件名为portable_cinema_conf.json。关键字库文件默认在同一目录，文件名为Glossary.json。
+配置文件（configuration file）默认存放在运行目录，文件名为portable_cinema_conf.json。关键字库文件默认在同一目录，文件名为Glossary.xml。
 格式如下：
-{
-  "actors":"name1, name2, name3, name4",
-  "keywords":[
-    {
-      "text":"keyword1",
-      "alias":[
-        "alias11 of keyword1",
-        "alias12 of keyword1"
-      ],
-      "tags":[
-        "tag11 of keyword1",
-        "tag12 of keyword1"
-      ]
-    }
-  ]
-}
+#{glossary.schema}
 

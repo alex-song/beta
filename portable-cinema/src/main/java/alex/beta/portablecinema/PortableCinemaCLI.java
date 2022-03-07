@@ -31,8 +31,8 @@ public class PortableCinemaCLI {
             confFileName = System.getProperty(PortableCinemaConfig.CONFIGURATION_PROPERTY_NAME);
         }
         //TODO - tesing only
-        String rootFolderName = ".";
-        //String rootFolderName = "/Users/alexsong/Development/my_workspace/beta/portable-cinema/sample";
+        //String rootFolderName = ".";
+        String rootFolderName = "/Users/alexsong/Development/my_workspace/beta/portable-cinema/sample";
 
         if (args.length == 2) {
             rootFolderName = args[1];
@@ -59,7 +59,7 @@ public class PortableCinemaCLI {
         logger.info("Configuration file: [{}]", confFile.getCanonicalPath());
 
         PortableCinemaConfig config = new GsonBuilder().setDateFormat(PortableCinemaConfig.DATE_FORMATTER).create().fromJson(new FileReader(confFile), PortableCinemaConfig.class);
-        System.out.println(Banner.read().forCLI(confFile.getCanonicalPath(), config) + System.lineSeparator());
+        System.out.println(Banner.read().forCLI(confFile.getCanonicalPath()) + System.lineSeparator());
 
         if (logger.isInfoEnabled())
             logger.info(config.toString());
@@ -208,9 +208,9 @@ public class PortableCinemaCLI {
             }
         } else {
             if (prefix) {
-                System.out.println(ConsoleColors.BLUE_BOLD + OUTPUT_PREFIX + ConsoleColors.RESET + " " + o.toString());
+                System.out.println(ConsoleColors.BLUE_BOLD + OUTPUT_PREFIX + ConsoleColors.RESET + " " + o);
             } else {
-                System.out.println(o.toString());
+                System.out.println(o);
             }
         }
     }

@@ -3,6 +3,7 @@ package alex.beta.portablecinema;
 import com.google.common.io.Resources;
 import lombok.NonNull;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,12 +37,16 @@ public final class Banner {
 
     private String template;
 
+    private String schema;
+
     private Banner() {
         try {
             template = Resources.asCharSource(Resources.getResource("banner.txt"), StandardCharsets.UTF_8).read();
+            schema = Resources.asCharSource(Resources.getResource("glossary.xsd"), StandardCharsets.UTF_8).read();
         } catch (Exception ex) {
-            logger.error("Cannot read banner.txt", ex);
+            logger.error("Cannot read banner.txt / glossary.xsd", ex);
             template = "Portable Cinema" + System.lineSeparator();
+            schema = "";
         }
     }
 
@@ -57,12 +62,12 @@ public final class Banner {
         return convertUTCTimestamp(convertNormalizedTimestamp(text));
     }
 
-    String forCLI(String confPath, PortableCinemaConfig config) {
-        return read(ConsoleColors.BLACK_BOLD + confPath + ConsoleColors.RESET, config);
+    String forCLI(String confPath) {
+        return read(ConsoleColors.BLACK_BOLD + confPath + ConsoleColors.RESET, schema);
     }
 
-    String forGUI(String confPath, PortableCinemaConfig config) {
-        return read("<b>" + confPath + "</b>", config);
+    String forGUI(String confPath) {
+        return read("<b>" + confPath + "</b>", StringEscapeUtils.escapeHtml4(schema));
     }
 
     private String convertUTCTimestamp(String text) {
@@ -109,9 +114,11 @@ public final class Banner {
         }
     }
 
-    private String read(String confPath, PortableCinemaConfig config) {
+    private String read(String confPath, String schema) {
         //Don't change banner template, create a copy of it
         String bannerText = template;
+        //Replace schema
+        bannerText = bannerText.replaceAll("\\" + PREFIX_1 + "\\" + PREFIX_2 + "glossary.schema" + "\\" + SUFFIX, schema);
         //Replace #{config.path}
         return bannerText.replaceAll("\\" + PREFIX_1 + "\\" + PREFIX_2 + "config.path" + "\\" + SUFFIX, confPath);
     }
