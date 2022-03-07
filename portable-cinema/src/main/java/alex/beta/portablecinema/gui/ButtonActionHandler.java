@@ -41,23 +41,20 @@ public class ButtonActionHandler implements ActionListener {
     private static final String HTML_LINE = "<hr/>";
 
     private static final String PRE_HTML_TAG = "<pre>%s</pre>";
-
+    private final PortableCinemaConfig config;
     private String FILEINFO_TABLE_TEMPLATE;
     private String FILEINFO_TABLE_TR_TEMPLATE;
     private String FILEINFO_TABLE_TR_A_TEMPLATE;
-
     private String RESOLUTION_HD_IMG_TEMPLATE;
     private String GALLERY_IMG_TEMPLATE;
     private String FILEINFO_EDIT_IMG_TEMPLATE;
     private String FILEINFO_DETAIL_IMG_TEMPLATE;
-
-    private PortableCinemaConfig config;
     private PortableCinemaFrame frame;
     private File rootFolder;
     private File confFile;
     private AtomicBoolean isRunning = new AtomicBoolean(false);
 
-    public ButtonActionHandler(File confFile, PortableCinemaConfig config) {
+    public ButtonActionHandler(PortableCinemaConfig config, File confFile) {
         this.config = config;
         this.confFile = confFile;
     }
@@ -185,7 +182,7 @@ public class ButtonActionHandler implements ActionListener {
             }
         } else {
             if (inputValue != null)
-                QueryResultPanel.showDialog(frame, config, action, String.valueOf(inputValue));
+                QueryResultPanel.showDialog(config, frame, action, String.valueOf(inputValue));
             frame.appendResultText(HTML_LINE);
             isRunning.set(false);
         }
@@ -478,7 +475,7 @@ public class ButtonActionHandler implements ActionListener {
                             tagText,
                             resolutionText, hdImg)).append(System.lineSeparator());
                 }
-                return String.format(FILEINFO_TABLE_TEMPLATE, tbodyBuffer.toString());
+                return String.format(FILEINFO_TABLE_TEMPLATE, tbodyBuffer);
             } else {
                 return null;
             }

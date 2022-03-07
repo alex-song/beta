@@ -40,10 +40,9 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class PreviewPanel extends JPanel {
 
     private static final int THUMBNAIL_IMAGE_SIZE = 100;
-    private static Logger logger = LoggerFactory.getLogger(PreviewPanel.class);
+    private static final Logger logger = LoggerFactory.getLogger(PreviewPanel.class);
+    private final PortableCinemaConfig config;
     private FileInfo fileInfo;
-    private PortableCinemaConfig config;
-
     private BaiduOcr ocrClient;
 
     private JLabel photographLabel;
@@ -155,7 +154,7 @@ public class PreviewPanel extends JPanel {
      * @param config
      * @return true, if file info is updated
      */
-    public static boolean showDialog(Frame owner, FileInfo fileInfo, PortableCinemaConfig config) {
+    public static boolean showDialog(PortableCinemaConfig config, Frame owner, FileInfo fileInfo) {
         PreviewPanel pp = new PreviewPanel(config, fileInfo, 800, 700);
         Object[] options;
         if (pp.ocrClient != null) {
@@ -215,7 +214,7 @@ public class PreviewPanel extends JPanel {
     }
 
     private void doOCR() {
-        int option = TagSuggestionPanel.showDialog(this, ocrClient, getCurrentImg());
+        int option = TagSuggestionPanel.showDialog(this.config, this, ocrClient, getCurrentImg());
         if (option == SAVE_CHANGES_OPTION || option == SAVE_CHANGES_OPEN_EDITOR_OPTION) {
             int result = new EditCommand(fileInfo).execute(config);
             logger.debug("Update tags of file info [{}], result is [{}]", fileInfo, result);

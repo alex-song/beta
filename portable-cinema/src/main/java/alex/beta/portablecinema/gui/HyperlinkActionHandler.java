@@ -24,9 +24,9 @@ import static alex.beta.portablecinema.command.EditCommand.resultText;
 
 public class HyperlinkActionHandler extends MouseAdapter {
 
-    private static Logger logger = LoggerFactory.getLogger(HyperlinkActionHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(HyperlinkActionHandler.class);
 
-    private PortableCinemaConfig config;
+    private final PortableCinemaConfig config;
 
     private PortableCinemaFrame frame;
 
@@ -71,7 +71,7 @@ public class HyperlinkActionHandler extends MouseAdapter {
                         if (href.startsWith("preview://")) {
                             String otid = href.substring(10);
                             FileInfo fileInfo = new ViewCommand(otid).execute(config);
-                            PreviewPanel.showDialog(frame, fileInfo, config);
+                            PreviewPanel.showDialog(config, frame, fileInfo);
                         } else if (href.startsWith("edit://")) {
                             String otid = href.substring(7);
                             FileInfo fileInfo = new ViewCommand(otid).execute(config);

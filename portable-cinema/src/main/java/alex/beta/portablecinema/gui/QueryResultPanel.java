@@ -37,9 +37,8 @@ public class QueryResultPanel extends JPanel {
     private static final String[] COLUMN_HEADER_TOOLTIPS = new String[]{"序号", "浏览封面图", "编辑影片信息", "查看详细信息", "片名", "影片时长", "标签", "影片分辨率"};
     private static final int[] COLUMN_WIDTHS = new int[]{45, 28, 28, 28, 390, 120, 300, 120};
     private static final boolean[] COLUMN_RESIZABLE = new boolean[]{false, false, false, false, true, false, true, false};
-
+    private final PortableCinemaConfig config;
     private PortableCinemaFrame frame;
-    private PortableCinemaConfig config;
     private String initialOption;
     private String initialInput;
 
@@ -56,7 +55,7 @@ public class QueryResultPanel extends JPanel {
     private AbstractTableModel fileInfoTableModel;
     private FileInfo[] fileInfos;
 
-    public QueryResultPanel(PortableCinemaFrame frame, PortableCinemaConfig config, String queryOption, String userInput, FileInfo... fileInfos) {
+    public QueryResultPanel(PortableCinemaConfig config, PortableCinemaFrame frame, String queryOption, String userInput, FileInfo... fileInfos) {
         super(new BorderLayout());
         this.frame = frame;
         this.config = config;
@@ -74,8 +73,8 @@ public class QueryResultPanel extends JPanel {
         executeQuery(initialOption, trimToEmpty(initialInput));
     }
 
-    public static void showDialog(PortableCinemaFrame frame, PortableCinemaConfig config, String queryOption, String userInput) {
-        QueryResultPanel qrp = new QueryResultPanel(frame, config, queryOption, userInput);
+    public static void showDialog(PortableCinemaConfig config, PortableCinemaFrame frame, String queryOption, String userInput) {
+        QueryResultPanel qrp = new QueryResultPanel(config, frame, queryOption, userInput);
         JOptionPane jop = new JOptionPane(qrp, JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION, null, null, null);
         JDialog dialog = new JDialog(frame, TITLE + " - 查询", true);
         dialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -190,7 +189,7 @@ public class QueryResultPanel extends JPanel {
                 if (SwingUtilities.isLeftMouseButton(e) && col == 1 && fileInfo.hasCover()) {
                     if (logger.isDebugEnabled())
                         logger.debug("Open preview dialog of {}", fileInfo);
-                    if (PreviewPanel.showDialog(frame, fileInfo, config)) {
+                    if (PreviewPanel.showDialog(config, frame, fileInfo)) {
                         fileInfos[row] = new ViewCommand(fileInfo.getOtid()).execute(config);
                         fileInfoTableModel.fireTableRowsUpdated(row, row);
                     }
@@ -268,7 +267,7 @@ public class QueryResultPanel extends JPanel {
                     if (fileInfo.hasCover()) {
                         if (logger.isDebugEnabled())
                             logger.debug("Open preview dialog of {}", fileInfo);
-                        if (PreviewPanel.showDialog(frame, fileInfo, config)) {
+                        if (PreviewPanel.showDialog(config, frame, fileInfo)) {
                             fileInfos[row] = new ViewCommand(fileInfo.getOtid()).execute(config);
                             fileInfoTableModel.fireTableRowsUpdated(row, row);
                         }

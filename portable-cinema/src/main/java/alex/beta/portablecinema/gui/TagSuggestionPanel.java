@@ -1,5 +1,6 @@
 package alex.beta.portablecinema.gui;
 
+import alex.beta.portablecinema.PortableCinemaConfig;
 import alex.beta.portablecinema.pojo.FileInfo;
 import alex.beta.portablecinema.tag.TagService;
 import alex.beta.simpleocr.OcrException;
@@ -37,7 +38,7 @@ public class TagSuggestionPanel extends JPanel {
     private JButton addButton;
     private JButton deleteButton;
 
-    public TagSuggestionPanel(BaiduOcr ocrClient, FileInfo fileInfo, int width, int height, String currentImg) {
+    public TagSuggestionPanel(PortableCinemaConfig config, BaiduOcr ocrClient, FileInfo fileInfo, int width, int height, String currentImg) {
         super(new BorderLayout());
         this.setSize(width, height);
         this.setPreferredSize(new Dimension(width, height));
@@ -62,7 +63,9 @@ public class TagSuggestionPanel extends JPanel {
                         if (ows == null || ows.isEmpty()) {
                             publish(NO_WORD_MSG);
                         } else {
-                            publish(ows.toArray(new String[]{}));
+                            Set<String> tws = new HashSet<>(ows);
+                            ows.forEach(w -> tws.addAll(TagService.getInstance(config).suggest(w)));
+                            publish(tws.toArray(new String[]{}));
                         }
                     } catch (OcrException ex) {
                         logger.error("Failed to read/analyse file {}", currentImg, ex);
@@ -113,6 +116,7 @@ public class TagSuggestionPanel extends JPanel {
     }
 
     /**
+     * @param config
      * @param previewPanel
      * @param ocrClient
      * @param currentImg
@@ -125,9 +129,9 @@ public class TagSuggestionPanel extends JPanel {
      * 10 - tags are not changed
      * 11 - tags are not changed, and open edit dialog
      */
-    public static int showDialog(PreviewPanel previewPanel, BaiduOcr ocrClient, String currentImg) {
+    public static int showDialog(PortableCinemaConfig config, PreviewPanel previewPanel, BaiduOcr ocrClient, String currentImg) {
         FileInfo fileInfo = previewPanel.getFileInfo();
-        TagSuggestionPanel tsp = new TagSuggestionPanel(ocrClient, fileInfo, 600, 300, currentImg);
+        TagSuggestionPanel tsp = new TagSuggestionPanel(config, ocrClient, fileInfo, 600, 300, currentImg);
         Object[] choices = {"确定", "确定并编辑", "编辑", "取消"};
         Object defaultChoice = choices[0];
 

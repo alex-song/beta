@@ -44,7 +44,7 @@ public class PortableCinemaGUI {
             logger.info(config.toString());
 
         //init UI
-        ButtonActionHandler buttonActionHandler = new ButtonActionHandler(confFile, config);
+        ButtonActionHandler buttonActionHandler = new ButtonActionHandler(config, confFile);
         HyperlinkActionHandler hyperlinkActionHandler = new HyperlinkActionHandler(config);
 
         PortableCinemaFrame frame = new PortableCinemaFrame();
