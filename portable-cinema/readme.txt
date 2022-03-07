@@ -16,8 +16,8 @@ A:
 12. [Done] Edit dialog, after OCR
 13. [Done] Double click to switch between original image and scaled image. New button to start OCR.
 14. [Done] Use Swing JTable instead of HTML table, in order to reduce memory usage and improve performance.
-15. Optimize glossary, json -> xml
-16. Optimize suggestion from OCR
+15. [Done] Optimize glossary, json -> xml
+16. [Done] Optimize suggestion from OCR
 
 B:
 1. [Cancel] Add images array
