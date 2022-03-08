@@ -33,10 +33,10 @@ public class QueryResultPanel extends JPanel {
 
     private static final Font HEADER_FONT = new Font(Font.SERIF, Font.PLAIN, 12);
     private static final Font TABLE_FONT = new Font(Font.SERIF, Font.PLAIN, 12);
-    private static final String[] COLUMN_NAMES = new String[]{"序号", "预览", "编辑", "详细", "片名", "片长", "标签", "分辨率"};
-    private static final String[] COLUMN_HEADER_TOOLTIPS = new String[]{"序号", "浏览封面图", "编辑影片信息", "查看详细信息", "片名", "影片时长", "标签", "影片分辨率"};
-    private static final int[] COLUMN_WIDTHS = new int[]{45, 28, 28, 28, 390, 120, 300, 120};
-    private static final boolean[] COLUMN_RESIZABLE = new boolean[]{false, false, false, false, true, false, true, false};
+    private static final String[] COLUMN_NAMES = new String[]{"序号", "预览", "目录", "编辑", "详细", "片名", "片长", "标签", "分辨率"};
+    private static final String[] COLUMN_HEADER_TOOLTIPS = new String[]{"序号", "浏览封面图", "打开影片所在目录", "编辑影片信息", "查看详细信息", "片名（双击播放）", "影片时长", "标签", "影片分辨率"};
+    private static final int[] COLUMN_WIDTHS = new int[]{45, 28, 28, 28, 28, 360, 120, 300, 120};
+    private static final boolean[] COLUMN_RESIZABLE = new boolean[]{false, false, false, false, false, true, false, true, false};
     private final PortableCinemaConfig config;
     private PortableCinemaFrame frame;
     private String initialOption;
@@ -46,6 +46,7 @@ public class QueryResultPanel extends JPanel {
     private ImageIcon editIcon;
     private ImageIcon detailIcon;
     private ImageIcon hdIcon;
+    private ImageIcon folderIcon;
     private JComboBox<String> queryOptions;
     private JTextField userInputField;
     private JButton refreshBtn;
@@ -98,8 +99,9 @@ public class QueryResultPanel extends JPanel {
             editIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Edit-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
             detailIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Detail-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
             hdIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/HD-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
+            folderIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Folder-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
         } catch (Exception ex) {
-            logger.error("Failed to load preview/edit icon", ex);
+            logger.error("Failed to load icons", ex);
             return;
         }
         // create UI
@@ -155,7 +157,7 @@ public class QueryResultPanel extends JPanel {
         formatter.setMaximum(fileInfos == null ? 0 : fileInfos.length);
         jumpToField = new JFormattedTextField(formatter);
         jumpToField.setHorizontalAlignment(SwingConstants.TRAILING);
-        jumpToField.setPreferredSize(new Dimension(100, 24));
+        jumpToField.setPreferredSize(new Dimension(80, 24));
         gbc.gridx = 3;
         gbc.gridy = 0;
         topPanel.add(jumpToField, gbc);
@@ -195,6 +197,17 @@ public class QueryResultPanel extends JPanel {
                     }
                 } else if (SwingUtilities.isLeftMouseButton(e) && col == 2) {
                     if (logger.isDebugEnabled())
+                        logger.debug("Open folder of [{}]", fileInfo);
+                    try {
+                        if (Desktop.isDesktopSupported())
+                            Desktop.getDesktop().open(new File(fileInfo.getPath()));
+                        else
+                            JOptionPane.showMessageDialog(frame, fileInfo.getPath(), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE);
+                    } catch (Exception ex) {
+                        logger.warn("Cannot open folder {}", fileInfo.getPath(), ex);
+                    }
+                } else if (SwingUtilities.isLeftMouseButton(e) && col == 3) {
+                    if (logger.isDebugEnabled())
                         logger.debug("Open edit dialog of {}", fileInfo);
                     if (FileInfoEditPanel.showDialog(frame, fileInfo)) {
                         int result = new EditCommand(fileInfo).execute(config);
@@ -205,20 +218,20 @@ public class QueryResultPanel extends JPanel {
                         fileInfos[row] = new ViewCommand(fileInfo.getOtid()).execute(config);
                         fileInfoTableModel.fireTableRowsUpdated(row, row);
                     }
-                } else if (SwingUtilities.isLeftMouseButton(e) && col == 3) {
+                } else if (SwingUtilities.isLeftMouseButton(e) && col == 4) {
                     if (logger.isDebugEnabled())
                         logger.debug("Open view detail dialog of {}", fileInfo);
                     JOptionPane.showMessageDialog(frame, fileInfo.toPrettyString(), fileInfo.getName(), JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
-                } else if (SwingUtilities.isLeftMouseButton(e) && col == 4 && e.getClickCount() == 2) {
+                } else if (SwingUtilities.isLeftMouseButton(e) && col == 5 && e.getClickCount() == 2) {
                     if (logger.isDebugEnabled())
-                        logger.debug("Open folder of [{}]", fileInfo);
+                        logger.debug("Open video of [{}]", fileInfo);
                     try {
                         if (Desktop.isDesktopSupported())
-                            Desktop.getDesktop().open(new File(fileInfo.getPath()));
+                            Desktop.getDesktop().open(new File(fileInfo.getPath(), fileInfo.getName()));
                         else
                             JOptionPane.showMessageDialog(frame, fileInfo.getPath(), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE);
                     } catch (Exception ex) {
-                        logger.warn("Cannot open folder [{}]", fileInfo.getPath(), ex);
+                        logger.warn("Cannot open video {}/{}", fileInfo.getPath(), fileInfo.getName(), ex);
                     }
                 }
             }
@@ -236,7 +249,7 @@ public class QueryResultPanel extends JPanel {
                 FileInfo fileInfo = fileInfos[row];
                 if (column == 1 && fileInfo.hasCover()) {
                     fileInfoTable.setCursor(Cursor.getPredefinedCursor(HAND_CURSOR));
-                } else if (column == 2 || column == 3) {
+                } else if (column == 2 || column == 3 || column == 4) {
                     fileInfoTable.setCursor(Cursor.getPredefinedCursor(HAND_CURSOR));
                 } else {
                     fileInfoTable.setCursor(Cursor.getPredefinedCursor(DEFAULT_CURSOR));
@@ -404,12 +417,13 @@ public class QueryResultPanel extends JPanel {
                 case 1:
                 case 2:
                 case 3:
-                    return Icon.class;
                 case 4:
+                    return Icon.class;
                 case 5:
                 case 6:
-                    return String.class;
                 case 7:
+                    return String.class;
+                case 8:
                     return FileInfo.Resolution.class;
                 default:
                     return String.class;
@@ -436,19 +450,21 @@ public class QueryResultPanel extends JPanel {
                     else
                         return null;
                 case 2:
-                    return editIcon;
+                    return folderIcon;
                 case 3:
-                    return detailIcon;
+                    return editIcon;
                 case 4:
-                    return fileInfo.getName();
+                    return detailIcon;
                 case 5:
-                    return fileInfo.getFormattedDuration();
+                    return fileInfo.getName();
                 case 6:
+                    return fileInfo.getFormattedDuration();
+                case 7:
                     if (fileInfo.getTags() != null && !fileInfo.getTags().isEmpty())
                         return join(fileInfo.getTags(), ", ");
                     else
                         return null;
-                case 7:
+                case 8:
                     if (fileInfo != null)
                         return fileInfo.getResolution();
                     else
@@ -569,11 +585,11 @@ public class QueryResultPanel extends JPanel {
                 Point p = e.getPoint();
                 int rowIndex = rowAtPoint(p);
                 int colIndex = columnAtPoint(p);
-                if (colIndex != 1 && colIndex != 2 && colIndex != 3)
+                if (colIndex != 1 && colIndex != 2 && colIndex != 3 && colIndex != 4)
                     try {
                         Object v = getValueAt(rowIndex, colIndex);
                         tip = (v == null ? null : v.toString());
-                        if (colIndex == 4) {
+                        if (colIndex == 5) {
                             if (fileInfos[rowIndex].getLastModifiedOn() != null) {
                                 tip = String.format(TOOLTIP_FORMAT, tip, DateFormatUtils.format(fileInfos[rowIndex].getLastModifiedOn(), PortableCinemaConfig.DATE_FORMATTER));
                             } else {
