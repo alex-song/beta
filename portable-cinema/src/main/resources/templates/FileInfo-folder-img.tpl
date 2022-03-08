@@ -1,1 +1,1 @@
-<a href="folder://%s"><img src="classpath:images/Folder-icon.png" border="0" width="15" height="15" alt="点击打开影片目录"/></a>
+<a href="folder://%s"><img src="classpath:images/Folder-icon.png" border="0" width="14" height="14" alt="打开影片目录"/></a>
