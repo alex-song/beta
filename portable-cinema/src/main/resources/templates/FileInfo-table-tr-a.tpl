@@ -1,1 +1,1 @@
-<a href="otid://%s" title="%s">%s</a>
+<a href="otid://%s" alt="%s">%s</a>

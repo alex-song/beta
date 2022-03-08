@@ -18,6 +18,8 @@ A:
 14. [Done] Use Swing JTable instead of HTML table, in order to reduce memory usage and improve performance.
 15. [Done] Optimize glossary, json -> xml
 16. [Done] Optimize suggestion from OCR
+17. Support open video player directly
+18. [Done] Add tooltip in HTML table
 
 B:
 1. [Cancel] Add images array

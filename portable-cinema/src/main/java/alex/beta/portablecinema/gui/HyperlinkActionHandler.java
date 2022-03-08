@@ -21,6 +21,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import static alex.beta.portablecinema.command.EditCommand.resultText;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 public class HyperlinkActionHandler extends MouseAdapter {
 
@@ -36,6 +38,28 @@ public class HyperlinkActionHandler extends MouseAdapter {
 
     public void setFrame(PortableCinemaFrame frame) {
         this.frame = frame;
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        Element h = getHyperlinkElement(e);
+        if (h != null) {
+            Object attribute = h.getAttributes().getAttribute(HTML.Tag.A);
+            if (attribute instanceof AttributeSet) {
+                AttributeSet set = (AttributeSet) attribute;
+                String title = (String) set.getAttribute(HTML.Attribute.TITLE);
+                if (isEmpty(title)) {
+                    title = (String) set.getAttribute(HTML.Attribute.ALT);
+                }
+                if (isNotEmpty(title)) {
+                    frame.getResultPane().setToolTipText(title);
+                } else {
+                    frame.getResultPane().setToolTipText(null);
+                }
+            }
+        } else {
+            frame.getResultPane().setToolTipText(null);
+        }
     }
 
     @Override
@@ -85,8 +109,8 @@ public class HyperlinkActionHandler extends MouseAdapter {
                             String otid = href.substring(11);
                             FileInfo fileInfo = new ViewCommand(otid).execute(config);
                             JOptionPane.showMessageDialog(frame, fileInfo.toPrettyString(), fileInfo.getName(), JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
-                        } else if (href.startsWith("otid://")) {
-                            String otid = href.substring(7);
+                        } else if (href.startsWith("folder://")) {
+                            String otid = href.substring(9);
                             FileInfo fileInfo = new ViewCommand(otid).execute(config);
                             try {
                                 if (Desktop.isDesktopSupported())
@@ -96,6 +120,17 @@ public class HyperlinkActionHandler extends MouseAdapter {
                             } catch (Exception ex) {
                                 logger.warn("Cannot open folder [{}]", fileInfo.getPath(), ex);
                             }
+                        } else if (href.startsWith("otid://")) {
+                            String otid = href.substring(7);
+                            FileInfo fileInfo = new ViewCommand(otid).execute(config);
+                            try {
+                                if (Desktop.isDesktopSupported())
+                                    Desktop.getDesktop().open(new File(fileInfo.getPath(), fileInfo.getName()));
+                                else
+                                    JOptionPane.showMessageDialog(frame, fileInfo.getPath(), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE);
+                            } catch (Exception ex) {
+                                logger.warn("Cannot open video [{}/{}]", fileInfo.getPath(), fileInfo.getName(), ex);
+                            }
                         } else {
                             try {
                                 if (Desktop.isDesktopSupported())
@@ -103,7 +138,7 @@ public class HyperlinkActionHandler extends MouseAdapter {
                                 else
                                     JOptionPane.showMessageDialog(frame, href, href, JOptionPane.PLAIN_MESSAGE);
                             } catch (IOException | URISyntaxException ex) {
-                                logger.warn("Cannot open video folder [{}]", href, ex);
+                                logger.warn("Cannot open URI [{}]", href, ex);
                             }
                         }
                     }

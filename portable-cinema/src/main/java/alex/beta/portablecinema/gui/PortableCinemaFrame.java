@@ -10,6 +10,8 @@ import javax.swing.event.UndoableEditListener;
 import javax.swing.text.*;
 import javax.swing.text.html.HTMLDocument;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
@@ -146,6 +148,7 @@ public class PortableCinemaFrame extends JFrame {
         resultPane.setEditable(false);
 //        resultPane.setDoubleBuffered(true);
         resultPane.setDragEnabled(false);
+        resultPane.setToolTipText("");
         resultScrollPane = new JScrollPane(resultPane);
         resultScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         resultScrollPane.getViewport().setScrollMode(JViewport.BACKINGSTORE_SCROLL_MODE);
@@ -248,7 +251,19 @@ public class PortableCinemaFrame extends JFrame {
         resetButton.addActionListener(buttonActionHandler);
 
         //hyperlink listener to handle  clicks on file info
-        resultPane.addMouseListener(hyperlinkActionHandler);
+        resultPane.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                hyperlinkActionHandler.mouseClicked(e);
+            }
+        });
+        //to display tooltip
+        resultPane.addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                hyperlinkActionHandler.mouseMoved(e);
+            }
+        });
     }
 
     public void setStatusText(String text) {

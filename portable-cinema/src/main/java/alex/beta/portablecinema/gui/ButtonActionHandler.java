@@ -49,6 +49,7 @@ public class ButtonActionHandler implements ActionListener {
     private String GALLERY_IMG_TEMPLATE;
     private String FILEINFO_EDIT_IMG_TEMPLATE;
     private String FILEINFO_DETAIL_IMG_TEMPLATE;
+    private String FILEINFO_FOLDER_IMG_TEMPLATE;
     private PortableCinemaFrame frame;
     private File rootFolder;
     private File confFile;
@@ -72,6 +73,7 @@ public class ButtonActionHandler implements ActionListener {
         GALLERY_IMG_TEMPLATE = readTemplate("templates/FileInfo-gallery-img.tpl");
         FILEINFO_EDIT_IMG_TEMPLATE = readTemplate("templates/FileInfo-edit-img.tpl");
         FILEINFO_DETAIL_IMG_TEMPLATE = readTemplate("templates/FileInfo-detail-img.tpl");
+        FILEINFO_FOLDER_IMG_TEMPLATE = readTemplate("templates/FileInfo-folder-img.tpl");
     }
 
     private String readTemplate(String resourcePath) throws IOException {
@@ -439,7 +441,7 @@ public class ButtonActionHandler implements ActionListener {
                     FileInfo fi = fileInfos[i];
                     String fileLinkText = HTML_SPACE;
                     if (!isBlank(fi.getPath())) {
-                        String timestampText = (fi.getLastModifiedOn() == null ? "" : DateFormatUtils.format(fi.getLastModifiedOn(), PortableCinemaConfig.DATE_FORMATTER));
+                        String timestampText = (fi.getLastModifiedOn() == null ? "" : "更新时间：" + DateFormatUtils.format(fi.getLastModifiedOn(), PortableCinemaConfig.DATE_FORMATTER));
                         fileLinkText = String.format(FILEINFO_TABLE_TR_A_TEMPLATE,
                                 fi.getOtid(),
                                 timestampText,
@@ -447,6 +449,8 @@ public class ButtonActionHandler implements ActionListener {
                     }
 
                     String editLinkText = String.format(FILEINFO_EDIT_IMG_TEMPLATE, fi.getOtid());
+
+                    String folderLinkText = String.format(FILEINFO_FOLDER_IMG_TEMPLATE, fi.getOtid());
 
                     String tagText = HTML_SPACE;
                     if (fi.getTags() != null && !fi.getTags().isEmpty()) {
@@ -470,7 +474,7 @@ public class ButtonActionHandler implements ActionListener {
                     String bgcolor = (i % 2 == 0 ? "white" : "silver");
                     tbodyBuffer.append(String.format(FILEINFO_TABLE_TR_TEMPLATE, bgcolor,
                             i + 1,
-                            fileLinkText, galleryLinkText, editLinkText, detailLinkText,
+                            fileLinkText, galleryLinkText, folderLinkText, editLinkText, detailLinkText,
                             fi.getFormattedDuration(),
                             tagText,
                             resolutionText, hdImg)).append(System.lineSeparator());

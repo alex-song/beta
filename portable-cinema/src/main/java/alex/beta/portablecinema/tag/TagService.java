@@ -46,7 +46,7 @@ public class TagService {
      * @param config
      * @return
      */
-    public static TagService getInstance(@NonNull PortableCinemaConfig config) {
+    public static TagService getInstance(PortableCinemaConfig config) {
         return getInstance(config, null);
     }
 
@@ -57,7 +57,7 @@ public class TagService {
      * @param glossary
      * @return
      */
-    public static synchronized TagService getInstance(@NonNull PortableCinemaConfig config, Glossary glossary) {
+    public static synchronized TagService getInstance(PortableCinemaConfig config, Glossary glossary) {
         if (instance == null) {
             instance = new TagService(config);
             instance.initialize(glossary);
@@ -149,7 +149,7 @@ public class TagService {
      * @return
      * @throws IOException
      */
-    public Set<String> detectTags(@NonNull File videoFile, @NonNull File currentFolder) throws IOException {
+    public Set<String> detectTags(File videoFile, File currentFolder) throws IOException {
         Set<String> tags = new HashSet<>();
 
         // 1. By file
