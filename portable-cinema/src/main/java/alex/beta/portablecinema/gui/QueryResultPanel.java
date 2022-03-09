@@ -5,6 +5,7 @@ import alex.beta.portablecinema.command.*;
 import alex.beta.portablecinema.pojo.FileInfo;
 import lombok.NonNull;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ public class QueryResultPanel extends JPanel {
     private static final Font HEADER_FONT = new Font(Font.SERIF, Font.PLAIN, 12);
     private static final Font TABLE_FONT = new Font(Font.SERIF, Font.PLAIN, 12);
     private static final String[] COLUMN_NAMES = new String[]{"序号", "预览", "目录", "编辑", "详细", "片名", "片长", "标签", "分辨率"};
-    private static final String[] COLUMN_HEADER_TOOLTIPS = new String[]{"序号", "浏览封面图", "打开影片所在目录", "编辑影片信息", "查看详细信息", "片名（双击播放）", "影片时长", "标签", "影片分辨率"};
+    private static final String[] COLUMN_HEADER_TOOLTIPS = new String[]{"序号", "查看影片预览图", "打开影片所在目录", "编辑影片信息", "查看影片详细信息", "片名（双击播放）", "影片时长", "标签", "影片分辨率"};
     private static final int[] COLUMN_WIDTHS = new int[]{45, 28, 28, 28, 28, 360, 120, 300, 120};
     private static final boolean[] COLUMN_RESIZABLE = new boolean[]{false, false, false, false, false, true, false, true, false};
     private final PortableCinemaConfig config;
@@ -181,57 +182,59 @@ public class QueryResultPanel extends JPanel {
         fileInfoTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int row = fileInfoTable.getSelectedRow();
-                int col = fileInfoTable.getSelectedColumn();
+                if (SwingUtilities.isLeftMouseButton(e)) {
+                    int row = fileInfoTable.getSelectedRow();
+                    int col = fileInfoTable.getSelectedColumn();
 
-                if (fileInfos == null || row < 0 || row >= fileInfos.length || col >= fileInfoTableModel.getColumnCount())
-                    return;
+                    if (fileInfos == null || row < 0 || row >= fileInfos.length || col >= fileInfoTableModel.getColumnCount())
+                        return;
 
-                FileInfo fileInfo = fileInfos[row];
-                if (SwingUtilities.isLeftMouseButton(e) && col == 1 && fileInfo.hasCover()) {
-                    if (logger.isDebugEnabled())
-                        logger.debug("Open preview dialog of {}", fileInfo);
-                    if (PreviewPanel.showDialog(config, frame, fileInfo)) {
-                        fileInfos[row] = new ViewCommand(fileInfo.getOtid()).execute(config);
-                        fileInfoTableModel.fireTableRowsUpdated(row, row);
-                    }
-                } else if (SwingUtilities.isLeftMouseButton(e) && col == 2) {
-                    if (logger.isDebugEnabled())
-                        logger.debug("Open folder of [{}]", fileInfo);
-                    try {
-                        if (Desktop.isDesktopSupported())
-                            Desktop.getDesktop().open(new File(fileInfo.getPath()));
-                        else
-                            JOptionPane.showMessageDialog(frame, fileInfo.getPath(), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE);
-                    } catch (Exception ex) {
-                        logger.warn("Cannot open folder {}", fileInfo.getPath(), ex);
-                    }
-                } else if (SwingUtilities.isLeftMouseButton(e) && col == 3) {
-                    if (logger.isDebugEnabled())
-                        logger.debug("Open edit dialog of {}", fileInfo);
-                    if (FileInfoEditPanel.showDialog(frame, fileInfo)) {
-                        int result = new EditCommand(fileInfo).execute(config);
+                    FileInfo fileInfo = fileInfos[row];
+                    if (col == 1 && fileInfo.hasCover()) {
                         if (logger.isDebugEnabled())
-                            logger.debug("Update file info [{}], result is [{}]", fileInfo, result);
-                        JOptionPane.showMessageDialog(frame, resultText(result), fileInfo.getName(), JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
-                        // update table UI
-                        fileInfos[row] = new ViewCommand(fileInfo.getOtid()).execute(config);
-                        fileInfoTableModel.fireTableRowsUpdated(row, row);
-                    }
-                } else if (SwingUtilities.isLeftMouseButton(e) && col == 4) {
-                    if (logger.isDebugEnabled())
-                        logger.debug("Open view detail dialog of {}", fileInfo);
-                    JOptionPane.showMessageDialog(frame, fileInfo.toPrettyString(), fileInfo.getName(), JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
-                } else if (SwingUtilities.isLeftMouseButton(e) && col == 5 && e.getClickCount() == 2) {
-                    if (logger.isDebugEnabled())
-                        logger.debug("Open video of [{}]", fileInfo);
-                    try {
-                        if (Desktop.isDesktopSupported())
-                            Desktop.getDesktop().open(new File(fileInfo.getPath(), fileInfo.getName()));
-                        else
-                            JOptionPane.showMessageDialog(frame, fileInfo.getPath(), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE);
-                    } catch (Exception ex) {
-                        logger.warn("Cannot open video {}/{}", fileInfo.getPath(), fileInfo.getName(), ex);
+                            logger.debug("Open preview dialog of {}", fileInfo);
+                        if (PreviewPanel.showDialog(config, frame, fileInfo)) {
+                            fileInfos[row] = new ViewCommand(fileInfo.getOtid()).execute(config);
+                            fileInfoTableModel.fireTableRowsUpdated(row, row);
+                        }
+                    } else if (col == 2) {
+                        if (logger.isDebugEnabled())
+                            logger.debug("Open folder of [{}]", fileInfo);
+                        try {
+                            if (Desktop.isDesktopSupported())
+                                Desktop.getDesktop().open(new File(fileInfo.getPath()));
+                            else
+                                JOptionPane.showMessageDialog(frame, fileInfo.getPath(), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE);
+                        } catch (Exception ex) {
+                            logger.warn("Cannot open folder {}", fileInfo.getPath(), ex);
+                        }
+                    } else if (col == 3) {
+                        if (logger.isDebugEnabled())
+                            logger.debug("Open edit dialog of {}", fileInfo);
+                        if (FileInfoEditPanel.showDialog(frame, fileInfo)) {
+                            int result = new EditCommand(fileInfo).execute(config);
+                            if (logger.isDebugEnabled())
+                                logger.debug("Update file info [{}], result is [{}]", fileInfo, result);
+                            JOptionPane.showMessageDialog(frame, resultText(result), fileInfo.getName(), JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
+                            // update table UI
+                            fileInfos[row] = new ViewCommand(fileInfo.getOtid()).execute(config);
+                            fileInfoTableModel.fireTableRowsUpdated(row, row);
+                        }
+                    } else if (col == 4) {
+                        if (logger.isDebugEnabled())
+                            logger.debug("Open view detail dialog of {}", fileInfo);
+                        JOptionPane.showMessageDialog(frame, fileInfo.toPrettyString(), fileInfo.getName(), JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
+                    } else if (col == 5 && e.getClickCount() == 2) {
+                        if (logger.isDebugEnabled())
+                            logger.debug("Open video of [{}]", fileInfo);
+                        try {
+                            if (Desktop.isDesktopSupported())
+                                Desktop.getDesktop().open(new File(fileInfo.getPath(), fileInfo.getName()));
+                            else
+                                JOptionPane.showMessageDialog(frame, fileInfo.getPath(), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE);
+                        } catch (Exception ex) {
+                            logger.warn("Cannot open video {}/{}", fileInfo.getPath(), fileInfo.getName(), ex);
+                        }
                     }
                 }
             }
@@ -482,7 +485,7 @@ public class QueryResultPanel extends JPanel {
      */
     @SuppressWarnings({"squid:S110"})
     public class QueryResultTable extends RollOverTable {
-        private static final String TOOLTIP_FORMAT = "<html>%s<br/>更新时间：%s</html>";
+        private static final String TOOLTIP_FORMAT = "<html>%s<br/>目录：%s<br/>更新时间：%s</html>";
 
         public QueryResultTable(TableModel model) {
             super(model);
@@ -591,9 +594,9 @@ public class QueryResultPanel extends JPanel {
                         tip = (v == null ? null : v.toString());
                         if (colIndex == 5) {
                             if (fileInfos[rowIndex].getLastModifiedOn() != null) {
-                                tip = String.format(TOOLTIP_FORMAT, tip, DateFormatUtils.format(fileInfos[rowIndex].getLastModifiedOn(), PortableCinemaConfig.DATE_FORMATTER));
+                                tip = String.format(TOOLTIP_FORMAT, StringEscapeUtils.escapeHtml4(tip), StringEscapeUtils.escapeHtml4(fileInfos[rowIndex].getPath()), DateFormatUtils.format(fileInfos[rowIndex].getLastModifiedOn(), PortableCinemaConfig.DATE_FORMATTER));
                             } else {
-                                tip = String.format(TOOLTIP_FORMAT, tip, "N/A");
+                                tip = String.format(TOOLTIP_FORMAT, StringEscapeUtils.escapeHtml4(tip), StringEscapeUtils.escapeHtml4(fileInfos[rowIndex].getPath()), "N/A");
                             }
                         }
                     } catch (Exception ex) {

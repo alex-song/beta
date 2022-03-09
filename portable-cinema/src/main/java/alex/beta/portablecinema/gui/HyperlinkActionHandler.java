@@ -89,16 +89,15 @@ public class HyperlinkActionHandler extends MouseAdapter {
                     if (href != null) {
                         if (config.isEnablePerformanceLog()) {
                             logger.info("It takes {}ms to extract href content", System.currentTimeMillis() - priorTimestamp);
-                            priorTimestamp = System.currentTimeMillis();
+//                            priorTimestamp = System.currentTimeMillis();
                         }
                         logger.debug("hyper link::{}", href);
+                        FileInfo fileInfo;
                         if (href.startsWith("preview://")) {
-                            String otid = href.substring(10);
-                            FileInfo fileInfo = new ViewCommand(otid).execute(config);
+                            fileInfo = new ViewCommand(href.substring(10)).execute(config);
                             PreviewPanel.showDialog(config, frame, fileInfo);
                         } else if (href.startsWith("edit://")) {
-                            String otid = href.substring(7);
-                            FileInfo fileInfo = new ViewCommand(otid).execute(config);
+                            fileInfo = new ViewCommand(href.substring(7)).execute(config);
                             if (FileInfoEditPanel.showDialog(frame, fileInfo)) {
                                 int result = new EditCommand(fileInfo).execute(config);
                                 if (logger.isDebugEnabled())
@@ -106,28 +105,25 @@ public class HyperlinkActionHandler extends MouseAdapter {
                                 JOptionPane.showMessageDialog(frame, resultText(result), fileInfo.getName(), JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
                             }
                         } else if (href.startsWith("fileinfo://")) {
-                            String otid = href.substring(11);
-                            FileInfo fileInfo = new ViewCommand(otid).execute(config);
+                            fileInfo = new ViewCommand(href.substring(11)).execute(config);
                             JOptionPane.showMessageDialog(frame, fileInfo.toPrettyString(), fileInfo.getName(), JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
                         } else if (href.startsWith("folder://")) {
-                            String otid = href.substring(9);
-                            FileInfo fileInfo = new ViewCommand(otid).execute(config);
+                            fileInfo = new ViewCommand(href.substring(9)).execute(config);
                             try {
                                 if (Desktop.isDesktopSupported())
                                     Desktop.getDesktop().open(new File(fileInfo.getPath()));
                                 else
-                                    JOptionPane.showMessageDialog(frame, fileInfo.getPath(), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE);
+                                    JOptionPane.showMessageDialog(frame, fileInfo.getPath(), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE, frame.logo50Icon);
                             } catch (Exception ex) {
                                 logger.warn("Cannot open folder [{}]", fileInfo.getPath(), ex);
                             }
                         } else if (href.startsWith("otid://")) {
-                            String otid = href.substring(7);
-                            FileInfo fileInfo = new ViewCommand(otid).execute(config);
+                            fileInfo = new ViewCommand(href.substring(7)).execute(config);
                             try {
                                 if (Desktop.isDesktopSupported())
                                     Desktop.getDesktop().open(new File(fileInfo.getPath(), fileInfo.getName()));
                                 else
-                                    JOptionPane.showMessageDialog(frame, fileInfo.getPath(), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE);
+                                    JOptionPane.showMessageDialog(frame, fileInfo.getPath(), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE, frame.logo50Icon);
                             } catch (Exception ex) {
                                 logger.warn("Cannot open video [{}/{}]", fileInfo.getPath(), fileInfo.getName(), ex);
                             }
@@ -136,7 +132,7 @@ public class HyperlinkActionHandler extends MouseAdapter {
                                 if (Desktop.isDesktopSupported())
                                     Desktop.getDesktop().browse(new URI(href));
                                 else
-                                    JOptionPane.showMessageDialog(frame, href, href, JOptionPane.PLAIN_MESSAGE);
+                                    JOptionPane.showMessageDialog(frame, href, href, JOptionPane.PLAIN_MESSAGE, frame.logo50Icon);
                             } catch (IOException | URISyntaxException ex) {
                                 logger.warn("Cannot open URI [{}]", href, ex);
                             }
