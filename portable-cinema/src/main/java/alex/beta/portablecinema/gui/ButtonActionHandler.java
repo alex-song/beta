@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static alex.beta.portablecinema.FolderVisitorFactory.Action.*;
 import static alex.beta.portablecinema.FolderVisitorFactory.newFolderVisitor;
 import static alex.beta.portablecinema.gui.PortableCinemaFrame.*;
+import static java.util.stream.Collectors.joining;
 import static org.apache.commons.lang3.StringUtils.*;
 
 @SuppressWarnings({"squid:S116"})
@@ -413,7 +414,10 @@ public class ButtonActionHandler implements ActionListener {
                 output("新标签：" + join(result.getExtraTags(), ", "));
             if (result.getTotalVideos() > 0) {
                 if (!result.getTop10TagsInUse().isEmpty()) {
-                    output("常用标签：" + join(result.getTop10TagsInUse().keySet(), ", "));
+                    output("常用标签：" + result.getTop10TagsInUse().entrySet()
+                            .stream()
+                            .map(e -> e.getKey() + "（" + e.getValue() + "部影片）")
+                            .collect(joining(", ")));
                 } else {
                     output("无常用标签");
                 }
