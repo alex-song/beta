@@ -1,1 +1,1 @@
-<a href="edit://%s"><img src="classpath:images/Edit-icon.png" border="0" width="15" height="15" alt="编辑影片信息"/></a>
+<a href="edit://%s" title="编辑影片信息"><img src="classpath:images/Edit-icon.png" border="0" width="15" height="15"/></a>
