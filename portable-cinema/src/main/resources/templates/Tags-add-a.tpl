@@ -1,0 +1,1 @@
+<a href="tags://add/%s" title="加入关键字库">%s</a>

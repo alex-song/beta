@@ -18,8 +18,9 @@ A:
 14. [Done] Use Swing JTable instead of HTML table, in order to reduce memory usage and improve performance.
 15. [Done] Optimize glossary, json -> xml
 16. [Done] Optimize suggestion from OCR
-17. Support open video player directly
+17. [Done] Support open video player directly
 18. [Done] Add tooltip in HTML table
+19. [Done] Update glossary from UI, according to analytics result
 
 B:
 1. [Cancel] Add images array
@@ -27,6 +28,6 @@ B:
 3. [Cancel] Refactor status bar to display file info
 4. [Done] Improve help doc
 5. [Cancel] Update console UI after file info edit
-6. Double clicks on suggestion list
+6. Double-click to move entry between suggestion lists
 7. [Cancel] Fine tune the text pane to reduce the memory usage and improve performance
 

@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -51,6 +52,7 @@ public class ButtonActionHandler implements ActionListener {
     private String FILEINFO_EDIT_IMG_TEMPLATE;
     private String FILEINFO_DETAIL_IMG_TEMPLATE;
     private String FILEINFO_FOLDER_IMG_TEMPLATE;
+    private String TAGS_ADD_A_TEMPLATE;
     private PortableCinemaFrame frame;
     private File rootFolder;
     private File confFile;
@@ -75,6 +77,7 @@ public class ButtonActionHandler implements ActionListener {
         FILEINFO_EDIT_IMG_TEMPLATE = readTemplate("templates/FileInfo-edit-img.tpl");
         FILEINFO_DETAIL_IMG_TEMPLATE = readTemplate("templates/FileInfo-detail-img.tpl");
         FILEINFO_FOLDER_IMG_TEMPLATE = readTemplate("templates/FileInfo-folder-img.tpl");
+        TAGS_ADD_A_TEMPLATE = readTemplate("templates/Tags-add-a.tpl");
     }
 
     private String readTemplate(String resourcePath) throws IOException {
@@ -410,8 +413,12 @@ public class ButtonActionHandler implements ActionListener {
             logger.debug("analyzeButton::root folder is {}", config.getRootFolderPath());
             AnalyzeCommand.AnalyzeResult result = new AnalyzeCommand().execute(config);
             output("影片数量：" + result.getTotalVideos() + " 部影片");
-            if (result.getExtraTags() != null && !result.getExtraTags().isEmpty())
-                output("新标签：" + join(result.getExtraTags(), ", "));
+            if (result.getExtraTags() != null && !result.getExtraTags().isEmpty()) {
+                output("新标签：" + result.getExtraTags()
+                        .stream()
+                        .map(tag -> String.format(TAGS_ADD_A_TEMPLATE, Base64.getEncoder().encodeToString(tag.getBytes(StandardCharsets.UTF_8)), StringEscapeUtils.escapeHtml4(tag)))
+                        .collect(joining(", ")));
+            }
             if (result.getTotalVideos() > 0) {
                 if (!result.getTop10TagsInUse().isEmpty()) {
                     output("常用标签：" + result.getTop10TagsInUse().entrySet()

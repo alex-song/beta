@@ -28,7 +28,13 @@ public class TagService {
 
     private static TagService instance;
 
-    private PortableCinemaConfig config;
+    private final PortableCinemaConfig config;
+
+    private JAXBContext jaxbContext;
+
+    private File glossaryFile;
+
+    private Glossary tmpG;
 
     /**
      * text:tags
@@ -75,24 +81,23 @@ public class TagService {
     private void initialize(Glossary glossary) {
         glossaryMap = Collections.synchronizedMap(new HashMap<>());
         try {
-            Glossary tmpG;
+            this.glossaryFile = new File(config.getRootFolderPath(), config.getGlossaryFileName());
+            this.jaxbContext = JAXBContext.newInstance(Glossary.class);
+            XMLInputFactory factory = XMLInputFactory.newInstance();
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
             if (glossary == null) {
-                File glossaryFile = new File(config.getRootFolderPath(), config.getGlossaryFileName());
-                JAXBContext jaxbContext = JAXBContext.newInstance(Glossary.class);
-                XMLInputFactory factory = XMLInputFactory.newInstance();
-                factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-                factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
                 if (glossaryFile.exists() && glossaryFile.isFile()) {
                     Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-                    tmpG = (Glossary) jaxbUnmarshaller.unmarshal(glossaryFile);
+                    this.tmpG = (Glossary) jaxbUnmarshaller.unmarshal(glossaryFile);
                 } else {
-                    tmpG = new Glossary();
+                    this.tmpG = new Glossary();
                     Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
                     jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
                     jaxbMarshaller.marshal(tmpG, glossaryFile);
                 }
             } else {
-                tmpG = glossary;
+                this.tmpG = glossary;
             }
 
             if (tmpG != null) {
@@ -275,5 +280,133 @@ public class TagService {
         for (Set<String> tags : this.glossaryMap.values())
             if (tags.contains(tag)) return true;
         return false;
+    }
+
+    /**
+     * Add actors into glossary
+     *
+     * @param actors
+     * @return true, if it's new. Otherwise, false.
+     */
+    public boolean addActors(String... actors) {
+        if (actors == null || actors.length == 0) return false;
+        for (String actor : actors) {
+            if (hasTag(actor)) return false;
+            if (isBlank(actor)) continue;
+            Term t = new Term(actor);
+            this.tmpG.getActor().add(t);
+        }
+        try {
+            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            jaxbMarshaller.marshal(tmpG, glossaryFile);
+            // update glossary map
+            for (String actor : actors) {
+                if (isBlank(actor)) continue;
+                Set<String> tags = new HashSet<>();
+                tags.add(actor);
+                this.glossaryMap.put(actor, tags);
+            }
+            return true;
+        } catch (Exception ex) {
+            logger.error("Failed to update glossary file, with new actors", ex);
+            return false;
+        }
+    }
+
+    /**
+     * Add categories into glossary
+     *
+     * @param categories
+     * @return true, if it's new. Otherwise, false.
+     */
+    public boolean addCategories(String... categories) {
+        if (categories == null || categories.length == 0) return false;
+        for (String category : categories) {
+            if (hasTag(category)) return false;
+            if (isBlank(category)) continue;
+            Term t = new Term(category);
+            this.tmpG.getCategory().add(t);
+        }
+        try {
+            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            jaxbMarshaller.marshal(tmpG, glossaryFile);
+            // update glossary map
+            for (String category : categories) {
+                if (isBlank(category)) continue;
+                Set<String> tags = new HashSet<>();
+                tags.add(category);
+                this.glossaryMap.put(category, tags);
+            }
+            return true;
+        } catch (Exception ex) {
+            logger.error("Failed to update glossary file, with new categories", ex);
+            return false;
+        }
+    }
+
+    /**
+     * Add producers into glossary
+     *
+     * @param producers
+     * @return true, if it's new. Otherwise, false.
+     */
+    public boolean addProducers(String... producers) {
+        if (producers == null || producers.length == 0) return false;
+        for (String producer : producers) {
+            if (hasTag(producer)) return false;
+            if (isBlank(producer)) continue;
+            Term t = new Term(producer);
+            this.tmpG.getProducer().add(t);
+        }
+        try {
+            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            jaxbMarshaller.marshal(tmpG, glossaryFile);
+            // update glossary map
+            for (String producer : producers) {
+                if (isBlank(producer)) continue;
+                Set<String> tags = new HashSet<>();
+                tags.add(producer);
+                this.glossaryMap.put(producer, tags);
+            }
+            return true;
+        } catch (Exception ex) {
+            logger.error("Failed to update glossary file, with new producers", ex);
+            return false;
+        }
+    }
+
+    /**
+     * Add others into glossary
+     *
+     * @param others
+     * @return true, if it's new. Otherwise, false.
+     */
+    public boolean addOthers(String... others) {
+        if (others == null || others.length == 0) return false;
+        for (String other : others) {
+            if (hasTag(other)) return false;
+            if (isBlank(other)) continue;
+            Term t = new Term(other);
+            this.tmpG.getOther().add(t);
+        }
+        try {
+            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            jaxbMarshaller.marshal(tmpG, glossaryFile);
+            // update glossary map
+            for (String other : others) {
+                if (isBlank(other)) continue;
+                Set<String> tags = new HashSet<>();
+                tags.add(other);
+                this.glossaryMap.put(other, tags);
+            }
+            return true;
+        } catch (Exception ex) {
+            logger.error("Failed to update glossary file, with new others", ex);
+            return false;
+        }
     }
 }

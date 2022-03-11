@@ -4,6 +4,7 @@ import alex.beta.portablecinema.PortableCinemaConfig;
 import alex.beta.portablecinema.command.EditCommand;
 import alex.beta.portablecinema.command.ViewCommand;
 import alex.beta.portablecinema.pojo.FileInfo;
+import alex.beta.portablecinema.tag.TagService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 import static alex.beta.portablecinema.command.EditCommand.resultText;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
@@ -93,7 +96,32 @@ public class HyperlinkActionHandler extends MouseAdapter {
                         }
                         logger.debug("hyper link::{}", href);
                         FileInfo fileInfo;
-                        if (href.startsWith("preview://")) {
+                        if (href.startsWith("tags://add/")) {
+                            String tag = new String(Base64.getDecoder().decode(href.substring(11)), StandardCharsets.UTF_8);
+                            if (logger.isDebugEnabled()) {
+                                logger.debug("Add {} into glossary", tag);
+                            }
+                            Object[] options = new Object[]{"取消", "演员", "分类", "出品人", "其他"};
+                            boolean result;
+                            switch (JOptionPane.showOptionDialog(frame, "添加 " + tag + " 到？", "更新关键字库",
+                                    JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, frame.logo50Icon, options, options[0])) {
+                                case 1:
+                                    result = TagService.getInstance(config).addActors(tag);
+                                    break;
+                                case 2:
+                                    result = TagService.getInstance(config).addCategories(tag);
+                                    break;
+                                case 3:
+                                    result = TagService.getInstance(config).addProducers(tag);
+                                    break;
+                                case 4:
+                                    result = TagService.getInstance(config).addOthers(tag);
+                                    break;
+                                default:
+                                    return;
+                            }
+                            JOptionPane.showMessageDialog(frame, tag + (result ? "添加成功" : "已存在，或添加失败"), "更新关键字库", JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
+                        } else if (href.startsWith("preview://")) {
                             fileInfo = new ViewCommand(href.substring(10)).execute(config);
                             PreviewPanel.showDialog(config, frame, fileInfo);
                         } else if (href.startsWith("edit://")) {
