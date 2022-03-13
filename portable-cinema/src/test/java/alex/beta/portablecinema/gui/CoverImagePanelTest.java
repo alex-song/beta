@@ -6,12 +6,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 
-public class PreviewPanelTest {
+public class CoverImagePanelTest {
     @Before
     public void setUp() {
 
@@ -25,12 +23,12 @@ public class PreviewPanelTest {
     @Test
     public void testGetBMPDimension() throws Exception {
         File bmpFile = new File(Resources.getResource("panda.bmp").toURI());
-        Dimension dBmp = PreviewPanel.getImageDimension(bmpFile);
+        Dimension dBmp = CoverImagePanel.getImageDimension(bmpFile);
         Assert.assertEquals(512, dBmp.getHeight(), 0);
         Assert.assertEquals(512, dBmp.getWidth(), 0);
 
         File gifFile = new File(Resources.getResource("dolphin.gif").toURI());
-        Dimension dGif = PreviewPanel.getImageDimension(gifFile);
+        Dimension dGif = CoverImagePanel.getImageDimension(gifFile);
         Assert.assertEquals(168, dGif.getHeight(), 0);
         Assert.assertEquals(295, dGif.getWidth(), 0);
     }

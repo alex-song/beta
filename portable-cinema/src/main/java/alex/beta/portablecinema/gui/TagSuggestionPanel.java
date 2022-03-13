@@ -38,7 +38,7 @@ public class TagSuggestionPanel extends JPanel {
     private JButton addButton;
     private JButton deleteButton;
 
-    public TagSuggestionPanel(PortableCinemaConfig config, BaiduOcr ocrClient, FileInfo fileInfo, int width, int height, String currentImg) {
+    public TagSuggestionPanel(PortableCinemaConfig config, BaiduOcr ocrClient, FileInfo fileInfo, int width, int height, String imageName, byte[] imageData) {
         super(new BorderLayout());
         this.setSize(width, height);
         this.setPreferredSize(new Dimension(width, height));
@@ -52,14 +52,14 @@ public class TagSuggestionPanel extends JPanel {
             fileInfo.getTags().forEach(tagsModel::addElement);
         }
 
-        if (currentImg != null) {
-            wordsArea.append(currentImg + System.lineSeparator());
+        if (imageName != null) {
+            wordsArea.append(imageName + System.lineSeparator());
             // call OCR
             new SwingWorker<Void, String>() {
                 @Override
                 protected Void doInBackground() {
                     try {
-                        java.util.List<String> ows = ocrClient.analyse(new File(currentImg));
+                        java.util.List<String> ows = (imageData == null ? ocrClient.analyse(new File(imageName)) : ocrClient.analyse(imageData));
                         if (ows == null || ows.isEmpty()) {
                             publish(NO_WORD_MSG);
                         } else {
@@ -68,7 +68,7 @@ public class TagSuggestionPanel extends JPanel {
                             publish(tws.toArray(new String[]{}));
                         }
                     } catch (OcrException ex) {
-                        logger.error("Failed to read/analyse file {}", currentImg, ex);
+                        logger.error("Failed to read/analyse file {}", imageName, ex);
                         if (isNotBlank(ex.getServerErrorMsg())) {
                             logger.error(ex.getServerErrorMsg());
                             publish(ERROR_MSG, ex.getMessage(), ex.getServerErrorMsg());
@@ -119,7 +119,8 @@ public class TagSuggestionPanel extends JPanel {
      * @param config
      * @param previewPanel
      * @param ocrClient
-     * @param currentImg
+     * @param imageName
+     * @param imageData
      * @return Options:
      * -1 - close dialog by clicking 'X' on top
      * 0 - tags are changed
@@ -129,9 +130,9 @@ public class TagSuggestionPanel extends JPanel {
      * 10 - tags are not changed
      * 11 - tags are not changed, and open edit dialog
      */
-    public static int showDialog(PortableCinemaConfig config, PreviewPanel previewPanel, BaiduOcr ocrClient, String currentImg) {
+    public static int showDialog(PortableCinemaConfig config, PreviewPanel previewPanel, BaiduOcr ocrClient, String imageName, byte[] imageData) {
         FileInfo fileInfo = previewPanel.getFileInfo();
-        TagSuggestionPanel tsp = new TagSuggestionPanel(config, ocrClient, fileInfo, 600, 300, currentImg);
+        TagSuggestionPanel tsp = new TagSuggestionPanel(config, ocrClient, fileInfo, 600, 300, imageName, imageData);
         Object[] choices = {"确定", "确定并编辑", "编辑", "取消"};
         Object defaultChoice = choices[0];
 

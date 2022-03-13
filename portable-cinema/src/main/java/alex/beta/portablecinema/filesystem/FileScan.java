@@ -4,13 +4,10 @@ import alex.beta.portablecinema.FolderVisitorFactory;
 import alex.beta.portablecinema.PortableCinemaConfig;
 import alex.beta.portablecinema.pojo.FileDB;
 import alex.beta.portablecinema.pojo.FileInfo;
-import alex.beta.portablecinema.pojo.FileInfo.Resolution;
 import alex.beta.portablecinema.tag.TagService;
+import alex.beta.portablecinema.video.Player;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.xuggle.xuggler.ICodec;
-import com.xuggle.xuggler.IContainer;
-import com.xuggle.xuggler.IStreamCoder;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
@@ -18,7 +15,6 @@ import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.util.*;
@@ -53,7 +49,10 @@ public class FileScan extends AbstractFolderVisitor {
             fileInfo.setCover1(covers[0]);
             fileInfo.setCover2(covers[1]);
             fileInfo.setLastModifiedOn(new Date(file.lastModified()));
-            decodeVideoFileInfo(fileInfo, file);
+            try (Player player = Player.getInstance(config, fileInfo).read()) {
+                fileInfo.setDuration(player.getDuration(true));
+                fileInfo.setResolution(player.getResolution(true));
+            }
             db.addFileInfos(fileInfo);
         }
     }
@@ -162,16 +161,18 @@ public class FileScan extends AbstractFolderVisitor {
         File[] covers = currentFolder.listFiles(file -> isImageFile(config, file) && !doSkip(config, file) &&
                 (file.getName().toLowerCase().startsWith("cover") ||
                         file.getName().toLowerCase().startsWith("back") ||
-                        file.getName().toLowerCase().indexOf("封面") >= 0 ||
-                        file.getName().toLowerCase().indexOf("封底") >= 0 ||
-                        file.getName().toLowerCase().indexOf("连拍") >= 0));
-        if (covers.length >= 2) {
-            coversPath[0] = covers[0].getName();
-            coversPath[1] = covers[1].getName();
-            return coversPath;
-        } else if (covers.length == 1) {
-            coversPath[0] = covers[0].getName();
-            return coversPath;
+                        file.getName().toLowerCase().contains("封面") ||
+                        file.getName().toLowerCase().contains("封底") ||
+                        file.getName().toLowerCase().contains("连拍")));
+        if (covers != null) {
+            if (covers.length >= 2) {
+                coversPath[0] = covers[0].getName();
+                coversPath[1] = covers[1].getName();
+                return coversPath;
+            } else if (covers.length == 1) {
+                coversPath[0] = covers[0].getName();
+                return coversPath;
+            }
         }
 
         //Rule 2
@@ -216,7 +217,7 @@ public class FileScan extends AbstractFolderVisitor {
     private List<File> sortBySimilarity(File[] files, String fileName) {
         JaroWinklerSimilarity jwSimilarity = new JaroWinklerSimilarity();
         List<File> tmp = files == null ? Collections.emptyList() : Arrays.asList(files);
-        Collections.sort(tmp, (o1, o2) -> {
+        tmp.sort((o1, o2) -> {
             double similarity = jwSimilarity.apply(o2.getName(), fileName) - jwSimilarity.apply(o1.getName(), fileName);
             if (similarity > 0) {
                 return 1;
@@ -235,35 +236,13 @@ public class FileScan extends AbstractFolderVisitor {
      * @return
      */
     private boolean containsOnlyImages(final PortableCinemaConfig config, @NonNull File folder) {
-        for (File file : folder.listFiles()) {
-            if (!doSkip(config, file) && !isImageFile(config, file) && !file.getName().equalsIgnoreCase(config.getDbFileName())) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * @param info
-     * @param file
-     * @throws IOException
-     */
-    private void decodeVideoFileInfo(@NonNull FileInfo info, @NonNull File file) throws IOException {
-        IContainer container = IContainer.make();
-        try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-            if (container.open(raf, IContainer.Type.READ, null) >= 0) {
-                info.setDuration(container.getDuration() / 1000 / 1000);
-                int numOfStreams = container.getNumStreams();
-                for (int i = 0; i < numOfStreams; i++) {
-                    IStreamCoder coder = container.getStream(i).getStreamCoder();
-                    if (coder.getCodecType() == ICodec.Type.CODEC_TYPE_VIDEO) {
-                        info.setResolution(new Resolution(coder.getWidth(), coder.getHeight()));
-                        break;
-                    }
+        File[] files = folder.listFiles();
+        if (files != null)
+            for (File file : files) {
+                if (!doSkip(config, file) && !isImageFile(config, file) && !file.getName().equalsIgnoreCase(config.getDbFileName())) {
+                    return false;
                 }
             }
-        } finally {
-            container.close();
-        }
+        return true;
     }
 }

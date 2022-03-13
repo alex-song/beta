@@ -475,10 +475,8 @@ public class ButtonActionHandler implements ActionListener {
                             hdImg = String.format(RESOLUTION_HD_IMG_TEMPLATE, fi.getResolution().toString());
                         }
                     }
-                    String galleryLinkText = HTML_SPACE;
-                    if (fi.hasCover()) {
-                        galleryLinkText = String.format(GALLERY_IMG_TEMPLATE, fi.getOtid());
-                    }
+
+                    String galleryLinkText = String.format(GALLERY_IMG_TEMPLATE, fi.getOtid());
 
                     String detailLinkText = String.format(FILEINFO_DETAIL_IMG_TEMPLATE, fi.getOtid());
 

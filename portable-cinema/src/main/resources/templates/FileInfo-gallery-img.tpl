@@ -1,1 +1,1 @@
-<a href="preview://%s" title="查看影片预览图"><img src="classpath:images/Preview-icon.png" border="0" width="15" height="15"/></a>
+<a href="preview://%s" title="影片预览"><img src="classpath:images/Preview-icon.png" border="0" width="15" height="15"/></a>

@@ -35,7 +35,7 @@ public class QueryResultPanel extends JPanel {
     private static final Font HEADER_FONT = new Font(Font.SERIF, Font.PLAIN, 12);
     private static final Font TABLE_FONT = new Font(Font.SERIF, Font.PLAIN, 12);
     private static final String[] COLUMN_NAMES = new String[]{"序号", "预览", "目录", "编辑", "详细", "片名", "片长", "标签", "分辨率"};
-    private static final String[] COLUMN_HEADER_TOOLTIPS = new String[]{"序号", "查看影片预览图", "打开影片所在目录", "编辑影片信息", "查看影片详细信息", "片名（双击播放）", "影片时长", "标签", "影片分辨率"};
+    private static final String[] COLUMN_HEADER_TOOLTIPS = new String[]{"序号", "影片预览", "打开影片所在目录", "编辑影片信息", "查看影片详细信息", "片名（双击播放）", "影片时长", "标签", "影片分辨率"};
     private static final int[] COLUMN_WIDTHS = new int[]{45, 28, 28, 28, 28, 360, 120, 300, 120};
     private static final boolean[] COLUMN_RESIZABLE = new boolean[]{false, false, false, false, false, true, false, true, false};
     private final PortableCinemaConfig config;
@@ -190,7 +190,7 @@ public class QueryResultPanel extends JPanel {
                         return;
 
                     FileInfo fileInfo = fileInfos[row];
-                    if (col == 1 && fileInfo.hasCover()) {
+                    if (col == 1) {
                         if (logger.isDebugEnabled())
                             logger.debug("Open preview dialog of {}", fileInfo);
                         if (PreviewPanel.showDialog(config, frame, fileInfo)) {
@@ -249,10 +249,7 @@ public class QueryResultPanel extends JPanel {
                 int row = fileInfoTable.rowAtPoint(e.getPoint());
                 int column = fileInfoTable.columnAtPoint(e.getPoint());
                 if (fileInfos == null || row >= fileInfos.length || row < 0) return;
-                FileInfo fileInfo = fileInfos[row];
-                if (column == 1 && fileInfo.hasCover()) {
-                    fileInfoTable.setCursor(Cursor.getPredefinedCursor(HAND_CURSOR));
-                } else if (column == 2 || column == 3 || column == 4) {
+                if (column == 1 || column == 2 || column == 3 || column == 4) {
                     fileInfoTable.setCursor(Cursor.getPredefinedCursor(HAND_CURSOR));
                 } else {
                     fileInfoTable.setCursor(Cursor.getPredefinedCursor(DEFAULT_CURSOR));
@@ -280,13 +277,11 @@ public class QueryResultPanel extends JPanel {
                         && fileInfoTable.getSelectedRow() >= 0 && fileInfoTable.getSelectedRow() < fileInfos.length) {
                     int row = fileInfoTable.getSelectedRow();
                     FileInfo fileInfo = fileInfos[row];
-                    if (fileInfo.hasCover()) {
-                        if (logger.isDebugEnabled())
-                            logger.debug("Open preview dialog of {}", fileInfo);
-                        if (PreviewPanel.showDialog(config, frame, fileInfo)) {
-                            fileInfos[row] = new ViewCommand(fileInfo.getOtid()).execute(config);
-                            fileInfoTableModel.fireTableRowsUpdated(row, row);
-                        }
+                    if (logger.isDebugEnabled())
+                        logger.debug("Open preview dialog of {}", fileInfo);
+                    if (PreviewPanel.showDialog(config, frame, fileInfo)) {
+                        fileInfos[row] = new ViewCommand(fileInfo.getOtid()).execute(config);
+                        fileInfoTableModel.fireTableRowsUpdated(row, row);
                     }
                 } else
                     super.keyPressed(e);
@@ -448,10 +443,7 @@ public class QueryResultPanel extends JPanel {
                 case 0:
                     return row + 1;
                 case 1:
-                    if (fileInfo.hasCover())
-                        return previewIcon;
-                    else
-                        return null;
+                    return previewIcon;
                 case 2:
                     return folderIcon;
                 case 3:
