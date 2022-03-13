@@ -46,4 +46,19 @@ public class CoverImagePanelTest {
 //        //ImageIcon icon = new ImageIcon(ImageIO.read(Resources.getResource("panda.bmp")));
 //        JOptionPane.showMessageDialog(null, new JLabel(icon));
 //    }
+//
+//
+//    public static void main(String[] args) {
+//        JPanel p = new JPanel(new BorderLayout());
+//        ImageIcon icon = new StretchIcon(Toolkit.getDefaultToolkit().createImage(Resources.getResource("dolphin.gif")));
+//        JLabel l = new JLabel();
+//        l.setIcon(icon);
+//        p.add( l, BorderLayout.CENTER);
+//        JFrame f = new JFrame();
+//        f.getContentPane().add(p);
+//        f.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
+//        f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+//        f.setLocationRelativeTo(null);
+//        f.setVisible(true);
+//    }
 }

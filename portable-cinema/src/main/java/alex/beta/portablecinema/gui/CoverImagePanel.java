@@ -15,6 +15,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
@@ -214,12 +215,12 @@ public class CoverImagePanel extends JPanel {
                 } else if (respectWidth) {
                     return new ImageIcon[]{
                             new ImageIcon(img),
-                            new ImageIcon(img.getScaledInstance((int) screenWidth, -1, hints)),
+                            createStretchIcon(img, (int) screenWidth, -1, hints),
                             new ImageIcon(img.getScaledInstance(THUMBNAIL_IMAGE_SIZE, THUMBNAIL_IMAGE_SIZE, hints))};
                 } else {
                     return new ImageIcon[]{
                             new ImageIcon(img),
-                            new ImageIcon(img.getScaledInstance(-1, (int) screenHeight, hints)),
+                            createStretchIcon(img, -1, (int) screenHeight, hints),
                             new ImageIcon(img.getScaledInstance(THUMBNAIL_IMAGE_SIZE, THUMBNAIL_IMAGE_SIZE, hints))};
                 }
             } else {
@@ -229,6 +230,14 @@ public class CoverImagePanel extends JPanel {
         } catch (Exception ex) {
             logger.info("Cover image [{}] does not exist, or it's not a valid image", path);
             return new ImageIcon[]{};
+        }
+    }
+
+    private ImageIcon createStretchIcon(Image image, int width, int height, int hints) {
+        if (image instanceof BufferedImage) {
+            return new ImageIcon(image.getScaledInstance(width, height, hints));
+        } else {
+            return new StretchIcon(image, true);
         }
     }
 

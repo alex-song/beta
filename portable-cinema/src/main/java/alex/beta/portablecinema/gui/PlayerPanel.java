@@ -24,8 +24,6 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import static java.awt.Image.SCALE_SMOOTH;
-
 public class PlayerPanel extends JPanel {
 
     private static final Logger logger = LoggerFactory.getLogger(PlayerPanel.class);
@@ -277,20 +275,7 @@ public class PlayerPanel extends JPanel {
                 }
                 // publish new
                 screenshot = chunks.get(chunks.size() - 1);
-                screenshotLabel.setIcon(new ImageIcon(fitScreen(screenshot)));
-            }
-        }
-
-        private Image fitScreen(BufferedImage image) {
-            int screenWidth = getWidth() - 20;
-            int screenHeight = getHeight() - 60;
-            boolean respectWidth = ((1.0 * image.getWidth() / image.getHeight()) > (1.0 * screenWidth / screenHeight));
-            if (image.getWidth() <= screenWidth && image.getHeight() <= screenHeight) {
-                return image;
-            } else if (respectWidth) {
-                return image.getScaledInstance(screenWidth, -1, SCALE_SMOOTH);
-            } else {
-                return image.getScaledInstance(-1, screenHeight, SCALE_SMOOTH);
+                screenshotLabel.setIcon(new StretchIcon(screenshot, true));
             }
         }
     }
