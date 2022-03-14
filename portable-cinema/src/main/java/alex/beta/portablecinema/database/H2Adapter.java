@@ -236,7 +236,7 @@ public class H2Adapter extends DatabaseAdapter {
                 buffer.append(" WHERE");
                 isFirst = false;
             } else {
-                buffer.append(" AND");
+                buffer.append(" OR");
             }
             buffer.append(" ARRAY_CONTAINS (TAGS, ?)");
         }
