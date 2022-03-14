@@ -21,6 +21,7 @@ A:
 17. [Done] Support open video player directly
 18. [Done] Add tooltip in HTML table
 19. [Done] Update glossary from UI, according to analytics result
+20. [Done] Support screenshot and OCR from video
 
 B:
 1. [Cancel] Add images array

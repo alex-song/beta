@@ -1,0 +1,1 @@
+<a href="preview://%s" title="影片预览"><img src="classpath:images/Video-Player-icon.png" border="0" width="15" height="15"/></a>

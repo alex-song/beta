@@ -48,6 +48,7 @@ public class QueryResultPanel extends JPanel {
     private ImageIcon detailIcon;
     private ImageIcon hdIcon;
     private ImageIcon folderIcon;
+    private ImageIcon playerIcon;
     private JComboBox<String> queryOptions;
     private JTextField userInputField;
     private JButton refreshBtn;
@@ -101,6 +102,7 @@ public class QueryResultPanel extends JPanel {
             detailIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Detail-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
             hdIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/HD-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
             folderIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Folder-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
+            playerIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Video-Player-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
         } catch (Exception ex) {
             logger.error("Failed to load icons", ex);
             return;
@@ -443,7 +445,11 @@ public class QueryResultPanel extends JPanel {
                 case 0:
                     return row + 1;
                 case 1:
-                    return previewIcon;
+                    if (fileInfo.hasCover()) {
+                        return previewIcon;
+                    } else {
+                        return playerIcon;
+                    }
                 case 2:
                     return folderIcon;
                 case 3:
@@ -574,27 +580,25 @@ public class QueryResultPanel extends JPanel {
         }
 
         @Override
-        public String getToolTipText(MouseEvent e) {
+        public String getToolTipText(@NonNull MouseEvent e) {
             String tip = null;
-            if (e != null) {
-                Point p = e.getPoint();
-                int rowIndex = rowAtPoint(p);
-                int colIndex = columnAtPoint(p);
-                if (colIndex != 1 && colIndex != 2 && colIndex != 3 && colIndex != 4)
-                    try {
-                        Object v = getValueAt(rowIndex, colIndex);
-                        tip = (v == null ? null : v.toString());
-                        if (colIndex == 5) {
-                            if (fileInfos[rowIndex].getLastModifiedOn() != null) {
-                                tip = String.format(TOOLTIP_FORMAT, StringEscapeUtils.escapeHtml4(tip), StringEscapeUtils.escapeHtml4(fileInfos[rowIndex].getPath()), DateFormatUtils.format(fileInfos[rowIndex].getLastModifiedOn(), PortableCinemaConfig.DATE_FORMATTER));
-                            } else {
-                                tip = String.format(TOOLTIP_FORMAT, StringEscapeUtils.escapeHtml4(tip), StringEscapeUtils.escapeHtml4(fileInfos[rowIndex].getPath()), "N/A");
-                            }
+            Point p = e.getPoint();
+            int rowIndex = rowAtPoint(p);
+            int colIndex = columnAtPoint(p);
+            if (colIndex != 1 && colIndex != 2 && colIndex != 3 && colIndex != 4)
+                try {
+                    Object v = getValueAt(rowIndex, colIndex);
+                    tip = (v == null ? null : v.toString());
+                    if (colIndex == 5) {
+                        if (fileInfos[rowIndex].getLastModifiedOn() != null) {
+                            tip = String.format(TOOLTIP_FORMAT, StringEscapeUtils.escapeHtml4(tip), StringEscapeUtils.escapeHtml4(fileInfos[rowIndex].getPath()), DateFormatUtils.format(fileInfos[rowIndex].getLastModifiedOn(), PortableCinemaConfig.DATE_FORMATTER));
+                        } else {
+                            tip = String.format(TOOLTIP_FORMAT, StringEscapeUtils.escapeHtml4(tip), StringEscapeUtils.escapeHtml4(fileInfos[rowIndex].getPath()), "N/A");
                         }
-                    } catch (Exception ex) {
-                        //catch null pointer exception if mouse is over an empty line
                     }
-            }
+                } catch (Exception ex) {
+                    //catch null pointer exception if mouse is over an empty line
+                }
             return tip;
         }
     }

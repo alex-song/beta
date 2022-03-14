@@ -49,6 +49,7 @@ public class ButtonActionHandler implements ActionListener {
     private String FILEINFO_TABLE_TR_A_TEMPLATE;
     private String RESOLUTION_HD_IMG_TEMPLATE;
     private String GALLERY_IMG_TEMPLATE;
+    private String PLAYER_IMG_TEMPLATE;
     private String FILEINFO_EDIT_IMG_TEMPLATE;
     private String FILEINFO_DETAIL_IMG_TEMPLATE;
     private String FILEINFO_FOLDER_IMG_TEMPLATE;
@@ -74,6 +75,7 @@ public class ButtonActionHandler implements ActionListener {
         FILEINFO_TABLE_TR_A_TEMPLATE = readTemplate("templates/FileInfo-table-tr-a.tpl");
         RESOLUTION_HD_IMG_TEMPLATE = readTemplate("templates/FileInfo-HD-img.tpl");
         GALLERY_IMG_TEMPLATE = readTemplate("templates/FileInfo-gallery-img.tpl");
+        PLAYER_IMG_TEMPLATE = readTemplate("templates/FileInfo-player-img.tpl");
         FILEINFO_EDIT_IMG_TEMPLATE = readTemplate("templates/FileInfo-edit-img.tpl");
         FILEINFO_DETAIL_IMG_TEMPLATE = readTemplate("templates/FileInfo-detail-img.tpl");
         FILEINFO_FOLDER_IMG_TEMPLATE = readTemplate("templates/FileInfo-folder-img.tpl");
@@ -476,7 +478,12 @@ public class ButtonActionHandler implements ActionListener {
                         }
                     }
 
-                    String galleryLinkText = String.format(GALLERY_IMG_TEMPLATE, fi.getOtid());
+                    String galleryLinkText;
+                    if (fi.hasCover()) {
+                        galleryLinkText = String.format(GALLERY_IMG_TEMPLATE, fi.getOtid());
+                    } else {
+                        galleryLinkText = String.format(PLAYER_IMG_TEMPLATE, fi.getOtid());
+                    }
 
                     String detailLinkText = String.format(FILEINFO_DETAIL_IMG_TEMPLATE, fi.getOtid());
 
