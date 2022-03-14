@@ -11,8 +11,12 @@ import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Setter
 @Getter
@@ -29,7 +33,16 @@ public class TagCommand extends Command<FileInfo[]> {
     @Override
     public FileInfo[] execute(PortableCinemaConfig config) {
         try {
-            return DatabaseAdapter.getAdapter(DatabaseAdapter.Type.H2_IN_MEMORY).findByTags(tags);
+            Set<String> inputs = new HashSet<>();
+            if (tags != null) Collections.addAll(inputs, tags);
+            Set<String> allTags = DatabaseAdapter.getAdapter(DatabaseAdapter.Type.H2_IN_MEMORY).findAllTags();
+            Set<String> filteredTags = allTags.stream()
+                    .filter(t -> {
+                        for (String s : inputs)
+                            if (isNotBlank(s) && t.contains(s)) return true;
+                        return false;
+                    }).collect(Collectors.toSet());
+            return DatabaseAdapter.getAdapter(DatabaseAdapter.Type.H2_IN_MEMORY).findByTags(filteredTags.toArray(new String[]{}));
         } catch (DatabaseException ex) {
             logger.error("Failed to query file info by tags [{}]", StringUtils.join(tags, ", "), ex);
             return new FileInfo[]{};
