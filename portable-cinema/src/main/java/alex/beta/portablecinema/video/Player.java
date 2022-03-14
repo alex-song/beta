@@ -44,6 +44,8 @@ public class Player implements AutoCloseable {
                     coder.close();
                 }
             }
+        } else {
+            logger.warn("Fail to open video file [{}/{}]", fileInfo.getPath(), fileInfo.getName());
         }
         return this;
     }
@@ -62,7 +64,11 @@ public class Player implements AutoCloseable {
      * @return Resolution of given video file
      */
     public FileInfo.Resolution getResolution(boolean force) {
-        if (fileInfo.getResolution() == null || force) {
+        if (videoCoder == null) {
+            if (force) {
+                fileInfo.setResolution(new FileInfo.Resolution());
+            }
+        } else if (fileInfo.getResolution() == null || force) {
             fileInfo.setResolution(new FileInfo.Resolution(videoCoder.getWidth(), videoCoder.getHeight()));
         }
         return fileInfo.getResolution();
@@ -82,7 +88,11 @@ public class Player implements AutoCloseable {
      * @return Duration (in seconds) of given video file
      */
     public long getDuration(boolean force) {
-        if (fileInfo.getDuration() <= 0 || force) {
+        if (videoCoder == null) {
+            if (force) {
+                fileInfo.setDuration(0);
+            }
+        } else if (fileInfo.getDuration() <= 0 || force) {
             fileInfo.setDuration(container.getDuration() / 1000 / 1000);
         }
         return fileInfo.getDuration();
@@ -95,7 +105,7 @@ public class Player implements AutoCloseable {
      */
     @SuppressWarnings("deprecation")
     public synchronized BufferedImage captureScreen(int seconds) {
-        if (videoCoder.open(null, null) < 0) {
+        if (videoCoder == null || videoCoder.open(null, null) < 0) {
             logger.warn("Cannot open video decoder for container: {}/{}", fileInfo.getPath(), fileInfo.getName());
             return null;
         }
@@ -116,7 +126,7 @@ public class Player implements AutoCloseable {
             }
             IPacket packet = IPacket.make();
             IRational timeBase = container.getStream(videoStreamId).getTimeBase();
-            long timeStampOffset = (timeBase.getDenominator() / timeBase.getNumerator()) * seconds;
+            long timeStampOffset = ((long)timeBase.getDenominator() / timeBase.getNumerator()) * seconds;
             logger.debug("TimeStampOffset {}", timeStampOffset);
             long target = container.getStartTime() + timeStampOffset;
             container.seekKeyFrame(videoStreamId, target, 0);
@@ -178,5 +188,15 @@ public class Player implements AutoCloseable {
         } catch (Exception ex) {
             logger.error("Error when closing player", ex);
         }
+    }
+
+    public static void main(String[] args) throws Exception {
+        FileInfo fi = new FileInfo();
+        fi.setName("SKYHD-016.mp4");
+        fi.setPath("/Users/alexsong/Development/my_workspace/beta/portable-cinema/sample/Sample 1/Sample 13");
+        Player p = Player.getInstance(new PortableCinemaConfig(), fi).read();
+        p.captureScreen(0);
+        p.captureScreen(60 * 30);
+        p.captureScreen(60 * 60);
     }
 }

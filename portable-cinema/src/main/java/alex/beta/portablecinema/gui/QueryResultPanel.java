@@ -192,7 +192,7 @@ public class QueryResultPanel extends JPanel {
                         return;
 
                     FileInfo fileInfo = fileInfos[row];
-                    if (col == 1) {
+                    if (col == 1 && (fileInfo.hasCover() || fileInfo.getDuration() > 0)) {
                         if (logger.isDebugEnabled())
                             logger.debug("Open preview dialog of {}", fileInfo);
                         if (PreviewPanel.showDialog(config, frame, fileInfo)) {
@@ -251,7 +251,14 @@ public class QueryResultPanel extends JPanel {
                 int row = fileInfoTable.rowAtPoint(e.getPoint());
                 int column = fileInfoTable.columnAtPoint(e.getPoint());
                 if (fileInfos == null || row >= fileInfos.length || row < 0) return;
-                if (column == 1 || column == 2 || column == 3 || column == 4) {
+                FileInfo fileInfo = fileInfos[row];
+                if (column == 1) {
+                    if (fileInfo.hasCover() || fileInfo.getDuration() > 0) {
+                        fileInfoTable.setCursor(Cursor.getPredefinedCursor(HAND_CURSOR));
+                    } else {
+                        fileInfoTable.setCursor(Cursor.getPredefinedCursor(DEFAULT_CURSOR));
+                    }
+                } else if (column == 2 || column == 3 || column == 4) {
                     fileInfoTable.setCursor(Cursor.getPredefinedCursor(HAND_CURSOR));
                 } else {
                     fileInfoTable.setCursor(Cursor.getPredefinedCursor(DEFAULT_CURSOR));
@@ -279,11 +286,13 @@ public class QueryResultPanel extends JPanel {
                         && fileInfoTable.getSelectedRow() >= 0 && fileInfoTable.getSelectedRow() < fileInfos.length) {
                     int row = fileInfoTable.getSelectedRow();
                     FileInfo fileInfo = fileInfos[row];
-                    if (logger.isDebugEnabled())
-                        logger.debug("Open preview dialog of {}", fileInfo);
-                    if (PreviewPanel.showDialog(config, frame, fileInfo)) {
-                        fileInfos[row] = new ViewCommand(fileInfo.getOtid()).execute(config);
-                        fileInfoTableModel.fireTableRowsUpdated(row, row);
+                    if (fileInfo.hasCover() || fileInfo.getDuration() > 0) {
+                        if (logger.isDebugEnabled())
+                            logger.debug("Open preview dialog of {}", fileInfo);
+                        if (PreviewPanel.showDialog(config, frame, fileInfo)) {
+                            fileInfos[row] = new ViewCommand(fileInfo.getOtid()).execute(config);
+                            fileInfoTableModel.fireTableRowsUpdated(row, row);
+                        }
                     }
                 } else
                     super.keyPressed(e);
@@ -447,9 +456,10 @@ public class QueryResultPanel extends JPanel {
                 case 1:
                     if (fileInfo.hasCover()) {
                         return previewIcon;
-                    } else {
+                    } else if (fileInfo.getDuration() > 0) {
                         return playerIcon;
-                    }
+                    } else
+                        return null;
                 case 2:
                     return folderIcon;
                 case 3:
