@@ -308,7 +308,7 @@ public class ButtonActionHandler implements ActionListener {
                     break;
                 case TAG_ACTION:
                     logger.debug("findByTagButton::user input is {}", inputValue);
-                    fileInfos = new TagCommand(split(String.valueOf(inputValue), ",")).execute(config);
+                    fileInfos = new TagCommand(split(String.valueOf(inputValue).replace('，', ','), ",")).execute(config);
                     break;
                 case WHERE_ACTION:
                     logger.debug("findByWhereButton::user input is {}", inputValue);
@@ -359,7 +359,6 @@ public class ButtonActionHandler implements ActionListener {
 
     @AllArgsConstructor
     class ButtonWorker extends SwingWorker<Void, String> implements VisitorMessageCallback {
-
         /**
          * PortableCinemaFrame that display result
          */

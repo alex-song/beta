@@ -16,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Setter
@@ -33,16 +34,24 @@ public class TagCommand extends Command<FileInfo[]> {
     @Override
     public FileInfo[] execute(PortableCinemaConfig config) {
         try {
-            Set<String> inputs = new HashSet<>();
-            if (tags != null) Collections.addAll(inputs, tags);
-            Set<String> allTags = DatabaseAdapter.getAdapter(DatabaseAdapter.Type.H2_IN_MEMORY).findAllTags();
-            Set<String> filteredTags = allTags.stream()
-                    .filter(t -> {
-                        for (String s : inputs)
-                            if (isNotBlank(s) && t.contains(s)) return true;
-                        return false;
-                    }).collect(Collectors.toSet());
-            return DatabaseAdapter.getAdapter(DatabaseAdapter.Type.H2_IN_MEMORY).findByTags(filteredTags.toArray(new String[]{}));
+            if (tags == null || tags.length == 0 || (tags.length == 1 && isBlank(tags[0]))) {
+                return DatabaseAdapter.getAdapter(DatabaseAdapter.Type.H2_IN_MEMORY).findByTags();
+            } else {
+                Set<String> inputs = new HashSet<>();
+                Collections.addAll(inputs, tags);
+                Set<String> allTags = DatabaseAdapter.getAdapter(DatabaseAdapter.Type.H2_IN_MEMORY).findAllTags();
+                Set<String> filteredTags = allTags.stream()
+                        .filter(t -> {
+                            for (String s : inputs)
+                                if (isNotBlank(s) && t.contains(s)) return true;
+                            return false;
+                        }).collect(Collectors.toSet());
+                if (filteredTags.isEmpty()) {
+                    return new FileInfo[]{};
+                } else {
+                    return DatabaseAdapter.getAdapter(DatabaseAdapter.Type.H2_IN_MEMORY).findByTags(filteredTags.toArray(new String[]{}));
+                }
+            }
         } catch (DatabaseException ex) {
             logger.error("Failed to query file info by tags [{}]", StringUtils.join(tags, ", "), ex);
             return new FileInfo[]{};

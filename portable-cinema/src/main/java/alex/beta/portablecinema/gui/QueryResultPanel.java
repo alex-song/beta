@@ -375,7 +375,7 @@ public class QueryResultPanel extends JPanel {
                             && isNotBlank(inputValue)) {
                         publish(new NameCommand(inputValue).execute(config));
                     } else if (TAG_ACTION.equalsIgnoreCase(option)) {
-                        publish(new TagCommand(split(inputValue, ",")).execute(config));
+                        publish(new TagCommand(split(inputValue.replace('，', ','), ",")).execute(config));
                     } else if (WHERE_ACTION.equalsIgnoreCase(option)
                             && isNotBlank(inputValue)) {
                         publish(new WhereCommand(inputValue).execute(config));

@@ -119,7 +119,7 @@ public class PortableCinemaCLI {
             List<String> tagList = Splitter.on(",")
                     .trimResults()
                     .omitEmptyStrings()//可以 选择是否对 空字符串 做处理
-                    .splitToList(paramStr);
+                    .splitToList(paramStr.replace('，', ','));
             return new TagCommand(tagList.toArray(new String[]{}));
         } else if ("Name".equalsIgnoreCase(commandStr)) {
             if (isBlank(paramStr)) {
