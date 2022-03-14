@@ -22,6 +22,8 @@ A:
 18. [Done] Add tooltip in HTML table
 19. [Done] Update glossary from UI, according to analytics result
 20. [Done] Support screenshot and OCR from video
+21. [Done] Manual override
+22. Tag search enhancements
 
 B:
 1. [Cancel] Add images array

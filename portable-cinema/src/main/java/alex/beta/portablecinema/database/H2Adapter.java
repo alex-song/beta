@@ -32,11 +32,12 @@ public class H2Adapter extends DatabaseAdapter {
             "DURATION BIGINT, " +
             "TAGS ARRAY[100], " +
             "OTID VARCHAR(255), " +
+            "MANUALOVERRIDE BOOLEAN, " +
             "PRIMARY KEY(PATH, NAME))";
 
     private static final String INSERT_FILEINFO_DML = "INSERT INTO FILEINFO (" +
-            "PATH, NAME, COVER1, COVER2, LASTMODIFIEDON, WIDTH, HEIGHT, SIZE, DURATION, TAGS, OTID) VALUES " +
-            "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            "PATH, NAME, COVER1, COVER2, LASTMODIFIEDON, WIDTH, HEIGHT, SIZE, DURATION, TAGS, OTID, MANUALOVERRIDE) VALUES " +
+            "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     private static final String UPDATE_FILEINFO_DML = "UPDATE FILEINFO SET " +
             "PATH = ?, " +
@@ -48,7 +49,8 @@ public class H2Adapter extends DatabaseAdapter {
             "HEIGHT = ?, " +
             "SIZE = ?, " +
             "DURATION = ?, " +
-            "TAGS = ? " +
+            "TAGS = ?, " +
+            "MANUALOVERRIDE = ? " +
             "WHERE OTID = ?";
 
 
@@ -122,6 +124,7 @@ public class H2Adapter extends DatabaseAdapter {
                         infoStmt.setArray(10, conn.createArrayOf(TAGS_ARRAY_DATATYPE, new String[0]));
                     }
                     infoStmt.setString(11, fileInfo.getOtid());
+                    infoStmt.setBoolean(12, fileInfo.isManualOverride());
                     result = infoStmt.executeUpdate();
                     return result;
                 } catch (SQLException ex) {
@@ -157,7 +160,8 @@ public class H2Adapter extends DatabaseAdapter {
                     } else {
                         infoStmt.setArray(10, conn.createArrayOf(TAGS_ARRAY_DATATYPE, new String[0]));
                     }
-                    infoStmt.setString(11, fileInfo.getOtid());
+                    infoStmt.setBoolean(11, fileInfo.isManualOverride());
+                    infoStmt.setString(12, fileInfo.getOtid());
                     result = infoStmt.executeUpdate();
                     return result;
                 } catch (SQLException ex) {
@@ -440,6 +444,7 @@ public class H2Adapter extends DatabaseAdapter {
         fileInfo.setSize(resultSet.getLong("SIZE"));
         fileInfo.setDuration(resultSet.getLong("DURATION"));
         fileInfo.setLastModifiedOn(resultSet.getTimestamp("LASTMODIFIEDON"));
+        fileInfo.setManualOverride(resultSet.getBoolean("MANUALOVERRIDE"));
         Array tagsArray = resultSet.getArray("TAGS");
         if (tagsArray != null) {
             Object[] tagsObjectArray = (Object[]) tagsArray.getArray();

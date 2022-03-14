@@ -17,7 +17,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 public class FileScan extends AbstractFolderVisitor {
 
@@ -38,6 +41,8 @@ public class FileScan extends AbstractFolderVisitor {
             FileInfo fileInfo = db.findByName(file.getName());
             if (fileInfo == null) {
                 fileInfo = new FileInfo();
+            } else if (fileInfo.isManualOverride()) {
+                return;
             }
             fileInfo.setPath(currentFolder.getCanonicalPath());
             fileInfo.setName(file.getName());
@@ -216,7 +221,9 @@ public class FileScan extends AbstractFolderVisitor {
      */
     private List<File> sortBySimilarity(File[] files, String fileName) {
         JaroWinklerSimilarity jwSimilarity = new JaroWinklerSimilarity();
-        List<File> tmp = files == null ? Collections.emptyList() : Arrays.asList(files);
+        List<File> tmp = new ArrayList<>();
+        if (files != null)
+            Collections.addAll(tmp, files);
         tmp.sort((o1, o2) -> {
             double similarity = jwSimilarity.apply(o2.getName(), fileName) - jwSimilarity.apply(o1.getName(), fileName);
             if (similarity > 0) {

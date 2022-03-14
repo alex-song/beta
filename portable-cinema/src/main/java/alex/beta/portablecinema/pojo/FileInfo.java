@@ -58,6 +58,9 @@ public class FileInfo {
     @Expose
     private long duration; // duration in seconds
 
+    @Expose
+    private boolean manualOverride; // keep all information as it is during scan
+
     //@formatter:off
     public static String randomOtid() {
         return UUID.randomUUID().toString();
@@ -155,6 +158,7 @@ public class FileInfo {
                 ", lastModifiedOn='" + (lastModifiedOn == null ? "N/A" : DateFormatUtils.format(lastModifiedOn, PortableCinemaConfig.DATE_FORMATTER)) + '\'' +
                 ", resolution='" + (resolution == null ? "N/A" : resolution.toString()) + '\'' +
                 ", size=" + size +
+                ", manualOverride=" + manualOverride +
                 '}';
     }
 
