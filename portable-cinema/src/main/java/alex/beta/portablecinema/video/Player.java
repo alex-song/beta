@@ -65,7 +65,7 @@ public class Player implements AutoCloseable {
      */
     public FileInfo.Resolution getResolution(boolean force) {
         if (videoCoder == null) {
-            if (force) {
+            if (force && fileInfo.getResolution() == null) {
                 fileInfo.setResolution(new FileInfo.Resolution());
             }
         } else if (fileInfo.getResolution() == null || force) {
@@ -88,11 +88,7 @@ public class Player implements AutoCloseable {
      * @return Duration (in seconds) of given video file
      */
     public long getDuration(boolean force) {
-        if (videoCoder == null) {
-            if (force) {
-                fileInfo.setDuration(0);
-            }
-        } else if (fileInfo.getDuration() <= 0 || force) {
+        if (videoCoder != null && (fileInfo.getDuration() <= 0 || force)) {
             fileInfo.setDuration(container.getDuration() / 1000 / 1000);
         }
         return fileInfo.getDuration();
@@ -126,7 +122,7 @@ public class Player implements AutoCloseable {
             }
             IPacket packet = IPacket.make();
             IRational timeBase = container.getStream(videoStreamId).getTimeBase();
-            long timeStampOffset = ((long)timeBase.getDenominator() / timeBase.getNumerator()) * seconds;
+            long timeStampOffset = ((long) timeBase.getDenominator() / timeBase.getNumerator()) * seconds;
             logger.debug("TimeStampOffset {}", timeStampOffset);
             long target = container.getStartTime() + timeStampOffset;
             container.seekKeyFrame(videoStreamId, target, 0);
