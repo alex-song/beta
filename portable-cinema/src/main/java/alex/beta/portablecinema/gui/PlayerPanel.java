@@ -218,21 +218,26 @@ public class PlayerPanel extends JPanel {
         captureBtn.setEnabled(fileInfo != null && fileInfo.getDuration() > 0);
         captureBtn.addActionListener(e -> {
             if (fileInfo != null && screenshot != null) {
+                File folder = new File(fileInfo.getPath());
+                long timestamp = -1;
                 try {
                     int dotIndex = fileInfo.getName().lastIndexOf('.');
                     String videoFileName = (dotIndex < 0 ? fileInfo.getName() : fileInfo.getName().substring(0, dotIndex));
                     if (isBlank(videoFileName)) videoFileName = "pc-screenshot";
-                    File screenshotFile = new File(fileInfo.getPath(), videoFileName + "-" + timeField.getText().replace(":", "") + ".png");
+                    File screenshotFile = new File(folder, videoFileName + "-" + timeField.getText().replace(":", "") + ".png");
                     if (screenshotFile.exists() && JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(this,
                             "文件已存在，要覆盖吗？\n" + screenshotFile.getCanonicalPath(), "保存截图", JOptionPane.YES_NO_OPTION)) {
                         return;
                     }
+                    timestamp = folder.lastModified();
                     ImageIO.write(screenshot, "png", screenshotFile);
                     if (logger.isInfoEnabled())
                         logger.info("Screenshot is saved, {}", screenshotFile.getCanonicalPath());
                 } catch (Exception ex) {
                     logger.error("Fail to save the screenshot", ex);
                     JOptionPane.showMessageDialog(this, "保存截图失败", "保存截图", JOptionPane.INFORMATION_MESSAGE, null);
+                } finally {
+                    if (timestamp > -1) folder.setLastModified(timestamp);
                 }
             }
         });
