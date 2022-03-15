@@ -217,6 +217,7 @@ public class PlayerPanel extends JPanel {
         captureBtn = new JButton("保存截图");
         captureBtn.setEnabled(fileInfo != null && fileInfo.getDuration() > 0);
         captureBtn.addActionListener(e -> {
+            String fileFormat = "jpg";
             if (fileInfo != null && screenshot != null) {
                 File folder = new File(fileInfo.getPath());
                 long timestamp = -1;
@@ -224,13 +225,14 @@ public class PlayerPanel extends JPanel {
                     int dotIndex = fileInfo.getName().lastIndexOf('.');
                     String videoFileName = (dotIndex < 0 ? fileInfo.getName() : fileInfo.getName().substring(0, dotIndex));
                     if (isBlank(videoFileName)) videoFileName = "pc-screenshot";
-                    File screenshotFile = new File(folder, videoFileName + "-" + timeField.getText().replace(":", "") + ".png");
+                    File screenshotFile = new File(folder, videoFileName + "-" + timeField.getText().replace(":", "") + "." + fileFormat);
                     if (screenshotFile.exists() && JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(this,
                             "文件已存在，要覆盖吗？\n" + screenshotFile.getCanonicalPath(), "保存截图", JOptionPane.YES_NO_OPTION)) {
                         return;
                     }
                     timestamp = folder.lastModified();
-                    ImageIO.write(screenshot, "png", screenshotFile);
+                    ImageIO.write(screenshot, fileFormat, screenshotFile);
+                    screenshotFile = null;
                     if (logger.isInfoEnabled())
                         logger.info("Screenshot is saved, {}", screenshotFile.getCanonicalPath());
                 } catch (Exception ex) {
