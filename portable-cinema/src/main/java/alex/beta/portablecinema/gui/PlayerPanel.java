@@ -9,8 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.text.MaskFormatter;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -28,6 +26,10 @@ public class PlayerPanel extends JPanel {
 
     private static final Logger logger = LoggerFactory.getLogger(PlayerPanel.class);
 
+    private static final int SMALL_STEP = 20;
+
+    private static final int BIG_STEP = 120;
+
     private final PortableCinemaConfig config;
 
     private FileInfo fileInfo;
@@ -36,9 +38,9 @@ public class PlayerPanel extends JPanel {
 
     BufferedImage screenshot;
 
-    private JSlider slider;
-
     private JFormattedTextField timeField;
+
+    private JButton jumpToBtn;
 
     private Player player;
 
@@ -51,6 +53,26 @@ public class PlayerPanel extends JPanel {
         this.setBorder(null);
         createUIComponents();
         new PlayerWorker(0).execute();
+
+        if (fileInfo != null) {
+            registerKeyboardAction(ae -> fastForward(SMALL_STEP), KeyStroke.getKeyStroke("D"), JComponent.WHEN_IN_FOCUSED_WINDOW);
+            registerKeyboardAction(ae -> fastForward(BIG_STEP), KeyStroke.getKeyStroke("S"), JComponent.WHEN_IN_FOCUSED_WINDOW);
+            registerKeyboardAction(ae -> fastForward(-1 * SMALL_STEP), KeyStroke.getKeyStroke("A"), JComponent.WHEN_IN_FOCUSED_WINDOW);
+            registerKeyboardAction(ae -> fastForward(-1 * BIG_STEP), KeyStroke.getKeyStroke("W"), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        }
+    }
+
+    private void fastForward(int delta) {
+        if (fileInfo != null) {
+            int currentSeconds = normalizeTimeFieldValue();
+            int newSeconds = currentSeconds + delta;
+            newSeconds = (int) Math.max(Math.min(newSeconds, fileInfo.getDuration()), 0);
+            if (newSeconds != currentSeconds) {
+                timeField.setText(getFormattedDuration(newSeconds));
+                if (jumpToBtn.isEnabled())
+                    jumpToBtn.doClick();
+            }
+        }
     }
 
     public void close() {
@@ -76,7 +98,7 @@ public class PlayerPanel extends JPanel {
         screenshotLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         JPanel controlPanel = new JPanel(new GridBagLayout());
-        slider = new JSlider();
+        JSlider slider = new JSlider();
         slider.setMinimum(0);
         if (fileInfo != null && fileInfo.getDuration() < Integer.MAX_VALUE)
             slider.setMaximum((int) fileInfo.getDuration());
@@ -95,43 +117,10 @@ public class PlayerPanel extends JPanel {
         position.put(6 * 3600, new JLabel("6:00:00"));
         slider.setLabelTable(position);
 
-        slider.addChangeListener(new ChangeListener() {
-            public void stateChanged(ChangeEvent e) {
-                if (!slider.getValueIsAdjusting()) {
-                    timeField.setText(getFormattedDuration(slider.getValue()));
-                    new PlayerWorker(slider.getValue()).execute();
-                }
-            }
-
-            private String getFormattedDuration(int duration) {
-                if (duration < 60) {
-                    return "00:00:" + getString(getDurationSecondsPart(duration));
-                } else if (duration < 3600) {
-                    return "00:" + getString(getDurationMinsPart(duration)) + ":" + getString((getDurationSecondsPart(duration)));
-                } else {
-                    return getString(getDurationHoursPart(duration)) + ":" + getString(getDurationMinsPart(duration)) + ":" + getString((getDurationSecondsPart(duration)));
-                }
-            }
-
-            private String getString(int t) {
-                if (t < 0) {
-                    return "00";
-                } else if (t < 10) {
-                    return "0" + t;
-                } else
-                    return String.valueOf(t);
-            }
-
-            private int getDurationHoursPart(int duration) {
-                return duration / 3600;
-            }
-
-            private int getDurationMinsPart(int duration) {
-                return (duration % 3600) / 60;
-            }
-
-            private int getDurationSecondsPart(int duration) {
-                return duration % 60;
+        slider.addChangeListener(e -> {
+            if (!slider.getValueIsAdjusting()) {
+                timeField.setText(getFormattedDuration(slider.getValue()));
+                new PlayerWorker(slider.getValue()).execute();
             }
         });
 
@@ -175,24 +164,9 @@ public class PlayerPanel extends JPanel {
         gbc.fill = GridBagConstraints.NONE;
         controlPanel.add(timeField, gbc);
 
-        JButton jumpToBtn = new JButton("跳转");
-        jumpToBtn.addActionListener(e -> {
-            StringTokenizer st = new StringTokenizer(timeField.getText(), ":");
-            int h = 0;
-            int m = 0;
-            int s = 0;
-            if (st.countTokens() == 3) {
-                h = Integer.parseInt(st.nextToken().trim());
-                m = Integer.parseInt(st.nextToken().trim());
-                s = Integer.parseInt(st.nextToken().trim());
-            } else if (st.countTokens() == 2) {
-                m = Integer.parseInt(st.nextToken().trim());
-                s = Integer.parseInt(st.nextToken().trim());
-            } else if (st.countTokens() == 1) {
-                s = Integer.parseInt(st.nextToken().trim());
-            }
-            slider.setValue((int) FileInfo.toSeconds(h, m, s));
-        });
+        jumpToBtn = new JButton("跳转");
+        jumpToBtn.addActionListener(e -> slider.setValue(normalizeTimeFieldValue()));
+        jumpToBtn.setEnabled(fileInfo != null && fileInfo.getDuration() > 0);
         gbc.gridx = 2;
         gbc.gridy = 0;
         controlPanel.add(jumpToBtn, gbc);
@@ -202,6 +176,69 @@ public class PlayerPanel extends JPanel {
 
         timeField.addKeyListener(newEnterKeyListener(jumpToBtn));
         jumpToBtn.addKeyListener(newEnterKeyListener(jumpToBtn));
+    }
+
+    private static String getFormattedDuration(int duration) {
+        if (duration < 60) {
+            return "00:00:" + getString(getDurationSecondsPart(duration));
+        } else if (duration < 3600) {
+            return "00:" + getString(getDurationMinsPart(duration)) + ":" + getString((getDurationSecondsPart(duration)));
+        } else {
+            return getString(getDurationHoursPart(duration)) + ":" + getString(getDurationMinsPart(duration)) + ":" + getString((getDurationSecondsPart(duration)));
+        }
+    }
+
+    private static String getString(int t) {
+        if (t < 0) {
+            return "00";
+        } else if (t < 10) {
+            return "0" + t;
+        } else
+            return String.valueOf(t);
+    }
+
+    private static int getDurationHoursPart(int duration) {
+        return duration / 3600;
+    }
+
+    private static int getDurationMinsPart(int duration) {
+        return (duration % 3600) / 60;
+    }
+
+    private static int getDurationSecondsPart(int duration) {
+        return duration % 60;
+    }
+
+    private static KeyListener newEnterKeyListener(@NonNull JButton clickBtn) {
+        return new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    if (clickBtn.isEnabled())
+                        clickBtn.doClick();
+                    e.consume();
+                } else
+                    super.keyPressed(e);
+            }
+        };
+    }
+
+    private int normalizeTimeFieldValue() {
+        StringTokenizer st = new StringTokenizer(timeField.getText(), ":");
+        int h = 0;
+        int m = 0;
+        int s = 0;
+        if (st.countTokens() == 3) {
+            h = Integer.parseInt(st.nextToken().trim());
+            m = Integer.parseInt(st.nextToken().trim());
+            s = Integer.parseInt(st.nextToken().trim());
+        } else if (st.countTokens() == 2) {
+            m = Integer.parseInt(st.nextToken().trim());
+            s = Integer.parseInt(st.nextToken().trim());
+        } else if (st.countTokens() == 1) {
+            s = Integer.parseInt(st.nextToken().trim());
+        }
+        return (int) Math.max(Math.min(FileInfo.toSeconds(h, m, s), fileInfo.getDuration()), 0);
     }
 
     public synchronized Player getPlayer() {
@@ -214,20 +251,6 @@ public class PlayerPanel extends JPanel {
             }
         }
         return player;
-    }
-
-    private KeyListener newEnterKeyListener(@NonNull JButton clickBtn) {
-        return new KeyAdapter() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-                    if (clickBtn.isEnabled())
-                        clickBtn.doClick();
-                    e.consume();
-                } else
-                    super.keyPressed(e);
-            }
-        };
     }
 
     String getCurrentImg() {

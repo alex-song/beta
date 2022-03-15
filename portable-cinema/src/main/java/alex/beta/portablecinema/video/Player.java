@@ -123,7 +123,7 @@ public class Player implements AutoCloseable {
             IPacket packet = IPacket.make();
             IRational timeBase = container.getStream(videoStreamId).getTimeBase();
             long timeStampOffset = ((long) timeBase.getDenominator() / timeBase.getNumerator()) * seconds;
-            logger.debug("TimeStampOffset {}", timeStampOffset);
+//            logger.debug("TimeStampOffset: {}", timeStampOffset);
             long target = container.getStartTime() + timeStampOffset;
             container.seekKeyFrame(videoStreamId, target, 0);
             boolean isFinished = false;

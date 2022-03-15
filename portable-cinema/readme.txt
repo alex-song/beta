@@ -24,6 +24,7 @@ A:
 20. [Done] Support screenshot and OCR from video
 21. [Done] Manual override
 22. [Done] Tag search enhancements
+23. [Done] Key binding in player panel to support fast-forward of video
 
 B:
 1. [Cancel] Add images array
