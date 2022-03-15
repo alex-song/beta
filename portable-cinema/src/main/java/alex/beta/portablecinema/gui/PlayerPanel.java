@@ -17,6 +17,7 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Hashtable;
@@ -231,8 +232,9 @@ public class PlayerPanel extends JPanel {
                         return;
                     }
                     timestamp = folder.lastModified();
-                    ImageIO.write(screenshot, fileFormat, screenshotFile);
-                    screenshotFile = null;
+                    try (FileOutputStream output = new FileOutputStream(screenshotFile)) {
+                        ImageIO.write(screenshot, fileFormat, output);
+                    }
                     if (logger.isInfoEnabled())
                         logger.info("Screenshot is saved, {}", screenshotFile.getCanonicalPath());
                 } catch (Exception ex) {
@@ -293,11 +295,11 @@ public class PlayerPanel extends JPanel {
             return null;
         } else {
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                ImageIO.write(screenshot, "png", baos);
+                ImageIO.write(screenshot, "jpg", baos);
                 baos.flush();
                 return baos.toByteArray();
             } catch (IOException ex) {
-                logger.error("Failed to convert screenshot to png", ex);
+                logger.error("Failed to convert screenshot to jpg", ex);
                 return null;
             }
         }
