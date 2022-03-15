@@ -122,6 +122,31 @@ public class CoverImagePanel extends JPanel {
         }.execute();
     }
 
+    /**
+     * Gets image dimensions for given file
+     *
+     * @param imgFile image file
+     * @return dimensions of image
+     * @throws IOException if the file is not a known image
+     */
+    static Dimension getImageDimension(File imgFile) throws IOException {
+        String suffix = imgFile.getName().substring(imgFile.getName().lastIndexOf('.') + 1);
+        Iterator<ImageReader> iter = getImageReadersBySuffix(suffix);
+        while (iter.hasNext()) {
+            ImageReader reader = iter.next();
+            try (ImageInputStream stream = new FileImageInputStream(imgFile)) {
+                reader.setInput(stream);
+                return new Dimension(reader.getWidth(reader.getMinIndex()), reader.getHeight(reader.getMinIndex()));
+            } catch (IOException ex) {
+                if (logger.isInfoEnabled())
+                    logger.info("Failed to read {} using {}", imgFile.getCanonicalPath(), reader.getClass().getSimpleName(), ex);
+            } finally {
+                reader.dispose();
+            }
+        }
+        throw new IOException("Not a known image file: " + imgFile.getCanonicalPath());
+    }
+
     public void close() {
         if (buttonBar != null)
             for (int i = 0; i < buttonBar.getComponentCount(); i++) {
@@ -246,31 +271,6 @@ public class CoverImagePanel extends JPanel {
     }
 
     /**
-     * Gets image dimensions for given file
-     *
-     * @param imgFile image file
-     * @return dimensions of image
-     * @throws IOException if the file is not a known image
-     */
-    static Dimension getImageDimension(File imgFile) throws IOException {
-        String suffix = imgFile.getName().substring(imgFile.getName().lastIndexOf('.') + 1);
-        Iterator<ImageReader> iter = getImageReadersBySuffix(suffix);
-        while (iter.hasNext()) {
-            ImageReader reader = iter.next();
-            try (ImageInputStream stream = new FileImageInputStream(imgFile)) {
-                reader.setInput(stream);
-                return new Dimension(reader.getWidth(reader.getMinIndex()), reader.getHeight(reader.getMinIndex()));
-            } catch (IOException ex) {
-                if (logger.isInfoEnabled())
-                    logger.info("Failed to read {} using {}", imgFile.getCanonicalPath(), reader.getClass().getSimpleName(), ex);
-            } finally {
-                reader.dispose();
-            }
-        }
-        throw new IOException("Not a known image file: " + imgFile.getCanonicalPath());
-    }
-
-    /**
      * Action class that shows the image specified in it's constructor.
      */
     private class ThumbnailAction extends AbstractAction {
@@ -317,7 +317,7 @@ public class CoverImagePanel extends JPanel {
         public void close() {
             try {
                 String sunToolkitImageClassName = "ToolkitImage";
-                // ToolkitImage doesn;t support getGraphics method
+                // ToolkitImage doesn't support getGraphics method
                 if (scaledImage != null && scaledImage instanceof ImageIcon) {
                     Image i = ((ImageIcon) scaledImage).getImage();
                     if (i != null && !i.getClass().getSimpleName().contains(sunToolkitImageClassName) && i.getGraphics() != null)
@@ -342,12 +342,12 @@ public class CoverImagePanel extends JPanel {
     /**
      * black border, white background, and red X
      */
-    private class MissingIcon implements Icon {
+    private static class MissingIcon implements Icon {
 
         private int width = THUMBNAIL_IMAGE_SIZE;
         private int height = THUMBNAIL_IMAGE_SIZE;
 
-        private BasicStroke stroke = new BasicStroke(4);
+        private final BasicStroke stroke = new BasicStroke(4);
 
         public void paintIcon(Component c, Graphics g, int x, int y) {
             Graphics2D g2d = (Graphics2D) g.create();

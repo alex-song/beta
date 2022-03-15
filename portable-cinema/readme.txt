@@ -25,6 +25,7 @@ A:
 21. [Done] Manual override
 22. [Done] Tag search enhancements
 23. [Done] Key binding in player panel to support fast-forward of video
+24. [Done] Save screenshot
 
 B:
 1. [Cancel] Add images array

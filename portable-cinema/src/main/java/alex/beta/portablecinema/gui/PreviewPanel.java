@@ -53,31 +53,6 @@ public class PreviewPanel extends JPanel {
             registerKeyboardAction(ae -> doOCR(), KeyStroke.getKeyStroke("ctrl R"), JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
 
-    private void createUIComponents() {
-        tabbedPane = new JTabbedPane();
-        if (fileInfo.hasCover()) {
-            coverImagePanel = new CoverImagePanel(config, fileInfo, this.getWidth() - 20, this.getHeight() - 30);
-            tabbedPane.add("预览图", coverImagePanel);
-        }
-        playerPanel = new PlayerPanel(config, fileInfo, this.getWidth() - 20, this.getHeight() - 30);
-        tabbedPane.add("截图", playerPanel);
-        tabbedPane.setForeground(Color.BLACK);
-        tabbedPane.setUI(new BasicTabbedPaneUI() {
-            private final Insets borderInsets = new Insets(0, 0, 0, 0);
-
-            @Override
-            protected void paintContentBorder(Graphics g, int tabPlacement, int selectedIndex) {
-                // Do nothing
-            }
-
-            @Override
-            protected Insets getContentBorderInsets(int tabPlacement) {
-                return borderInsets;
-            }
-        });
-        add(tabbedPane, BorderLayout.CENTER);
-    }
-
     /**
      * @param owner
      * @param fileInfo
@@ -123,6 +98,31 @@ public class PreviewPanel extends JPanel {
         }
         dialog.dispose();
         return pp.isUpdated;
+    }
+
+    private void createUIComponents() {
+        tabbedPane = new JTabbedPane();
+        if (fileInfo.hasCover()) {
+            coverImagePanel = new CoverImagePanel(config, fileInfo, this.getWidth() - 20, this.getHeight() - 30);
+            tabbedPane.add("预览图", coverImagePanel);
+        }
+        playerPanel = new PlayerPanel(config, fileInfo, this.getWidth() - 20, this.getHeight() - 30);
+        tabbedPane.add("截图", playerPanel);
+        tabbedPane.setForeground(Color.BLACK);
+        tabbedPane.setUI(new BasicTabbedPaneUI() {
+            private final Insets borderInsets = new Insets(0, 0, 0, 0);
+
+            @Override
+            protected void paintContentBorder(Graphics g, int tabPlacement, int selectedIndex) {
+                // Do nothing
+            }
+
+            @Override
+            protected Insets getContentBorderInsets(int tabPlacement) {
+                return borderInsets;
+            }
+        });
+        add(tabbedPane, BorderLayout.CENTER);
     }
 
     private void doOCR() {
