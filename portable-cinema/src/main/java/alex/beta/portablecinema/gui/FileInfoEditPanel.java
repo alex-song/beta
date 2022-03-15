@@ -26,6 +26,7 @@ public class FileInfoEditPanel extends JPanel {
     private JTextField minsField;
     private JTextField secondsField;
     private JTextArea tagsField;
+    private JCheckBox manualOverrideCheck;
 
     private FileInfo fileInfo;
 
@@ -99,6 +100,12 @@ public class FileInfoEditPanel extends JPanel {
                 }
                 r.setWidth(newWidth);
                 fileInfo.setResolution(r);
+            }
+
+            //check and update manual override flag
+            if (panel.manualOverrideCheck.isSelected() != fileInfo.isManualOverride()) {
+                fileInfo.setManualOverride(panel.manualOverrideCheck.isSelected());
+                isChanged = true;
             }
 
             //check and update duration
@@ -189,6 +196,11 @@ public class FileInfoEditPanel extends JPanel {
         gbc.gridy = 5;
         tagsField = new JTextArea(10, 40);
         add(new JScrollPane(tagsField), gbc);
+
+        manualOverrideCheck = new JCheckBox("手工编辑");
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        add(manualOverrideCheck, gbc);
     }
 
     private void initValues() {
@@ -201,5 +213,6 @@ public class FileInfoEditPanel extends JPanel {
         secondsField.setText(String.valueOf(fileInfo.getDurationSecondsPart()));
         if (fileInfo.getTags() != null)
             tagsField.setText(StringUtils.join(fileInfo.getTags(), System.lineSeparator()));
+        manualOverrideCheck.setSelected(fileInfo.isManualOverride());
     }
 }

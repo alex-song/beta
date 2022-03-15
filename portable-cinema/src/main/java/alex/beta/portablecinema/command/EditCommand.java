@@ -54,10 +54,11 @@ public class EditCommand extends Command<Integer> {
                         if (oldFileInfo == null) {
                             db.getFileInfos().add(fileInfo);
                         } else {
-                            //We just enable 3 fields on the UI
+                            //We just enable 4 fields on the UI
                             oldFileInfo.setDuration(fileInfo.getDuration());
                             oldFileInfo.setResolution(fileInfo.getResolution());
                             oldFileInfo.setTags(fileInfo.getTags());
+                            oldFileInfo.setManualOverride(fileInfo.isManualOverride());
                         }
                         try (FileWriter writer = new FileWriter(dbFile)) {
                             Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().setDateFormat(PortableCinemaConfig.DATE_FORMATTER).create();
