@@ -55,8 +55,8 @@ public class FileScan extends AbstractFolderVisitor {
             fileInfo.setCover2(covers[1]);
             fileInfo.setLastModifiedOn(new Date(file.lastModified()));
             try (Player player = Player.getInstance(config, fileInfo).read()) {
-                fileInfo.setDuration(player.getDuration(true));
-                fileInfo.setResolution(player.getResolution(true));
+                player.getDuration(true);
+                player.getResolution(true);
             }
             db.addFileInfos(fileInfo);
         }

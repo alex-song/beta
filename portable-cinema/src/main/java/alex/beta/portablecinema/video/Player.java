@@ -2,12 +2,12 @@ package alex.beta.portablecinema.video;
 
 import alex.beta.portablecinema.PortableCinemaConfig;
 import alex.beta.portablecinema.pojo.FileInfo;
+import com.xuggle.ferry.JNIMemoryManager;
 import com.xuggle.xuggler.*;
 import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +51,7 @@ public class Player implements AutoCloseable {
     }
 
     /**
-     * force = false
+     * overwrite = false
      *
      * @return
      */
@@ -60,22 +60,27 @@ public class Player implements AutoCloseable {
     }
 
     /**
-     * @param force decode the video again, if this flag is true, regardless the existing resolution
+     * @param overwrite Overwrite the resolution in file info, if this flag is true and video is able to decode
      * @return Resolution of given video file
      */
-    public FileInfo.Resolution getResolution(boolean force) {
-        if (videoCoder == null) {
-            if (force && fileInfo.getResolution() == null) {
-                fileInfo.setResolution(new FileInfo.Resolution());
+    public FileInfo.Resolution getResolution(boolean overwrite) {
+        if (videoCoder != null) {
+            if (overwrite) {
+                fileInfo.setResolution(new FileInfo.Resolution(videoCoder.getWidth(), videoCoder.getHeight()));
+                return fileInfo.getResolution();
+            } else {
+                return new FileInfo.Resolution(videoCoder.getWidth(), videoCoder.getHeight());
             }
-        } else if (fileInfo.getResolution() == null || force) {
-            fileInfo.setResolution(new FileInfo.Resolution(videoCoder.getWidth(), videoCoder.getHeight()));
+        } else {
+            if (overwrite && fileInfo.getResolution() == null) {
+                fileInfo.setResolution(new FileInfo.Resolution(0, 0));
+            }
+            return fileInfo.getResolution();
         }
-        return fileInfo.getResolution();
     }
 
     /**
-     * force = false
+     * overwrite = false
      *
      * @return
      */
@@ -84,14 +89,21 @@ public class Player implements AutoCloseable {
     }
 
     /**
-     * @param force decode the video again, if this flag is true, regardless the existing duration
+     * @param overwrite Overwrite the duration in file info, if this flag is true and video is able to decode
      * @return Duration (in seconds) of given video file
      */
-    public long getDuration(boolean force) {
-        if (videoCoder != null && (fileInfo.getDuration() <= 0 || force)) {
-            fileInfo.setDuration(container.getDuration() / 1000 / 1000);
+    public long getDuration(boolean overwrite) {
+        if (videoCoder != null) {
+            if (overwrite) {
+                fileInfo.setDuration(container.getDuration() / 1000 / 1000);
+                return fileInfo.getDuration();
+            } else {
+                return container.getDuration() / 1000 / 1000;
+            }
+        } else {
+            // Cannot decode video file, and return the duration from file info
+            return fileInfo.getDuration();
         }
-        return fileInfo.getDuration();
     }
 
     /**
@@ -123,7 +135,6 @@ public class Player implements AutoCloseable {
             IPacket packet = IPacket.make();
             IRational timeBase = container.getStream(videoStreamId).getTimeBase();
             long timeStampOffset = ((long) timeBase.getDenominator() / timeBase.getNumerator()) * seconds;
-//            logger.debug("TimeStampOffset: {}", timeStampOffset);
             long target = container.getStartTime() + timeStampOffset;
             container.seekKeyFrame(videoStreamId, target, 0);
             boolean isFinished = false;
@@ -149,12 +160,6 @@ public class Player implements AutoCloseable {
                                 return null;
                             }
                             screenshot = Utils.videoPictureToImage(newPic);
-                            if (false)
-                                try {
-                                    ImageIO.write(screenshot, "png", new File("player-" + System.currentTimeMillis() + ".png"));
-                                } catch (Exception ex) {
-                                    ex.printStackTrace();
-                                }
                             isFinished = true;
                         }
                     }
@@ -167,7 +172,7 @@ public class Player implements AutoCloseable {
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         try {
             if (videoCoder != null) {
                 videoCoder.close();
@@ -181,18 +186,10 @@ public class Player implements AutoCloseable {
                 videoFile.close();
                 videoFile = null;
             }
+            if (JNIMemoryManager.getMgr() != null)
+                JNIMemoryManager.getMgr().gc();
         } catch (Exception ex) {
             logger.error("Error when closing player", ex);
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        FileInfo fi = new FileInfo();
-        fi.setName("SKYHD-016.mp4");
-        fi.setPath("/Users/alexsong/Development/my_workspace/beta/portable-cinema/sample/Sample 1/Sample 13");
-        Player p = Player.getInstance(new PortableCinemaConfig(), fi).read();
-        p.captureScreen(0);
-        p.captureScreen(60 * 30);
-        p.captureScreen(60 * 60);
     }
 }
