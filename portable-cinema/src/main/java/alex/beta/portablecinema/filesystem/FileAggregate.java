@@ -7,10 +7,11 @@ import alex.beta.portablecinema.database.DatabaseException;
 import alex.beta.portablecinema.pojo.FileDB;
 import alex.beta.portablecinema.pojo.FileInfo;
 import lombok.NonNull;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class FileAggregate extends AbstractFolderVisitor {
 
@@ -67,9 +68,10 @@ public class FileAggregate extends AbstractFolderVisitor {
         if (db.getFileInfos() != null && !db.getFileInfos().isEmpty()) {
             DatabaseAdapter databaseAdapter = DatabaseAdapter.getAdapter(DatabaseAdapter.Type.H2_IN_MEMORY);
             for (FileInfo fileInfo : db.getFileInfos()) {
-                if (StringUtils.isBlank(fileInfo.getOtid()))
+                if (isBlank(fileInfo.getOtid()))
                     fileInfo.setOtid(FileInfo.randomOtid());
-                fileInfo.setPath(path);
+                if (isBlank(fileInfo.getPath()))
+                    fileInfo.setPath(path);
                 databaseAdapter.insert(fileInfo);
             }
             if (this.getMessageCallback() != null) {
