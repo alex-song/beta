@@ -107,7 +107,7 @@ public class QueryResultPanel extends JPanel {
             editIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Edit-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
             detailIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Detail-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
             hdIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/HD-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
-            playerIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Video-Player-icon_2.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
+            playerIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Video-Player-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
         } catch (Exception ex) {
             logger.error("Failed to load icons", ex);
             return;

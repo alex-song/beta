@@ -162,7 +162,10 @@ public class Player implements AutoCloseable {
                     int offset = 0;
                     while (!isFinished && offset < packet.getSize()) {
                         int bytesDecoded = videoCoder.decodeVideo(picture, packet, offset);
-                        if (bytesDecoded < 0) logger.warn("Get no data decoding video in one packet");
+                        if (bytesDecoded < 0) {
+                            logger.warn("Get no data decoding video in one packet");
+                            return null;
+                        }
                         offset += bytesDecoded;
                         if (picture.isComplete()) {
                             IVideoPicture newPic = picture;
