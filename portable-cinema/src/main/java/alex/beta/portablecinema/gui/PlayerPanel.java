@@ -51,7 +51,7 @@ public class PlayerPanel extends JPanel {
         createUIComponents();
         new PlayerWorker(0).execute();
 
-        if (fileInfo != null) {
+        if (fileInfo != null && !fileInfo.isDecodeError()) {
             registerKeyboardAction(ae -> fastForward(SMALL_STEP), KeyStroke.getKeyStroke("D"), JComponent.WHEN_IN_FOCUSED_WINDOW);
             registerKeyboardAction(ae -> fastForward(BIG_STEP), KeyStroke.getKeyStroke("S"), JComponent.WHEN_IN_FOCUSED_WINDOW);
             registerKeyboardAction(ae -> fastForward(-1 * SMALL_STEP), KeyStroke.getKeyStroke("A"), JComponent.WHEN_IN_FOCUSED_WINDOW);
@@ -210,13 +210,13 @@ public class PlayerPanel extends JPanel {
 
         jumpToBtn = new JButton("跳转");
         jumpToBtn.addActionListener(e -> slider.setValue(normalizeTimeFieldValue()));
-        jumpToBtn.setEnabled(fileInfo != null && fileInfo.getDuration() > 0);
+        jumpToBtn.setEnabled(fileInfo != null && !fileInfo.isDecodeError());
         gbc.gridx = 2;
         gbc.gridy = 0;
         controlPanel.add(jumpToBtn, gbc);
 
         captureBtn = new JButton("保存截图");
-        captureBtn.setEnabled(fileInfo != null && fileInfo.getDuration() > 0);
+        captureBtn.setEnabled(fileInfo != null && !fileInfo.isDecodeError());
         captureBtn.addActionListener(e -> {
             String fileFormat = "jpg";
             if (fileInfo != null && screenshot != null) {
@@ -234,6 +234,7 @@ public class PlayerPanel extends JPanel {
                     timestamp = folder.lastModified();
                     try (FileOutputStream output = new FileOutputStream(screenshotFile)) {
                         ImageIO.write(screenshot, fileFormat, output);
+                        output.flush();
                     }
                     if (logger.isInfoEnabled())
                         logger.info("Screenshot is saved, {}", screenshotFile.getCanonicalPath());
@@ -252,8 +253,10 @@ public class PlayerPanel extends JPanel {
         add(controlPanel, BorderLayout.SOUTH);
         add(new JScrollPane(screenshotLabel), BorderLayout.CENTER);
 
-        timeField.addKeyListener(newEnterKeyListener(jumpToBtn));
-        jumpToBtn.addKeyListener(newEnterKeyListener(jumpToBtn));
+        if (fileInfo != null) {
+            timeField.addKeyListener(newEnterKeyListener(jumpToBtn));
+            jumpToBtn.addKeyListener(newEnterKeyListener(jumpToBtn));
+        }
     }
 
     private int normalizeTimeFieldValue() {

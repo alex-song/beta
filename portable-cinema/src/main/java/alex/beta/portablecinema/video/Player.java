@@ -51,6 +51,24 @@ public class Player implements AutoCloseable {
     }
 
     /**
+     * Caution: This method is ONLY for FileScan
+     * @return
+     */
+    public synchronized boolean isDecodable() {
+        if (container == null) {
+            throw new RuntimeException("Container is not initialized, do read() first.");
+        }
+        try {
+            fileInfo.setDecodeError(videoCoder == null || videoCoder.open(null, null) < 0);
+            return fileInfo.isDecodeError();
+        } finally {
+            if (videoCoder != null) {
+                videoCoder.close();
+            }
+        }
+    }
+
+    /**
      * overwrite = false
      *
      * @return

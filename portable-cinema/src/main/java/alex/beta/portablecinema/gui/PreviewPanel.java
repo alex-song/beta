@@ -41,16 +41,18 @@ public class PreviewPanel extends JPanel {
 
         createUIComponents();
 
-        PortableCinemaConfig.BaiduOCR ocrConfig = config.getBaiduOCR();
-        if (ocrConfig != null && isNotBlank(ocrConfig.getAppId())) {
-            initOcrClient();
-        } else {
-            ocrClient = null;
-        }
+        if (playerPanel != null || coverImagePanel != null) {
+            PortableCinemaConfig.BaiduOCR ocrConfig = config.getBaiduOCR();
+            if (ocrConfig != null && isNotBlank(ocrConfig.getAppId())) {
+                initOcrClient();
+            } else {
+                ocrClient = null;
+            }
 
-        // short cut key to OCR, ctrl+R
-        if (ocrClient != null)
-            registerKeyboardAction(ae -> doOCR(), KeyStroke.getKeyStroke("ctrl R"), JComponent.WHEN_IN_FOCUSED_WINDOW);
+            // short cut key to OCR, ctrl+R
+            if (ocrClient != null)
+                registerKeyboardAction(ae -> doOCR(), KeyStroke.getKeyStroke("ctrl R"), JComponent.WHEN_IN_FOCUSED_WINDOW);
+        }
     }
 
     /**
@@ -106,8 +108,10 @@ public class PreviewPanel extends JPanel {
             coverImagePanel = new CoverImagePanel(config, fileInfo, this.getWidth() - 20, this.getHeight() - 30);
             tabbedPane.add("预览图", coverImagePanel);
         }
-        playerPanel = new PlayerPanel(config, fileInfo, this.getWidth() - 20, this.getHeight() - 30);
-        tabbedPane.add("截图", playerPanel);
+        if (!fileInfo.isDecodeError()) {
+            playerPanel = new PlayerPanel(config, fileInfo, this.getWidth() - 20, this.getHeight() - 30);
+            tabbedPane.add("截图", playerPanel);
+        }
         tabbedPane.setForeground(Color.BLACK);
         tabbedPane.setUI(new BasicTabbedPaneUI() {
             private final Insets borderInsets = new Insets(0, 0, 0, 0);

@@ -61,6 +61,9 @@ public class FileInfo {
     @Expose
     private boolean manualOverride; // keep all information as it is during scan
 
+    @Expose
+    private boolean decodeError; // in case Xuggle cannot decode the video file
+
     //@formatter:off
     public static String randomOtid() {
         return UUID.randomUUID().toString();
@@ -159,6 +162,7 @@ public class FileInfo {
                 ", resolution='" + (resolution == null ? "N/A" : resolution.toString()) + '\'' +
                 ", size=" + size +
                 ", manualOverride=" + manualOverride +
+                ", decodeError=" + decodeError +
                 '}';
     }
 

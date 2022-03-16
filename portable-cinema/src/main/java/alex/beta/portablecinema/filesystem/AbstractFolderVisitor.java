@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 import static alex.beta.portablecinema.FolderVisitorFactory.Action;
 import static alex.beta.portablecinema.FolderVisitorFactory.FolderVisitor;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.split;
 
 public abstract class AbstractFolderVisitor implements FolderVisitor {
@@ -182,7 +182,7 @@ public abstract class AbstractFolderVisitor implements FolderVisitor {
     }
 
     protected boolean doSkip(@NonNull PortableCinemaConfig config, @NonNull File file) {
-        String[] tokens = isEmpty(config.getSkipNameStartsWith()) ? new String[]{} : split(config.getSkipNameStartsWith(), "\\,");
+        String[] tokens = isBlank(config.getSkipNameStartsWith()) ? new String[]{} : split(config.getSkipNameStartsWith(), "\\,");
         for (String token : tokens) {
             if (file.getName().toLowerCase().startsWith(token.trim())) {
                 return true;
@@ -199,7 +199,7 @@ public abstract class AbstractFolderVisitor implements FolderVisitor {
      * @return
      */
     protected boolean isVideoFile(@NonNull final PortableCinemaConfig config, @NonNull File file) {
-        if (isEmpty(config.getVideoFileExtensions()) || !file.isFile()) {
+        if (isBlank(config.getVideoFileExtensions()) || !file.isFile()) {
             return false;
         } else if (config.getVideoFileExtensions().trim().equals("*")) {
             return true;
@@ -222,7 +222,7 @@ public abstract class AbstractFolderVisitor implements FolderVisitor {
      * @return
      */
     protected boolean isImageFile(@NonNull final PortableCinemaConfig config, @NonNull File file) {
-        if (isEmpty(config.getImageFileExtensions()) || !file.isFile()) {
+        if (isBlank(config.getImageFileExtensions()) || !file.isFile()) {
             return false;
         } else if (config.getImageFileExtensions().trim().equals("*")) {
             return true;

@@ -192,7 +192,7 @@ public class QueryResultPanel extends JPanel {
                         return;
 
                     FileInfo fileInfo = fileInfos[row];
-                    if (col == 1 && (fileInfo.hasCover() || fileInfo.getDuration() > 0)) {
+                    if (col == 1 && (fileInfo.hasCover() || !fileInfo.isDecodeError())) {
                         if (logger.isDebugEnabled())
                             logger.debug("Open preview dialog of {}", fileInfo);
                         if (PreviewPanel.showDialog(config, frame, fileInfo)) {
@@ -253,7 +253,7 @@ public class QueryResultPanel extends JPanel {
                 if (fileInfos == null || row >= fileInfos.length || row < 0) return;
                 FileInfo fileInfo = fileInfos[row];
                 if (column == 1) {
-                    if (fileInfo.hasCover() || fileInfo.getDuration() > 0) {
+                    if (fileInfo.hasCover() || !fileInfo.isDecodeError()) {
                         fileInfoTable.setCursor(Cursor.getPredefinedCursor(HAND_CURSOR));
                     } else {
                         fileInfoTable.setCursor(Cursor.getPredefinedCursor(DEFAULT_CURSOR));
@@ -286,7 +286,7 @@ public class QueryResultPanel extends JPanel {
                         && fileInfoTable.getSelectedRow() >= 0 && fileInfoTable.getSelectedRow() < fileInfos.length) {
                     int row = fileInfoTable.getSelectedRow();
                     FileInfo fileInfo = fileInfos[row];
-                    if (fileInfo.hasCover() || fileInfo.getDuration() > 0) {
+                    if (fileInfo.hasCover() || !fileInfo.isDecodeError()) {
                         if (logger.isDebugEnabled())
                             logger.debug("Open preview dialog of {}", fileInfo);
                         if (PreviewPanel.showDialog(config, frame, fileInfo)) {
@@ -456,7 +456,7 @@ public class QueryResultPanel extends JPanel {
                 case 1:
                     if (fileInfo.hasCover()) {
                         return previewIcon;
-                    } else if (fileInfo.getDuration() > 0) {
+                    } else if (!fileInfo.isDecodeError()) {
                         return playerIcon;
                     } else
                         return null;

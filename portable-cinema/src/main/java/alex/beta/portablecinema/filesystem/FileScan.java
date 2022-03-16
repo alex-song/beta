@@ -57,6 +57,7 @@ public class FileScan extends AbstractFolderVisitor {
             try (Player player = Player.getInstance(config, fileInfo).read()) {
                 player.getDuration(true);
                 player.getResolution(true);
+                player.isDecodable();
             }
             db.addFileInfos(fileInfo);
         }
@@ -161,14 +162,14 @@ public class FileScan extends AbstractFolderVisitor {
      */
     private String[] getCoverOfVideo(final PortableCinemaConfig config, @NonNull File videoFile, @NonNull File currentFolder) {
         String[] coversPath = new String[2];
-
         //Rule 1
         File[] covers = currentFolder.listFiles(file -> isImageFile(config, file) && !doSkip(config, file) &&
-                (file.getName().toLowerCase().startsWith("cover") ||
-                        file.getName().toLowerCase().startsWith("back") ||
+                (file.getName().toLowerCase().startsWith("cover") || file.getName().toLowerCase().endsWith("cover") ||
+                        file.getName().toLowerCase().startsWith("back") || file.getName().toLowerCase().endsWith("back") ||
                         file.getName().toLowerCase().contains("封面") ||
                         file.getName().toLowerCase().contains("封底") ||
-                        file.getName().toLowerCase().contains("连拍")));
+                        file.getName().toLowerCase().contains("连拍") ||
+                        file.getName().toLowerCase().contains("thumbnail")));
         if (covers != null) {
             if (covers.length >= 2) {
                 coversPath[0] = covers[0].getName();

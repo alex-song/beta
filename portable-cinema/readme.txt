@@ -26,6 +26,7 @@ A:
 22. [Done] Tag search enhancements
 23. [Done] Key binding in player panel to support fast-forward of video
 24. [Done] Save screenshot
+25. [Done] Decode error flag
 
 B:
 1. [Cancel] Add images array
