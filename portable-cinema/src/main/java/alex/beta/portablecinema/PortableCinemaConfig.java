@@ -27,6 +27,7 @@ public class PortableCinemaConfig {
     private BaiduOCR baiduOCR;
     private boolean enablePerformanceLog;
     private boolean enableQueryResultHTML;
+    private String theme = "default";
 
     public static PortableCinemaConfig getDefault() {
         PortableCinemaConfig config = new PortableCinemaConfig();
@@ -40,6 +41,7 @@ public class PortableCinemaConfig {
         config.glossaryFileName = "Glossary.xml";
         config.enablePerformanceLog = false;
         config.enableQueryResultHTML = false;
+        config.theme = "default";
         return config;
     }
 
@@ -59,6 +61,7 @@ public class PortableCinemaConfig {
                 ", videoFileExtensions='" + videoFileExtensions + '\'' +
                 ", skipNameStartsWith='" + skipNameStartsWith + '\'' +
                 ", glossaryFileName='" + glossaryFileName + '\'' +
+                ", theme='" + theme + '\'' +
                 ", enablePerformanceLog=" + enablePerformanceLog +
                 ", enableQueryResultHTML=" + enableQueryResultHTML +
                 '}';

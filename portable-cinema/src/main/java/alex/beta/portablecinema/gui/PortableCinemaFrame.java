@@ -1,5 +1,6 @@
 package alex.beta.portablecinema.gui;
 
+import alex.beta.portablecinema.PortableCinemaConfig;
 import com.google.common.io.Resources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,8 @@ public class PortableCinemaFrame extends JFrame {
 
     private static final Logger logger = LoggerFactory.getLogger(PortableCinemaFrame.class);
 
+    private PortableCinemaConfig config;
+
     Icon logo50Icon;
     private JButton rootChooserButton;
     private JButton scanButton;
@@ -52,8 +55,9 @@ public class PortableCinemaFrame extends JFrame {
     private Icon EXPORT_ICON;
     private Icon RESET_ICON;
 
-    public PortableCinemaFrame() {
+    public PortableCinemaFrame(PortableCinemaConfig config) {
         super();
+        this.config = config;
         //init UI
         createUIComponents();
         //load icons and templates
@@ -63,7 +67,11 @@ public class PortableCinemaFrame extends JFrame {
     private void createUIComponents() {
         String EMPTY_HTML_TEMPLATE;
         try {
-            LOGO_IMAGE = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Logo_2.png"));
+            if ("xxx".equalsIgnoreCase(config.getTheme())) {
+                LOGO_IMAGE = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Logo.png"));
+            } else {
+                LOGO_IMAGE = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Logo_2.png"));
+            }
             EMPTY_HTML_TEMPLATE = Resources.asCharSource(Resources.getResource("templates/Empty.tpl"), StandardCharsets.UTF_8).read();
         } catch (Exception ex) {
             logger.error("Failed to load icon or template files", ex);

@@ -97,12 +97,17 @@ public class QueryResultPanel extends JPanel {
     private void createUIComponents() {
         // load resources
         try {
-            previewIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Preview-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
+            if ("xxx".equalsIgnoreCase(config.getTheme())) {
+                folderIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Folder-Movie-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
+                previewIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Movie-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
+            } else {
+                folderIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Folder-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
+                previewIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Preview-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
+            }
             editIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Edit-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
             detailIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Detail-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
             hdIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/HD-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
-            folderIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Folder-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
-            playerIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Video-Player-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
+            playerIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Video-Player-icon_2.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
         } catch (Exception ex) {
             logger.error("Failed to load icons", ex);
             return;

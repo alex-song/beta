@@ -47,7 +47,7 @@ public class PortableCinemaGUI {
         ButtonActionHandler buttonActionHandler = new ButtonActionHandler(config, confFile);
         HyperlinkActionHandler hyperlinkActionHandler = new HyperlinkActionHandler(config);
 
-        PortableCinemaFrame frame = new PortableCinemaFrame();
+        PortableCinemaFrame frame = new PortableCinemaFrame(config);
         frame.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
