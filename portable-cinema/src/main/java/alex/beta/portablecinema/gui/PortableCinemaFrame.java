@@ -32,10 +32,8 @@ public class PortableCinemaFrame extends JFrame {
     public static final String RESET_ACTION = "重置";
 
     private static final Logger logger = LoggerFactory.getLogger(PortableCinemaFrame.class);
-
-    private PortableCinemaConfig config;
-
     Icon logo50Icon;
+    private PortableCinemaConfig config;
     private JButton rootChooserButton;
     private JButton scanButton;
     private JButton analyzeButton;

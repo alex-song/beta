@@ -27,6 +27,7 @@ A:
 23. [Done] Key binding in player panel to support fast-forward of video
 24. [Done] Save screenshot
 25. [Done] Decode error flag
+26. Improve file info editor panel
 
 B:
 1. [Cancel] Add images array

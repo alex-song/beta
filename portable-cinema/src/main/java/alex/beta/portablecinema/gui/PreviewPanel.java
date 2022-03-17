@@ -155,7 +155,7 @@ public class PreviewPanel extends JPanel {
     private boolean showEditorDialog(String otid) {
         boolean isUpdated2 = false;
         FileInfo fileInfoToEdit = new ViewCommand(otid).execute(config);
-        if (FileInfoEditPanel.showDialog(this, fileInfoToEdit)) {
+        if (FileInfoEditPanel.showDialog(config, this, fileInfoToEdit)) {
             int result = new EditCommand(fileInfoToEdit).execute(config);
             logger.debug("Update file info [{}], result is [{}]", fileInfoToEdit, result);
             if (result == UPDATE_SUCCESS) {

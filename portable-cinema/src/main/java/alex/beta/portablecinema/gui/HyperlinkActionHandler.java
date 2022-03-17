@@ -126,7 +126,7 @@ public class HyperlinkActionHandler extends MouseAdapter {
                             PreviewPanel.showDialog(config, frame, fileInfo);
                         } else if (href.startsWith("edit://")) {
                             fileInfo = new ViewCommand(href.substring(7)).execute(config);
-                            if (FileInfoEditPanel.showDialog(frame, fileInfo)) {
+                            if (FileInfoEditPanel.showDialog(config, frame, fileInfo)) {
                                 int result = new EditCommand(fileInfo).execute(config);
                                 if (logger.isDebugEnabled())
                                     logger.debug("Update file info [{}], result is [{}]", fileInfo, result);

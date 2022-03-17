@@ -218,7 +218,7 @@ public class QueryResultPanel extends JPanel {
                     } else if (col == 3) {
                         if (logger.isDebugEnabled())
                             logger.debug("Open edit dialog of {}", fileInfo);
-                        if (FileInfoEditPanel.showDialog(frame, fileInfo)) {
+                        if (FileInfoEditPanel.showDialog(config, frame, fileInfo)) {
                             int result = new EditCommand(fileInfo).execute(config);
                             if (logger.isDebugEnabled())
                                 logger.debug("Update file info [{}], result is [{}]", fileInfo, result);

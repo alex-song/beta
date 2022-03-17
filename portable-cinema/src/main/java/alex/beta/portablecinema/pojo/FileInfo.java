@@ -99,12 +99,12 @@ public class FileInfo {
         return duration / 3600;
     }
 
-    public long getDurationMinsPart() {
-        return (duration % 3600) / 60;
+    public int getDurationMinsPart() {
+        return (int) (duration % 3600) / 60;
     }
 
-    public long getDurationSecondsPart() {
-        return duration % 60;
+    public int getDurationSecondsPart() {
+        return (int) duration % 60;
     }
 
     public String getFormattedDuration() {
