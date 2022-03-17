@@ -437,6 +437,25 @@ public class H2Adapter extends DatabaseAdapter {
         }.execute();
     }
 
+    public Set<Integer> resolutionStatistic(String widthOrHeight, int minOccur) throws DatabaseException {
+        return new ConnectionWrapper<Set<Integer>>() {
+            public Set<Integer> run(Connection connection) throws DatabaseException {
+                String sql = "select %s, count(1) from FileInfo group by %s having count(1) > %s and %s > 0 order by count(1) desc";
+                Set<Integer> s = new HashSet<>();
+                try (PreparedStatement queryStmt = connection.prepareStatement(String.format(sql, widthOrHeight, widthOrHeight, minOccur, widthOrHeight))) {
+                    try (ResultSet resultSet = queryStmt.executeQuery()) {
+                        while (resultSet.next()) {
+                            s.add(resultSet.getInt(1));
+                        }
+                    }
+                } catch (SQLException ex) {
+                    throw queryDatabaseException(ex, sql);
+                }
+                return s;
+            }
+        }.execute();
+    }
+
     private FileInfo populateFileInfo(ResultSet resultSet) throws SQLException {
         FileInfo fileInfo = new FileInfo();
         fileInfo.setOtid(resultSet.getString("OTID"));
