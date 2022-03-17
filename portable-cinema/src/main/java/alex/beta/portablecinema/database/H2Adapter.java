@@ -437,20 +437,25 @@ public class H2Adapter extends DatabaseAdapter {
         }.execute();
     }
 
-    public Set<Integer> resolutionStatistic(String widthOrHeight, int minOccur) throws DatabaseException {
-        return new ConnectionWrapper<Set<Integer>>() {
-            public Set<Integer> run(Connection connection) throws DatabaseException {
-                String sql = "select %s, count(1) from FileInfo group by %s having count(1) > %s and %s > 0 order by count(1) desc";
-                Set<Integer> s = new HashSet<>();
+    public Map<Integer, Integer> resolutionStatistic(@NonNull String widthOrHeight, int minOccur) throws DatabaseException {
+        return new ConnectionWrapper<Map<Integer, Integer>>() {
+            public Map<Integer, Integer> run(Connection connection) throws DatabaseException {
+                String sql = "select %s as resolution, count(1) as statistic from FileInfo group by %s having count(1) > %s and %s > 0 order by count(1) desc";
+                Map<Integer, Integer> s = new LinkedHashMap<>();
                 try (PreparedStatement queryStmt = connection.prepareStatement(String.format(sql, widthOrHeight, widthOrHeight, minOccur, widthOrHeight))) {
                     try (ResultSet resultSet = queryStmt.executeQuery()) {
                         while (resultSet.next()) {
-                            s.add(resultSet.getInt(1));
+                            s.put(resultSet.getInt("resolution"), resultSet.getInt("statistic"));
                         }
                     }
                 } catch (SQLException ex) {
                     throw queryDatabaseException(ex, sql);
                 }
+                if (logger.isDebugEnabled())
+                    logger.debug("Resolution statistic:\n{}, Count\n{}", widthOrHeight.toUpperCase(), s.entrySet()
+                            .stream()
+                            .map(e -> "" + e.getKey() + ", " + e.getValue())
+                            .collect(Collectors.joining(System.lineSeparator())));
                 return s;
             }
         }.execute();
