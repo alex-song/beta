@@ -29,8 +29,9 @@ A:
 25. [Done] Decode error flag
 26. [Done] Improve file info editor panel
 27. [Done] Improve cover identify algorithm
-28. Preview all images
+28. [Done] Preview all images
 29. [Done] Image inventory
+30. Set cover image from preview panel
 
 B:
 1. [Cancel] Add images array

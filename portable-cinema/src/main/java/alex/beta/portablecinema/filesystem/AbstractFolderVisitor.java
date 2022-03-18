@@ -34,6 +34,54 @@ public abstract class AbstractFolderVisitor implements FolderVisitor {
 
     private VisitorMessageCallback messageCallback;
 
+    public static boolean doSkip(@NonNull PortableCinemaConfig config, @NonNull File file) {
+        String[] tokens = isBlank(config.getSkipNameStartsWith()) ? new String[]{} : split(config.getSkipNameStartsWith(), "\\,");
+        for (String token : tokens) {
+            if (file.getName().toLowerCase().startsWith(token.trim())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check file extension and file size, according to configuration
+     *
+     * @param config
+     * @param file
+     * @return
+     */
+    public static boolean isImageFile(@NonNull final PortableCinemaConfig config, @NonNull File file) {
+        if (isBlank(config.getImageFileExtensions()) || !file.isFile()) {
+            return false;
+        } else if (config.getImageFileExtensions().trim().equals("*")) {
+            return true;
+        }
+        String[] imageExts = split(config.getImageFileExtensions(), "\\,");
+        for (String imageExt : imageExts) {
+            if (file.getName().toLowerCase().endsWith(imageExt.toLowerCase().trim())
+                    && file.length() >= config.getImageFileSizeThreshold()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static AbstractFolderVisitor newFolderVisitor(@NonNull Action action) {
+        switch (action) {
+            case SCAN:
+                return new FileScan();
+            case AGGREGATE:
+                return new FileAggregate();
+            case RESET_FOLDER:
+                return new FolderReset();
+            case RESET_ALL:
+                return new DeleteDBInFolder();
+            default:
+                return null;
+        }
+    }
+
     @Override
     public VisitorMessageCallback getMessageCallback() {
         return messageCallback;
@@ -181,16 +229,6 @@ public abstract class AbstractFolderVisitor implements FolderVisitor {
         return folderInfo;
     }
 
-    protected boolean doSkip(@NonNull PortableCinemaConfig config, @NonNull File file) {
-        String[] tokens = isBlank(config.getSkipNameStartsWith()) ? new String[]{} : split(config.getSkipNameStartsWith(), "\\,");
-        for (String token : tokens) {
-            if (file.getName().toLowerCase().startsWith(token.trim())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * Check file extension and file size, according to configuration
      *
@@ -212,44 +250,6 @@ public abstract class AbstractFolderVisitor implements FolderVisitor {
             }
         }
         return false;
-    }
-
-    /**
-     * Check file extension and file size, according to configuration
-     *
-     * @param config
-     * @param file
-     * @return
-     */
-    protected boolean isImageFile(@NonNull final PortableCinemaConfig config, @NonNull File file) {
-        if (isBlank(config.getImageFileExtensions()) || !file.isFile()) {
-            return false;
-        } else if (config.getImageFileExtensions().trim().equals("*")) {
-            return true;
-        }
-        String[] imageExts = split(config.getImageFileExtensions(), "\\,");
-        for (String imageExt : imageExts) {
-            if (file.getName().toLowerCase().endsWith(imageExt.toLowerCase().trim())
-                    && file.length() >= config.getImageFileSizeThreshold()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static AbstractFolderVisitor newFolderVisitor(@NonNull Action action) {
-        switch (action) {
-            case SCAN:
-                return new FileScan();
-            case AGGREGATE:
-                return new FileAggregate();
-            case RESET_FOLDER:
-                return new FolderReset();
-            case RESET_ALL:
-                return new DeleteDBInFolder();
-            default:
-                return null;
-        }
     }
 
     protected abstract void beforeAllFiles(final PortableCinemaConfig config, FileDB db, File currentFolder, File[] files) throws IOException, DatabaseException;

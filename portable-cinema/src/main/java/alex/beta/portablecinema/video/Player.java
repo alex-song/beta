@@ -44,6 +44,39 @@ public class Player implements AutoCloseable {
         return new Player(config, fileInfo);
     }
 
+    private static String getFormattedSeconds(int seconds) {
+        if (seconds < 0 || seconds > 99 * 3600 + 59 * 60 + 59) { // oversize
+            return null;
+        } else if (seconds < 60) {
+            return "0000" + getString(getDurationSecondsPart(seconds));
+        } else if (seconds < 3600) {
+            return "00" + getString(getDurationMinsPart(seconds)) + getString((getDurationSecondsPart(seconds)));
+        } else {
+            return getString(getDurationHoursPart(seconds)) + getString(getDurationMinsPart(seconds)) + getString((getDurationSecondsPart(seconds)));
+        }
+    }
+
+    private static String getString(int t) {
+        if (t < 0) {
+            return "00";
+        } else if (t < 10) {
+            return "0" + t;
+        } else
+            return String.valueOf(t);
+    }
+
+    private static int getDurationHoursPart(int duration) {
+        return duration / 3600;
+    }
+
+    private static int getDurationMinsPart(int duration) {
+        return (duration % 3600) / 60;
+    }
+
+    private static int getDurationSecondsPart(int duration) {
+        return duration % 60;
+    }
+
     public synchronized Player read() throws IOException {
         container = IContainer.make();
         videoFile = new RandomAccessFile(new File(fileInfo.getPath(), fileInfo.getName()), "r");
@@ -262,38 +295,5 @@ public class Player implements AutoCloseable {
 
     public boolean saveImage(RenderedImage image, int seconds) throws IOException {
         return saveImage(image, getFormattedSeconds(seconds));
-    }
-
-    private static String getFormattedSeconds(int seconds) {
-        if (seconds < 0 || seconds > 99 * 3600 + 59 * 60 + 59) { // oversize
-            return null;
-        } else if (seconds < 60) {
-            return "0000" + getString(getDurationSecondsPart(seconds));
-        } else if (seconds < 3600) {
-            return "00" + getString(getDurationMinsPart(seconds)) + getString((getDurationSecondsPart(seconds)));
-        } else {
-            return getString(getDurationHoursPart(seconds)) + getString(getDurationMinsPart(seconds)) + getString((getDurationSecondsPart(seconds)));
-        }
-    }
-
-    private static String getString(int t) {
-        if (t < 0) {
-            return "00";
-        } else if (t < 10) {
-            return "0" + t;
-        } else
-            return String.valueOf(t);
-    }
-
-    private static int getDurationHoursPart(int duration) {
-        return duration / 3600;
-    }
-
-    private static int getDurationMinsPart(int duration) {
-        return (duration % 3600) / 60;
-    }
-
-    private static int getDurationSecondsPart(int duration) {
-        return duration % 60;
     }
 }

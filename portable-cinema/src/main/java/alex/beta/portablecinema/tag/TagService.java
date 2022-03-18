@@ -20,12 +20,9 @@ import java.util.*;
 import static org.apache.commons.lang3.StringUtils.*;
 
 public class TagService {
-    private static final Logger logger = LoggerFactory.getLogger(TagService.class);
-
-    private static final double THRESHOLD = 0.85;
-
     public static final int MINI_TERM_TEXT_LENGTH = 2;
-
+    private static final Logger logger = LoggerFactory.getLogger(TagService.class);
+    private static final double THRESHOLD = 0.85;
     private static TagService instance;
 
     private final PortableCinemaConfig config;

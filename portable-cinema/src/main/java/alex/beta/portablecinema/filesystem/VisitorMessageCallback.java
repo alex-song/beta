@@ -4,7 +4,8 @@ public interface VisitorMessageCallback {
 
     /**
      * Output messages, while visitor is working
-     * @param messages
+     *
+     * @param messages to display
      */
     void output(String... messages);
 }

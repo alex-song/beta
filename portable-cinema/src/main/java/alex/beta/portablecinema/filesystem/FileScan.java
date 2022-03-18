@@ -32,6 +32,22 @@ public class FileScan extends AbstractFolderVisitor {
 
     /**
      * @param config
+     * @param folder
+     * @return
+     */
+    public static boolean containsOnlyImages(final PortableCinemaConfig config, @NonNull File folder) {
+        File[] files = folder.listFiles();
+        if (files != null)
+            for (File file : files) {
+                if (!doSkip(config, file) && !isImageFile(config, file) && !file.getName().equalsIgnoreCase(config.getDbFileName())) {
+                    return false;
+                }
+            }
+        return true;
+    }
+
+    /**
+     * @param config
      * @param db
      * @param currentFolder
      * @param file
@@ -180,7 +196,6 @@ public class FileScan extends AbstractFolderVisitor {
                 return coversPath;
             } else if (covers.length == 1) {
                 coversPath.add(covers[0].getName());
-//                return coversPath;
             }
         }
 
@@ -193,7 +208,6 @@ public class FileScan extends AbstractFolderVisitor {
             return coversPath;
         } else if (coverImageFiles.size() == 1) {
             coversPath.add(coverImageFiles.get(0).getName());
-//            return coversPath;
         }
 
         //Rule 3
@@ -207,7 +221,6 @@ public class FileScan extends AbstractFolderVisitor {
                 return coversPath;
             } else if (coverImageFiles.size() == 1) {
                 coversPath.add(subFolders[0].getName() + File.separator + coverImageFiles.get(0).getName());
-//                return coversPath;
             }
         }
         return coversPath;
@@ -254,21 +267,5 @@ public class FileScan extends AbstractFolderVisitor {
             }
         });
         return tmp;
-    }
-
-    /**
-     * @param config
-     * @param folder
-     * @return
-     */
-    private boolean containsOnlyImages(final PortableCinemaConfig config, @NonNull File folder) {
-        File[] files = folder.listFiles();
-        if (files != null)
-            for (File file : files) {
-                if (!doSkip(config, file) && !isImageFile(config, file) && !file.getName().equalsIgnoreCase(config.getDbFileName())) {
-                    return false;
-                }
-            }
-        return true;
     }
 }

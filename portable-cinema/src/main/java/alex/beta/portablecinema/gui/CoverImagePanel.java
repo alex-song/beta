@@ -18,9 +18,13 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import static alex.beta.portablecinema.filesystem.AbstractFolderVisitor.doSkip;
+import static alex.beta.portablecinema.filesystem.AbstractFolderVisitor.isImageFile;
+import static alex.beta.portablecinema.filesystem.FileScan.containsOnlyImages;
 import static java.awt.Image.SCALE_DEFAULT;
 import static java.awt.Image.SCALE_SMOOTH;
 import static javax.imageio.ImageIO.getImageReadersBySuffix;
@@ -66,14 +70,56 @@ public class CoverImagePanel extends JPanel {
                 if (fileInfo == null || !fileInfo.hasCover()) {
                     publish(new ThumbnailAction(placeholderIcon, placeholderIcon, placeholderIcon, ""));
                 } else {
+                    // publish cover 1 and cover 2 first
                     if (isNotBlank(fileInfo.getCover1())) {
                         publishImage(fileInfo.getPath(), fileInfo.getCover1());
                     }
                     if (isNotBlank(fileInfo.getCover2())) {
                         publishImage(fileInfo.getPath(), fileInfo.getCover2());
                     }
+
+                    // publish images in the same folder, other than cover 1 and cover 2
+                    File currentFolder = new File(fileInfo.getPath() == null ? "." : fileInfo.getPath());
+                    List<String> images = getAllImages(currentFolder);
+                    for (String image : images) {
+                        try {
+                            publishImage(currentFolder.getCanonicalPath(), image);
+                        } catch (Exception ex) {
+                            logger.warn("Failed to publish image [{}]", image, ex);
+                        }
+                    }
+
+                    // publish images in sub folder, that contains only images, if cover 1 or cover 2 is blank
+                    if (images.isEmpty() && (isBlank(fileInfo.getCover1()) || isBlank(fileInfo.getCover2()))) {
+                        File[] subFolders = currentFolder.listFiles(file -> file.isDirectory() && !doSkip(config, file));
+                        if (subFolders != null && subFolders.length == 1 && containsOnlyImages(config, subFolders[0])) {
+                            List<String> subImages = getAllImages(subFolders[0]);
+                            for (String image : subImages) {
+                                try {
+                                    publishImage(subFolders[0].getCanonicalPath(), image);
+                                } catch (Exception ex) {
+                                    logger.warn("Failed to publish image [{}]", image, ex);
+                                }
+                            }
+                        }
+                    }
                 }
                 return null;
+            }
+
+            private List<String> getAllImages(@NonNull File folder) {
+                List<String> images = new ArrayList<>();
+                File[] files = folder.listFiles(file -> isImageFile(config, file) && !doSkip(config, file));
+                if (files != null) {
+                    for (File f : files) {
+                        String fName = f.getName();
+                        if (!fName.equalsIgnoreCase(fileInfo.getCover1())
+                                && !fName.equalsIgnoreCase(fileInfo.getCover2())) {
+                            images.add(fName);
+                        }
+                    }
+                }
+                return images;
             }
 
             /**

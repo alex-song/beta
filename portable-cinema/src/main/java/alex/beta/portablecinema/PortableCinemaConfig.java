@@ -71,26 +71,20 @@ public class PortableCinemaConfig {
                 '}';
     }
 
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    public static class BaiduOCR {
-        private String proxyHost;
-        private int proxyPort;
-        private String appId;
-        private String apiKey;
-        private String secretKey;
-    }
-
     public enum ScreenshotResolution {
-        HIGH ("png", "png"),
-        LOW ("jpg", "jpg");
+        HIGH("png", "png"),
+        LOW("jpg", "jpg");
 
         private final String formatName;
         private final String surrfix;
+
         ScreenshotResolution(String formatName, String surrfix) {
             this.formatName = formatName;
             this.surrfix = surrfix;
+        }
+
+        public static boolean isSupported(@NonNull String surrfix) {
+            return HIGH.getSuffix().equalsIgnoreCase(surrfix) || LOW.getSuffix().equalsIgnoreCase(surrfix);
         }
 
         public String getFormatName() {
@@ -100,9 +94,16 @@ public class PortableCinemaConfig {
         public String getSuffix() {
             return this.surrfix;
         }
+    }
 
-        public static boolean isSupported(@NonNull String surrfix) {
-            return HIGH.getSuffix().equalsIgnoreCase(surrfix) || LOW.getSuffix().equalsIgnoreCase(surrfix);
-        }
+    @Setter
+    @Getter
+    @NoArgsConstructor
+    public static class BaiduOCR {
+        private String proxyHost;
+        private int proxyPort;
+        private String appId;
+        private String apiKey;
+        private String secretKey;
     }
 }

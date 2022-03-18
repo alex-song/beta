@@ -26,14 +26,6 @@ public class FolderVisitorFactory {
         }
     }
 
-    public interface FolderVisitor {
-        FolderInfo execute(PortableCinemaConfig config, File currentFolder);
-
-        VisitorMessageCallback getMessageCallback();
-
-        FolderVisitor messageCallback(VisitorMessageCallback messageCallback);
-    }
-
     /**
      * SACN: Scan files and sub folders in the folder, and write into in-folder database
      * AGGREGATE: Aggregate file information from in-folder database
@@ -42,5 +34,13 @@ public class FolderVisitorFactory {
      */
     public enum Action {
         SCAN, AGGREGATE, RESET_FOLDER, RESET_ALL
+    }
+
+    public interface FolderVisitor {
+        FolderInfo execute(PortableCinemaConfig config, File currentFolder);
+
+        VisitorMessageCallback getMessageCallback();
+
+        FolderVisitor messageCallback(VisitorMessageCallback messageCallback);
     }
 }
