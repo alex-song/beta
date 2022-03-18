@@ -8,13 +8,17 @@ import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class Player implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(Player.class);
+    private final PortableCinemaConfig config;
     private FileInfo fileInfo;
     private RandomAccessFile videoFile;
     private IContainer container;
@@ -22,6 +26,7 @@ public class Player implements AutoCloseable {
     private IStreamCoder videoCoder;
 
     private Player(PortableCinemaConfig config, FileInfo fileInfo) {
+        this.config = config;
         this.fileInfo = fileInfo;
     }
 
@@ -45,13 +50,14 @@ public class Player implements AutoCloseable {
                 }
             }
         } else {
-            logger.warn("Fail to open video file [{}/{}]", fileInfo.getPath(), fileInfo.getName());
+            logger.warn("Failed to open video file [{}/{}]", fileInfo.getPath(), fileInfo.getName());
         }
         return this;
     }
 
     /**
      * Caution: This method is ONLY for FileScan
+     *
      * @return
      */
     public synchronized boolean isDecodable() {
@@ -211,6 +217,16 @@ public class Player implements AutoCloseable {
                 JNIMemoryManager.getMgr().gc();
         } catch (Exception ex) {
             logger.error("Error when closing player", ex);
+        }
+    }
+
+    public void saveImage(RenderedImage image, File imageFile) throws IOException {
+        if (image == null || imageFile == null) {
+            return;
+        }
+        try (FileOutputStream output = new FileOutputStream(imageFile)) {
+            ImageIO.write(image, config.getScreenshotResolution().getFormatName(), output);
+            output.flush();
         }
     }
 }

@@ -1,5 +1,6 @@
 package alex.beta.portablecinema.gui;
 
+import alex.beta.portablecinema.ImageCache;
 import alex.beta.portablecinema.PortableCinemaConfig;
 import com.google.common.io.Resources;
 import org.slf4j.Logger;
@@ -66,9 +67,9 @@ public class PortableCinemaFrame extends JFrame {
         String EMPTY_HTML_TEMPLATE;
         try {
             if ("xxx".equalsIgnoreCase(config.getTheme())) {
-                LOGO_IMAGE = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Logo.png"));
+                LOGO_IMAGE = ImageCache.getCache().getImage("images/Logo.png");
             } else {
-                LOGO_IMAGE = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Logo_2.png"));
+                LOGO_IMAGE = ImageCache.getCache().getImage("images/Logo_2.png");
             }
             EMPTY_HTML_TEMPLATE = Resources.asCharSource(Resources.getResource("templates/Empty.tpl"), StandardCharsets.UTF_8).read();
         } catch (Exception ex) {
@@ -178,30 +179,24 @@ public class PortableCinemaFrame extends JFrame {
 
     private void loadResourcesLater() {
         SwingUtilities.invokeLater(() -> {
-            Image FOLDER_IMAGE = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Scan-icon.png"));
-            FOLDER_ICON = new ImageIcon(FOLDER_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
+            FOLDER_ICON = new ImageIcon(ImageCache.getCache().getImage("images/Folder-icon_2.png", 20, 20, SCALE_SMOOTH));
             rootChooserButton.setIcon(FOLDER_ICON);
 
-            Image SCAN_IMAGE = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Scan-icon.png"));
-            SCAN_ICON = new ImageIcon(SCAN_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
+            SCAN_ICON = new ImageIcon(ImageCache.getCache().getImage("images/Scan-icon.png", 20, 20, SCALE_SMOOTH));
             scanButton.setIcon(SCAN_ICON);
 
-            Image ANALYZE_IMAGE = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Analyze-icon.png"));
-            ANALYZE_ICON = new ImageIcon(ANALYZE_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
+            ANALYZE_ICON = new ImageIcon(ImageCache.getCache().getImage("images/Analyze-icon.png", 20, 20, SCALE_SMOOTH));
             analyzeButton.setIcon(ANALYZE_ICON);
 
-            Image SEARCH_IMAGE = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Search-icon.png"));
-            SEARCH_ICON = new ImageIcon(SEARCH_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
+            SEARCH_ICON = new ImageIcon(ImageCache.getCache().getImage("images/Search-icon.png", 20, 20, SCALE_SMOOTH));
             findByNameButton.setIcon(SEARCH_ICON);
             findByTagButton.setIcon(SEARCH_ICON);
             findByWhereButton.setIcon(SEARCH_ICON);
 
-            Image EXPORT_IMAGE = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Export-icon.png"));
-            EXPORT_ICON = new ImageIcon(EXPORT_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
+            EXPORT_ICON = new ImageIcon(ImageCache.getCache().getImage("images/Export-icon.png", 20, 20, SCALE_SMOOTH));
             exportButton.setIcon(EXPORT_ICON);
 
-            Image RESET_IMAGE = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Reset-icon.png"));
-            RESET_ICON = new ImageIcon(RESET_IMAGE.getScaledInstance(20, 20, SCALE_SMOOTH));
+            RESET_ICON = new ImageIcon(ImageCache.getCache().getImage("images/Reset-icon.png", 20, 20, SCALE_SMOOTH));
             resetButton.setIcon(RESET_ICON);
 
             logo50Icon = new ImageIcon(LOGO_IMAGE.getScaledInstance(50, 50, Image.SCALE_SMOOTH));

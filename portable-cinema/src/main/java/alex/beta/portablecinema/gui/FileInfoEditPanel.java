@@ -1,5 +1,6 @@
 package alex.beta.portablecinema.gui;
 
+import alex.beta.portablecinema.ImageCache;
 import alex.beta.portablecinema.PortableCinemaConfig;
 import alex.beta.portablecinema.pojo.FileInfo;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +27,7 @@ import static org.apache.commons.lang3.StringUtils.*;
 @SuppressWarnings({"squid:S1948", "squid:S3776"})
 public class FileInfoEditPanel extends JPanel {
 
-    private static Logger logger = LoggerFactory.getLogger(FileInfoEditPanel.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileInfoEditPanel.class);
 
     private final PortableCinemaConfig config;
     private ImageIcon imageSelectorBtnIcon;
@@ -47,15 +48,8 @@ public class FileInfoEditPanel extends JPanel {
         super(new GridBagLayout());
         this.config = config;
         this.fileInfo = fileInfo;
-        try {
-            Image imageSelectorBtnImage = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Preview-icon_1.png"));
-            imageSelectorBtnIcon = new ImageIcon(imageSelectorBtnImage.getScaledInstance(20, 20, Image.SCALE_SMOOTH));
-
-            Image imageDeletionBtnIconImage = Toolkit.getDefaultToolkit().createImage(this.getClass().getClassLoader().getResource("images/Delete-icon.png"));
-            imageDeletionBtnIcon = new ImageIcon(imageDeletionBtnIconImage.getScaledInstance(20, 20, Image.SCALE_SMOOTH));
-        } catch (Exception ex) {
-            logger.error("Fail to load image selector icon", ex);
-        }
+        imageSelectorBtnIcon = new ImageIcon(ImageCache.getCache().getImage("images/Preview-icon_1.png", 20, 20, Image.SCALE_SMOOTH));
+        imageDeletionBtnIcon = new ImageIcon(ImageCache.getCache().getImage("images/Delete-icon.png", 20, 20, Image.SCALE_SMOOTH));
         createUIComponents();
         initValues();
     }
@@ -343,7 +337,7 @@ public class FileInfoEditPanel extends JPanel {
                             imageLabel.setText(toDisplay(this.imageName));
                             imageLabel.setToolTipText(this.imageName);
                         } catch (Exception ex) {
-                            logger.error("Fail to set {}", text, ex);
+                            logger.error("Failed to set {}", text, ex);
                         }
                     }
                 });
@@ -400,7 +394,7 @@ public class FileInfoEditPanel extends JPanel {
                                 if (v >= min && v <= max)
                                     super.insertString(offset, text, attr);
                             } catch (Exception ex) {
-                                logger.error("Fail to parse input value", ex);
+                                logger.error("Failed to parse input value", ex);
                             }
                         }
                     }

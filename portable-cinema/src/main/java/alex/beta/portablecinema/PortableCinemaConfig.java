@@ -28,6 +28,7 @@ public class PortableCinemaConfig {
     private boolean enablePerformanceLog;
     private boolean enableQueryResultHTML;
     private String theme = "default";
+    private ScreenshotResolution screenshotResolution = ScreenshotResolution.LOW;
 
     public static PortableCinemaConfig getDefault() {
         PortableCinemaConfig config = new PortableCinemaConfig();
@@ -42,6 +43,7 @@ public class PortableCinemaConfig {
         config.enablePerformanceLog = false;
         config.enableQueryResultHTML = false;
         config.theme = "default";
+        config.screenshotResolution = ScreenshotResolution.LOW;
         return config;
     }
 
@@ -62,6 +64,7 @@ public class PortableCinemaConfig {
                 ", skipNameStartsWith='" + skipNameStartsWith + '\'' +
                 ", glossaryFileName='" + glossaryFileName + '\'' +
                 ", theme='" + theme + '\'' +
+                ", screenshotResolution='" + screenshotResolution + '\'' +
                 ", enablePerformanceLog=" + enablePerformanceLog +
                 ", enableQueryResultHTML=" + enableQueryResultHTML +
                 '}';
@@ -76,5 +79,25 @@ public class PortableCinemaConfig {
         private String appId;
         private String apiKey;
         private String secretKey;
+    }
+
+    public enum ScreenshotResolution {
+        HIGH ("png", "png"),
+        LOW ("jpg", "jpg");
+
+        private final String formatName;
+        private final String surrfix;
+        ScreenshotResolution(String formatName, String surrfix) {
+            this.formatName = formatName;
+            this.surrfix = surrfix;
+        }
+
+        public String getFormatName() {
+            return this.formatName;
+        }
+
+        public String getSuffix() {
+            return this.surrfix;
+        }
     }
 }

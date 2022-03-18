@@ -1,5 +1,6 @@
 package alex.beta.portablecinema.gui;
 
+import alex.beta.portablecinema.ImageCache;
 import alex.beta.portablecinema.PortableCinemaConfig;
 import alex.beta.portablecinema.command.*;
 import alex.beta.portablecinema.pojo.FileInfo;
@@ -9,7 +10,6 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -27,6 +27,7 @@ import static alex.beta.portablecinema.command.EditCommand.resultText;
 import static alex.beta.portablecinema.gui.PortableCinemaFrame.*;
 import static java.awt.Cursor.DEFAULT_CURSOR;
 import static java.awt.Cursor.HAND_CURSOR;
+import static java.awt.Image.SCALE_SMOOTH;
 import static org.apache.commons.lang3.StringUtils.*;
 
 public class QueryResultPanel extends JPanel {
@@ -98,16 +99,16 @@ public class QueryResultPanel extends JPanel {
         // load resources
         try {
             if ("xxx".equalsIgnoreCase(config.getTheme())) {
-                folderIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Folder-Movie-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
-                previewIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Movie-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
+                folderIcon = new ImageIcon(ImageCache.getCache().getImage("images/Folder-Movie-icon.png", 15, 15, SCALE_SMOOTH));
+                previewIcon = new ImageIcon(ImageCache.getCache().getImage("images/Movie-icon.png", 15, 15, SCALE_SMOOTH));
             } else {
-                folderIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Folder-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
-                previewIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Preview-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
+                folderIcon = new ImageIcon(ImageCache.getCache().getImage("images/Folder-icon.png", 15, 15, SCALE_SMOOTH));
+                previewIcon = new ImageIcon(ImageCache.getCache().getImage("images/Preview-icon.png", 15, 15, SCALE_SMOOTH));
             }
-            editIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Edit-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
-            detailIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Detail-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
-            hdIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/HD-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
-            playerIcon = new ImageIcon(ImageIO.read(this.getClass().getClassLoader().getResource("images/Video-Player-icon.png")).getScaledInstance(15, 15, Image.SCALE_SMOOTH));
+            editIcon = new ImageIcon(ImageCache.getCache().getImage("images/Edit-icon.png", 15, 15, SCALE_SMOOTH));
+            detailIcon = new ImageIcon(ImageCache.getCache().getImage("images/Detail-icon.png", 15, 15, SCALE_SMOOTH));
+            hdIcon = new ImageIcon(ImageCache.getCache().getImage("images/HD-icon.png", 15, 15, SCALE_SMOOTH));
+            playerIcon = new ImageIcon(ImageCache.getCache().getImage("images/Video-Player-icon.png", 15, 15, SCALE_SMOOTH));
         } catch (Exception ex) {
             logger.error("Failed to load icons", ex);
             return;

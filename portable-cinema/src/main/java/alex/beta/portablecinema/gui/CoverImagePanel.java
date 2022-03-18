@@ -172,7 +172,7 @@ public class CoverImagePanel extends JPanel {
         photographLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent event) {
-                final String currentImg = getCurrentImg();
+                final String currentImg = getCurrentImageName();
                 if ((event.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(event) && isNotBlank(currentImg))) {
                     if (photographLabel.getIcon() == currentAction.fullsize) {
                         photographLabel.setIcon(currentAction.scaledImage);
@@ -266,7 +266,7 @@ public class CoverImagePanel extends JPanel {
         }
     }
 
-    String getCurrentImg() {
+    String getCurrentImageName() {
         return this.currentAction != null ? String.valueOf(this.currentAction.getValue(SHORT_DESCRIPTION)) : null;
     }
 

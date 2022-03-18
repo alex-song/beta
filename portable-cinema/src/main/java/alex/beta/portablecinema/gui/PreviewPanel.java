@@ -132,9 +132,9 @@ public class PreviewPanel extends JPanel {
     private void doOCR() {
         int option = JOptionPane.DEFAULT_OPTION;
         if (isCoverImagePanelSelected()) {
-            option = TagSuggestionPanel.showDialog(this.config, this, ocrClient, coverImagePanel.getCurrentImg(), null);
+            option = TagSuggestionPanel.showDialog(this.config, this, ocrClient, coverImagePanel.getCurrentImageName(), null);
         } else if (isPlayPanelSelected()) {
-            option = TagSuggestionPanel.showDialog(this.config, this, ocrClient, playerPanel.getCurrentImg(), playerPanel.getCurrentImageData());
+            option = TagSuggestionPanel.showDialog(this.config, this, ocrClient, playerPanel.getCurrentTimestamp(), playerPanel.toBytes());
         }
         if (option == SAVE_CHANGES_OPTION || option == SAVE_CHANGES_OPEN_EDITOR_OPTION) {
             int result = new EditCommand(fileInfo).execute(config);
@@ -204,7 +204,7 @@ public class PreviewPanel extends JPanel {
 
     private boolean isImageShown() {
         if (isCoverImagePanelSelected())
-            return isNotBlank(coverImagePanel.getCurrentImg());
+            return isNotBlank(coverImagePanel.getCurrentImageName());
         else
             return isPlayPanelSelected() && playerPanel.screenshot != null;
     }
