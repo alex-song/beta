@@ -2,6 +2,7 @@ package alex.beta.portablecinema.filesystem;
 
 import alex.beta.portablecinema.FolderVisitorFactory;
 import alex.beta.portablecinema.PortableCinemaConfig;
+import alex.beta.portablecinema.PortableCinemaConfig.ScreenshotResolution;
 import alex.beta.portablecinema.pojo.FileDB;
 import alex.beta.portablecinema.pojo.FileInfo;
 import alex.beta.portablecinema.tag.TagService;
@@ -9,7 +10,6 @@ import alex.beta.portablecinema.video.Player;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.NonNull;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 
 import java.io.File;
@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class FileScan extends AbstractFolderVisitor {
 
@@ -46,13 +48,13 @@ public class FileScan extends AbstractFolderVisitor {
             }
             fileInfo.setPath(currentFolder.getCanonicalPath());
             fileInfo.setName(file.getName());
-            if (StringUtils.isBlank(fileInfo.getOtid()))
+            if (isBlank(fileInfo.getOtid()))
                 fileInfo.setOtid(FileInfo.randomOtid());
             fileInfo.setSize(file.length());
             fileInfo.appendTags(TagService.getInstance(config).detectTags(file, currentFolder));
-            String[] covers = getCoverOfVideo(config, file, currentFolder);
-            fileInfo.setCover1(covers[0]);
-            fileInfo.setCover2(covers[1]);
+            List<String> covers = getCoverOfVideo(config, file, currentFolder);
+            fileInfo.setCover1(covers.isEmpty() ? null : covers.get(0));
+            fileInfo.setCover2(covers.size() < 2 ? null : covers.get(1));
             fileInfo.setLastModifiedOn(new Date(file.lastModified()));
             try (Player player = Player.getInstance(config, fileInfo).read()) {
                 player.getDuration(true);
@@ -160,10 +162,11 @@ public class FileScan extends AbstractFolderVisitor {
      * @param currentFolder
      * @return
      */
-    private String[] getCoverOfVideo(final PortableCinemaConfig config, @NonNull File videoFile, @NonNull File currentFolder) {
-        String[] coversPath = new String[2];
+    private List<String> getCoverOfVideo(final PortableCinemaConfig config, @NonNull File videoFile, @NonNull File currentFolder) {
+        List<String> coversPath = new ArrayList<>();
         //Rule 1
         File[] covers = currentFolder.listFiles(file -> isImageFile(config, file) && !doSkip(config, file) &&
+                !isScreenshot4Others(config, videoFile, currentFolder, file) &&
                 (file.getName().toLowerCase().startsWith("cover") || file.getName().toLowerCase().endsWith("cover") ||
                         file.getName().toLowerCase().startsWith("back") || file.getName().toLowerCase().endsWith("back") ||
                         file.getName().toLowerCase().contains("封面") ||
@@ -172,45 +175,60 @@ public class FileScan extends AbstractFolderVisitor {
                         file.getName().toLowerCase().contains("thumbnail")));
         if (covers != null) {
             if (covers.length >= 2) {
-                coversPath[0] = covers[0].getName();
-                coversPath[1] = covers[1].getName();
+                coversPath.add(covers[0].getName());
+                coversPath.add(covers[1].getName());
                 return coversPath;
             } else if (covers.length == 1) {
-                coversPath[0] = covers[0].getName();
-                return coversPath;
+                coversPath.add(covers[0].getName());
+//                return coversPath;
             }
         }
 
         //Rule 2
         List<File> coverImageFiles = sortBySimilarity(currentFolder.listFiles(file -> isImageFile(config, file)
-                && !doSkip(config, file)), videoFile.getName());
+                && !doSkip(config, file) && !isScreenshot4Others(config, videoFile, currentFolder, file)), videoFile.getName());
         if (coverImageFiles.size() >= 2) {
-            coversPath[0] = coverImageFiles.get(0).getName();
-            coversPath[1] = coverImageFiles.get(1).getName();
+            coversPath.add(coverImageFiles.get(0).getName());
+            coversPath.add(coverImageFiles.get(1).getName());
             return coversPath;
         } else if (coverImageFiles.size() == 1) {
-            coversPath[0] = coverImageFiles.get(0).getName();
-            return coversPath;
+            coversPath.add(coverImageFiles.get(0).getName());
+//            return coversPath;
         }
 
         //Rule 3
         File[] subFolders = currentFolder.listFiles(file -> file.isDirectory() && !doSkip(config, file));
         if (subFolders != null && subFolders.length == 1 && containsOnlyImages(config, subFolders[0])) {
             coverImageFiles = sortBySimilarity(subFolders[0].listFiles(file -> isImageFile(config, file)
-                    && !doSkip(config, file)), videoFile.getName());
+                    && !doSkip(config, file) && !isScreenshot4Others(config, videoFile, currentFolder, file)), videoFile.getName());
             if (coverImageFiles.size() >= 2) {
-                coversPath[0] = subFolders[0].getName() + File.separator + coverImageFiles.get(0).getName();
-                coversPath[1] = subFolders[0].getName() + File.separator + coverImageFiles.get(1).getName();
+                coversPath.add(subFolders[0].getName() + File.separator + coverImageFiles.get(0).getName());
+                coversPath.add(subFolders[0].getName() + File.separator + coverImageFiles.get(1).getName());
                 return coversPath;
             } else if (coverImageFiles.size() == 1) {
-                coversPath[0] = subFolders[0].getName() + File.separator + coverImageFiles.get(0).getName();
-                return coversPath;
+                coversPath.add(subFolders[0].getName() + File.separator + coverImageFiles.get(0).getName());
+//                return coversPath;
             }
         }
-        //Not found
         return coversPath;
     }
 
+    private boolean isScreenshot4Others(final PortableCinemaConfig config, @NonNull File videoFile, @NonNull File currentFolder, @NonNull File fileToTest) {
+        if (!isImageFile(config, fileToTest) ||
+                !ScreenshotResolution.isSupported(com.google.common.io.Files.getFileExtension(fileToTest.getName()))) {
+            return false;
+        }
+        String baseName = com.google.common.io.Files.getNameWithoutExtension(fileToTest.getName());
+        if (!Player.SCREENSHOT_NAME_PATTERN.matcher(baseName).find()) {
+            return false;
+        } else {
+            String vName = baseName.substring(0, baseName.length() - 7);
+            File[] fVideos = currentFolder.listFiles(file -> isVideoFile(config, file)
+                    && !file.getName().equalsIgnoreCase(videoFile.getName())
+                    && com.google.common.io.Files.getNameWithoutExtension(file.getName()).equalsIgnoreCase(vName));
+            return fVideos != null && fVideos.length > 0;
+        }
+    }
 
     /**
      * Test similarity of given files, using JaroWinklerSimilarity, and sorted by the result

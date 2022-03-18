@@ -2,9 +2,11 @@ package alex.beta.portablecinema.video;
 
 import alex.beta.portablecinema.PortableCinemaConfig;
 import alex.beta.portablecinema.pojo.FileInfo;
+import com.google.common.io.Files;
 import com.xuggle.ferry.JNIMemoryManager;
 import com.xuggle.xuggler.*;
 import lombok.NonNull;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,9 +17,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Date;
+import java.util.regex.Pattern;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class Player implements AutoCloseable {
+
+    public static final Pattern SCREENSHOT_NAME_PATTERN = Pattern.compile(".*-\\d{6}$");
+
     private static final Logger logger = LoggerFactory.getLogger(Player.class);
+
     private final PortableCinemaConfig config;
     private FileInfo fileInfo;
     private RandomAccessFile videoFile;
@@ -194,7 +204,7 @@ public class Player implements AutoCloseable {
             }
             return screenshot;
         } finally {
-            if (videoCoder != null) videoCoder.close();
+            videoCoder.close();
         }
     }
 
@@ -220,13 +230,70 @@ public class Player implements AutoCloseable {
         }
     }
 
-    public void saveImage(RenderedImage image, File imageFile) throws IOException {
-        if (image == null || imageFile == null) {
-            return;
-        }
+    public boolean saveImage(RenderedImage image, File imageFile) throws IOException {
+        if (image == null || imageFile == null)
+            return false;
+
         try (FileOutputStream output = new FileOutputStream(imageFile)) {
             ImageIO.write(image, config.getScreenshotResolution().getFormatName(), output);
             output.flush();
+            return true;
         }
+    }
+
+    public boolean saveImage(RenderedImage image, String append) throws IOException {
+        if (isBlank(append))
+            append = DateFormatUtils.format(new Date(), "hhmmss");
+        File folder = new File(fileInfo.getPath());
+        long timestamp = -1;
+        try {
+            String videoFileName = Files.getNameWithoutExtension(fileInfo.getName());
+            if (isBlank(videoFileName)) videoFileName = "PC-screenshot";
+            File screenshotFile = new File(folder, videoFileName + "-" + append + "." + config.getScreenshotResolution().getSuffix());
+            timestamp = folder.lastModified();
+            boolean flag = this.saveImage(image, screenshotFile);
+            if (flag && logger.isInfoEnabled())
+                logger.info("Screenshot is saved, {}", screenshotFile.getCanonicalPath());
+            return flag;
+        } finally {
+            if (timestamp > -1) folder.setLastModified(timestamp);
+        }
+    }
+
+    public boolean saveImage(RenderedImage image, int seconds) throws IOException {
+        return saveImage(image, getFormattedSeconds(seconds));
+    }
+
+    private static String getFormattedSeconds(int seconds) {
+        if (seconds < 0 || seconds > 99 * 3600 + 59 * 60 + 59) { // oversize
+            return null;
+        } else if (seconds < 60) {
+            return "0000" + getString(getDurationSecondsPart(seconds));
+        } else if (seconds < 3600) {
+            return "00" + getString(getDurationMinsPart(seconds)) + getString((getDurationSecondsPart(seconds)));
+        } else {
+            return getString(getDurationHoursPart(seconds)) + getString(getDurationMinsPart(seconds)) + getString((getDurationSecondsPart(seconds)));
+        }
+    }
+
+    private static String getString(int t) {
+        if (t < 0) {
+            return "00";
+        } else if (t < 10) {
+            return "0" + t;
+        } else
+            return String.valueOf(t);
+    }
+
+    private static int getDurationHoursPart(int duration) {
+        return duration / 3600;
+    }
+
+    private static int getDurationMinsPart(int duration) {
+        return (duration % 3600) / 60;
+    }
+
+    private static int getDurationSecondsPart(int duration) {
+        return duration % 60;
     }
 }

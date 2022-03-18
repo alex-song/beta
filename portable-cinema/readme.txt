@@ -28,7 +28,7 @@ A:
 24. [Done] Save screenshot
 25. [Done] Decode error flag
 26. [Done] Improve file info editor panel
-27. Improve cover identify algorithm
+27. [Done] Improve cover identify algorithm
 28. Preview all images
 29. [Done] Image inventory
 

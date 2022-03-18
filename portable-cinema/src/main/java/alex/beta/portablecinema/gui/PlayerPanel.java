@@ -16,7 +16,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Hashtable;
@@ -24,7 +23,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import static alex.beta.portablecinema.PortableCinemaConfig.ScreenshotResolution;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class PlayerPanel extends JPanel {
 
@@ -219,28 +217,13 @@ public class PlayerPanel extends JPanel {
         captureBtn.setEnabled(fileInfo != null && !fileInfo.isDecodeError());
         captureBtn.addActionListener(e -> {
             if (fileInfo != null && screenshot != null) {
-                File folder = new File(fileInfo.getPath());
-                long timestamp = -1;
                 try {
-                    int dotIndex = fileInfo.getName().lastIndexOf('.');
-                    String videoFileName = (dotIndex < 0 ? fileInfo.getName() : fileInfo.getName().substring(0, dotIndex));
-                    if (isBlank(videoFileName)) videoFileName = "pc-screenshot";
-                    File screenshotFile = new File(folder,
-                            videoFileName + "-" + timeField.getText().replace(":", "")
-                                    + "." + config.getScreenshotResolution().getSuffix());
-                    if (screenshotFile.exists() && JOptionPane.YES_OPTION != JOptionPane.showConfirmDialog(this,
-                            "文件已存在，要覆盖吗？\n" + screenshotFile.getCanonicalPath(), "保存截图", JOptionPane.YES_NO_OPTION)) {
-                        return;
+                    if (!player.saveImage(screenshot, normalizeTimeFieldValue())) {
+                        JOptionPane.showMessageDialog(this, "保存截图失败", "保存截图", JOptionPane.INFORMATION_MESSAGE, null);
                     }
-                    timestamp = folder.lastModified();
-                    player.saveImage(screenshot, screenshotFile);
-                    if (logger.isInfoEnabled())
-                        logger.info("Screenshot is saved, {}", screenshotFile.getCanonicalPath());
                 } catch (Exception ex) {
                     logger.error("Failed to save the screenshot", ex);
                     JOptionPane.showMessageDialog(this, "保存截图失败", "保存截图", JOptionPane.INFORMATION_MESSAGE, null);
-                } finally {
-                    if (timestamp > -1) folder.setLastModified(timestamp);
                 }
             }
         });

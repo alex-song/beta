@@ -2,6 +2,7 @@ package alex.beta.portablecinema;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.Setter;
 
 @Setter
@@ -98,6 +99,10 @@ public class PortableCinemaConfig {
 
         public String getSuffix() {
             return this.surrfix;
+        }
+
+        public static boolean isSupported(@NonNull String surrfix) {
+            return HIGH.getSuffix().equalsIgnoreCase(surrfix) || LOW.getSuffix().equalsIgnoreCase(surrfix);
         }
     }
 }
