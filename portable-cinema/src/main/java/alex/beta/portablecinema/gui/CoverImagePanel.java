@@ -54,6 +54,31 @@ public class CoverImagePanel extends JPanel {
         loadImages(fileInfo);
     }
 
+    /**
+     * Gets image dimensions for given file
+     *
+     * @param imgFile image file
+     * @return dimensions of image
+     * @throws IOException if the file is not a known image
+     */
+    static Dimension getImageDimension(File imgFile) throws IOException {
+        String suffix = imgFile.getName().substring(imgFile.getName().lastIndexOf('.') + 1);
+        Iterator<ImageReader> iter = getImageReadersBySuffix(suffix);
+        while (iter.hasNext()) {
+            ImageReader reader = iter.next();
+            try (ImageInputStream stream = new FileImageInputStream(imgFile)) {
+                reader.setInput(stream);
+                return new Dimension(reader.getWidth(reader.getMinIndex()), reader.getHeight(reader.getMinIndex()));
+            } catch (IOException ex) {
+                if (logger.isInfoEnabled())
+                    logger.info("Failed to read {} using {}", imgFile.getCanonicalPath(), reader.getClass().getSimpleName(), ex);
+            } finally {
+                reader.dispose();
+            }
+        }
+        throw new IOException("Not a known image file: " + imgFile.getCanonicalPath());
+    }
+
     void loadImages(FileInfo fileInfo) {
         this.close();
 
@@ -174,31 +199,6 @@ public class CoverImagePanel extends JPanel {
                 }
             }
         }.execute();
-    }
-
-    /**
-     * Gets image dimensions for given file
-     *
-     * @param imgFile image file
-     * @return dimensions of image
-     * @throws IOException if the file is not a known image
-     */
-    static Dimension getImageDimension(File imgFile) throws IOException {
-        String suffix = imgFile.getName().substring(imgFile.getName().lastIndexOf('.') + 1);
-        Iterator<ImageReader> iter = getImageReadersBySuffix(suffix);
-        while (iter.hasNext()) {
-            ImageReader reader = iter.next();
-            try (ImageInputStream stream = new FileImageInputStream(imgFile)) {
-                reader.setInput(stream);
-                return new Dimension(reader.getWidth(reader.getMinIndex()), reader.getHeight(reader.getMinIndex()));
-            } catch (IOException ex) {
-                if (logger.isInfoEnabled())
-                    logger.info("Failed to read {} using {}", imgFile.getCanonicalPath(), reader.getClass().getSimpleName(), ex);
-            } finally {
-                reader.dispose();
-            }
-        }
-        throw new IOException("Not a known image file: " + imgFile.getCanonicalPath());
     }
 
     public void close() {

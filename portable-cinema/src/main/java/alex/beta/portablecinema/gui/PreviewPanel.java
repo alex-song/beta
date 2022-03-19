@@ -56,8 +56,8 @@ public class PreviewPanel extends JPanel {
     }
 
     /**
-     * @param config Configuration to reference
-     * @param owner the Frame from which the dialog is displayed
+     * @param config   Configuration to reference
+     * @param owner    the Frame from which the dialog is displayed
      * @param fileInfo File information to display
      * @return true, if file info is updated
      */

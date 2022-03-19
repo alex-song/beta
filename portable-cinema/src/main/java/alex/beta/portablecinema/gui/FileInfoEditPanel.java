@@ -286,6 +286,57 @@ public class FileInfoEditPanel extends JPanel {
         manualOverrideCheck.setSelected(fileInfo.isManualOverride());
     }
 
+    private static class NumberComboBox extends JComboBox<Integer> {
+        public NumberComboBox(Integer[] items) {
+            super(items);
+            ((JTextField) this.getEditor().getEditorComponent()).setHorizontalAlignment(SwingConstants.TRAILING);
+            ((JTextField) this.getEditor().getEditorComponent()).setDocument(new PlainDocument() {
+                @Override
+                public void insertString(int offset, String text, AttributeSet attr) throws BadLocationException {
+                    if (StringUtils.isNumeric(text))
+                        super.insertString(offset, text, attr);
+                }
+            });
+        }
+
+        public NumberComboBox(int min, int max, int increment) {
+            super();
+            for (int i = min; i <= max; i += increment) {
+                this.addItem(i);
+            }
+            ((JTextField) this.getEditor().getEditorComponent()).setHorizontalAlignment(SwingConstants.TRAILING);
+            ((JTextField) this.getEditor().getEditorComponent()).setDocument(new PlainDocument() {
+                @Override
+                public void insertString(int offset, String text, AttributeSet attr) throws BadLocationException {
+                    if (StringUtils.isNumeric(text)) {
+                        int length = this.getLength();
+                        if (offset > length) {
+                            throw new BadLocationException("Invalid insert", length);
+                        } else {
+                            try {
+                                String tmp = this.getText(0, offset) + text + this.getText(offset, length - offset);
+                                int v = Integer.parseInt(tmp);
+                                if (v >= min && v <= max)
+                                    super.insertString(offset, text, attr);
+                            } catch (Exception ex) {
+                                logger.error("Failed to parse input value", ex);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        public int getValue() {
+            int value = -1;
+            Object tmpO = this.getSelectedItem();
+            if (tmpO != null && isNotBlank(tmpO.toString()) && isNumeric(tmpO.toString())) {
+                value = Integer.parseInt(tmpO.toString().trim());
+            }
+            return value;
+        }
+    }
+
     private class ImagePanel extends JPanel {
         private String imageName;
 
@@ -375,59 +426,8 @@ public class FileInfoEditPanel extends JPanel {
             if (text == null || text.length() < 50) {
                 return text;
             } else {
-                return text.substring(0, 20) + "......" + text.substring(text.length() - 20);
+                return text.substring(0, 18) + "......" + text.substring(text.length() - 18);
             }
-        }
-    }
-
-    private static class NumberComboBox extends JComboBox<Integer> {
-        public NumberComboBox(Integer[] items) {
-            super(items);
-            ((JTextField) this.getEditor().getEditorComponent()).setHorizontalAlignment(SwingConstants.TRAILING);
-            ((JTextField) this.getEditor().getEditorComponent()).setDocument(new PlainDocument() {
-                @Override
-                public void insertString(int offset, String text, AttributeSet attr) throws BadLocationException {
-                    if (StringUtils.isNumeric(text))
-                        super.insertString(offset, text, attr);
-                }
-            });
-        }
-
-        public NumberComboBox(int min, int max, int increment) {
-            super();
-            for (int i = min; i <= max; i += increment) {
-                this.addItem(i);
-            }
-            ((JTextField) this.getEditor().getEditorComponent()).setHorizontalAlignment(SwingConstants.TRAILING);
-            ((JTextField) this.getEditor().getEditorComponent()).setDocument(new PlainDocument() {
-                @Override
-                public void insertString(int offset, String text, AttributeSet attr) throws BadLocationException {
-                    if (StringUtils.isNumeric(text)) {
-                        int length = this.getLength();
-                        if (offset > length) {
-                            throw new BadLocationException("Invalid insert", length);
-                        } else {
-                            try {
-                                String tmp = this.getText(0, offset) + text + this.getText(offset, length - offset);
-                                int v = Integer.parseInt(tmp);
-                                if (v >= min && v <= max)
-                                    super.insertString(offset, text, attr);
-                            } catch (Exception ex) {
-                                logger.error("Failed to parse input value", ex);
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        public int getValue() {
-            int value = -1;
-            Object tmpO = this.getSelectedItem();
-            if (tmpO != null && isNotBlank(tmpO.toString()) && isNumeric(tmpO.toString())) {
-                value = Integer.parseInt(tmpO.toString().trim());
-            }
-            return value;
         }
     }
 }
