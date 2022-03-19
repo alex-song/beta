@@ -36,6 +36,7 @@ public class CoverImagePanel extends JPanel {
     private static final int THUMBNAIL_IMAGE_SIZE = 100;
     private static final Logger logger = LoggerFactory.getLogger(CoverImagePanel.class);
 
+    private final PortableCinemaConfig config;
     private JLabel photographLabel;
     private JToolBar buttonBar;
     private MissingIcon placeholderIcon = new MissingIcon();
@@ -43,11 +44,18 @@ public class CoverImagePanel extends JPanel {
 
     public CoverImagePanel(PortableCinemaConfig config, FileInfo fileInfo, int width, int height) {
         super(new BorderLayout());
+        this.config = config;
+
         this.setSize(width, height);
         this.setPreferredSize(new Dimension(width, height));
         this.setBorder(null);
 
         createUIComponents();
+        loadImages(fileInfo);
+    }
+
+    void loadImages(FileInfo fileInfo) {
+        this.close();
 
         /**
          * SwingWorker class that loads the images a background thread and calls publish
@@ -195,12 +203,13 @@ public class CoverImagePanel extends JPanel {
 
     public void close() {
         if (buttonBar != null)
-            for (int i = 0; i < buttonBar.getComponentCount(); i++) {
+            for (int i = buttonBar.getComponentCount() - 1; i >= 0; i--) {
                 if (buttonBar.getComponent(i) instanceof JButton) {
                     Action a = ((JButton) buttonBar.getComponent(i)).getAction();
                     if (a != null && a instanceof ThumbnailAction) {
                         ((ThumbnailAction) a).close();
                     }
+                    buttonBar.remove(i);
                 }
             }
     }
@@ -231,14 +240,28 @@ public class CoverImagePanel extends JPanel {
         });
 
         // We add two glue components. Later in process() we will add thumbnail buttons
-        // to the toolbar in between thease glue compoents. This will center the
+        // to the toolbar in between these glue components. This will center the
         // buttons in the toolbar.
         buttonBar.setFloatable(false);
         buttonBar.add(Box.createGlue());
         buttonBar.add(Box.createGlue());
 
-        add(buttonBar, BorderLayout.SOUTH);
-        add(new JScrollPane(photographLabel), BorderLayout.CENTER);
+        JScrollPane jsp = new JScrollPane(buttonBar);
+        jsp.setBorder(BorderFactory.createEmptyBorder());
+        jsp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        jsp.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
+        jsp.getHorizontalScrollBar().setUnitIncrement(10);
+
+        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        splitPane.setBorder(BorderFactory.createEmptyBorder());
+        splitPane.setDividerLocation(this.getHeight() - THUMBNAIL_IMAGE_SIZE);
+        splitPane.setOneTouchExpandable(false);
+        splitPane.setContinuousLayout(true);
+        splitPane.setDividerSize(0);
+
+        splitPane.add(new JScrollPane(photographLabel));
+        splitPane.add(jsp);
+        add(splitPane, BorderLayout.CENTER);
     }
 
     /**

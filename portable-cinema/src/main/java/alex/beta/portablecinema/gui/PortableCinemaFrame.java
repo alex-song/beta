@@ -14,7 +14,6 @@ import javax.swing.text.html.HTMLDocument;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
 import static java.awt.Image.SCALE_SMOOTH;
@@ -66,11 +65,7 @@ public class PortableCinemaFrame extends JFrame {
     private void createUIComponents() {
         String EMPTY_HTML_TEMPLATE;
         try {
-            if ("xxx".equalsIgnoreCase(config.getTheme())) {
-                LOGO_IMAGE = ImageCache.getCache().getImage("images/Logo.png");
-            } else {
-                LOGO_IMAGE = ImageCache.getCache().getImage("images/Logo_2.png");
-            }
+            LOGO_IMAGE = ImageCache.getCache().getImage("images/Logo_2.png");
             EMPTY_HTML_TEMPLATE = Resources.asCharSource(Resources.getResource("templates/Empty.tpl"), StandardCharsets.UTF_8).read();
         } catch (Exception ex) {
             logger.error("Failed to load icon or template files", ex);
@@ -305,16 +300,6 @@ public class PortableCinemaFrame extends JFrame {
                 if (resultScrollPane != null) {
                     resultScrollPane.getVerticalScrollBar().setValue(resultScrollPane.getVerticalScrollBar().getMaximum());
                 }
-                if (false)
-                    try {
-                        HTMLDocument doc = (HTMLDocument) resultPane.getStyledDocument();
-                        EditorKit kit = resultPane.getEditorKit();
-                        StringWriter writer = new StringWriter();
-                        kit.write(writer, doc, 0, doc.getLength());
-                        System.out.println(writer.toString());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
             });
         }
     }

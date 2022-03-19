@@ -28,6 +28,10 @@ public class PortableCinemaConfig {
     private BaiduOCR baiduOCR;
     private boolean enablePerformanceLog;
     private boolean enableQueryResultHTML;
+    /**
+     * @deprecated
+     */
+    @Deprecated
     private String theme = "default";
     private ScreenshotResolution screenshotResolution = ScreenshotResolution.LOW;
 

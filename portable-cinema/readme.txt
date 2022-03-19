@@ -31,7 +31,7 @@ A:
 27. [Done] Improve cover identify algorithm
 28. [Done] Preview all images
 29. [Done] Image inventory
-30. Set cover image from preview panel
+30. [Done] Refactor thumbnail toolbar to support more icons
 
 B:
 1. [Cancel] Add images array

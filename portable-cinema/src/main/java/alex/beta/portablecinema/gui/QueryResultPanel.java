@@ -41,9 +41,6 @@ public class QueryResultPanel extends JPanel {
     private static final boolean[] COLUMN_RESIZABLE = new boolean[]{false, false, false, false, false, true, false, true, false};
     private final PortableCinemaConfig config;
     private PortableCinemaFrame frame;
-    private String initialOption;
-    private String initialInput;
-
     private ImageIcon previewIcon;
     private ImageIcon editIcon;
     private ImageIcon detailIcon;
@@ -63,9 +60,9 @@ public class QueryResultPanel extends JPanel {
         super(new BorderLayout());
         this.frame = frame;
         this.config = config;
-        this.initialOption = queryOption;
-        this.initialInput = userInput;
         this.fileInfos = fileInfos;
+        String initialOption = queryOption;
+        String initialInput = userInput;
         //init UI
         createUIComponents();
         enableUIActions();
@@ -98,13 +95,8 @@ public class QueryResultPanel extends JPanel {
     private void createUIComponents() {
         // load resources
         try {
-            if ("xxx".equalsIgnoreCase(config.getTheme())) {
-                folderIcon = new ImageIcon(ImageCache.getCache().getImage("images/Folder-Movie-icon.png", 15, 15, SCALE_SMOOTH));
-                previewIcon = new ImageIcon(ImageCache.getCache().getImage("images/Movie-icon.png", 15, 15, SCALE_SMOOTH));
-            } else {
-                folderIcon = new ImageIcon(ImageCache.getCache().getImage("images/Folder-icon.png", 15, 15, SCALE_SMOOTH));
-                previewIcon = new ImageIcon(ImageCache.getCache().getImage("images/Preview-icon.png", 15, 15, SCALE_SMOOTH));
-            }
+            folderIcon = new ImageIcon(ImageCache.getCache().getImage("images/Folder-icon.png", 15, 15, SCALE_SMOOTH));
+            previewIcon = new ImageIcon(ImageCache.getCache().getImage("images/Preview-icon.png", 15, 15, SCALE_SMOOTH));
             editIcon = new ImageIcon(ImageCache.getCache().getImage("images/Edit-icon.png", 15, 15, SCALE_SMOOTH));
             detailIcon = new ImageIcon(ImageCache.getCache().getImage("images/Detail-icon.png", 15, 15, SCALE_SMOOTH));
             hdIcon = new ImageIcon(ImageCache.getCache().getImage("images/HD-icon.png", 15, 15, SCALE_SMOOTH));

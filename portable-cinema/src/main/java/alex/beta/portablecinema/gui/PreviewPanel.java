@@ -49,25 +49,25 @@ public class PreviewPanel extends JPanel {
                 ocrClient = null;
             }
 
-            // short cut key to OCR, ctrl+R
+            // shortcut key to OCR, ctrl+R
             if (ocrClient != null)
-                registerKeyboardAction(ae -> doOCR(), KeyStroke.getKeyStroke("ctrl R"), JComponent.WHEN_IN_FOCUSED_WINDOW);
+                registerKeyboardAction(ae -> ocrActionPerformed(), KeyStroke.getKeyStroke("ctrl R"), JComponent.WHEN_IN_FOCUSED_WINDOW);
         }
     }
 
     /**
-     * @param owner
-     * @param fileInfo
-     * @param config
+     * @param config Configuration to reference
+     * @param owner the Frame from which the dialog is displayed
+     * @param fileInfo File information to display
      * @return true, if file info is updated
      */
     public static boolean showDialog(PortableCinemaConfig config, Frame owner, FileInfo fileInfo) {
         PreviewPanel pp = new PreviewPanel(config, fileInfo, 800, 700);
         Object[] options;
         if (pp.ocrClient != null) {
-            options = new Object[]{"确定", "文字识别(Ctrl + R)"};
+            options = new Object[]{"确定", "编辑", "文字识别(Ctrl + R)"};
         } else {
-            options = new Object[]{"确定"};
+            options = new Object[]{"确定", "编辑"};
         }
         JOptionPane jop = new JOptionPane(pp, JOptionPane.PLAIN_MESSAGE, JOptionPane.DEFAULT_OPTION, null, options, options[0]);
         JDialog dialog = new JDialog(owner, fileInfo.getName(), true);
@@ -77,9 +77,14 @@ public class PreviewPanel extends JPanel {
             if (JOptionPane.VALUE_PROPERTY.equals(evt.getPropertyName())) {
                 if (options[0].equals(evt.getNewValue()) || evt.getNewValue().equals(JOptionPane.DEFAULT_OPTION) || evt.getNewValue().equals(JOptionPane.OK_OPTION)) {
                     dialog.dispose();
-                } else if (options.length > 1 && options[1].equals(evt.getNewValue()) && pp.isImageShown()) {
+                } else if (options[1].equals(evt.getNewValue())) {
+                    pp.isUpdated = pp.showEditorDialog(fileInfo.getOtid()) || pp.isUpdated;
+                    if (pp.isUpdated && pp.coverImagePanel != null) {
+                        pp.coverImagePanel.loadImages(pp.fileInfo);
+                    }
+                } else if (options.length > 2 && options[2].equals(evt.getNewValue()) && pp.isImageShown()) {
                     if (pp.ocrClient != null) {
-                        pp.doOCR();
+                        pp.isUpdated = pp.ocrActionPerformed() || pp.isUpdated;
                     } else {
                         JOptionPane.showMessageDialog(pp, "请检查OCR程序配置", fileInfo.getName(), JOptionPane.PLAIN_MESSAGE, null);
                     }
@@ -113,12 +118,13 @@ public class PreviewPanel extends JPanel {
             tabbedPane.add("截图", playerPanel);
         }
         tabbedPane.setForeground(Color.BLACK);
+
         tabbedPane.setUI(new BasicTabbedPaneUI() {
             private final Insets borderInsets = new Insets(0, 0, 0, 0);
 
             @Override
             protected void paintContentBorder(Graphics g, int tabPlacement, int selectedIndex) {
-                // Do nothing
+                // No border for content
             }
 
             @Override
@@ -129,7 +135,8 @@ public class PreviewPanel extends JPanel {
         add(tabbedPane, BorderLayout.CENTER);
     }
 
-    private void doOCR() {
+    private boolean ocrActionPerformed() {
+        boolean isUpdated2 = false;
         int option = JOptionPane.DEFAULT_OPTION;
         if (isCoverImagePanelSelected()) {
             option = TagSuggestionPanel.showDialog(this.config, this, ocrClient, coverImagePanel.getCurrentImageName(), null);
@@ -145,11 +152,12 @@ public class PreviewPanel extends JPanel {
                 //open editor
                 showEditorDialog(fileInfo.getOtid());
             }
-            this.isUpdated = true;
+            isUpdated2 = true;
         } else if (option == DISCARD_CHANGES_OPEN_EDITOR_OPTION || option == NO_CHANGE_OPEN_EDITOR_OPTION) {
             //open editor
-            this.isUpdated = showEditorDialog(fileInfo.getOtid());
+            isUpdated2 = showEditorDialog(fileInfo.getOtid());
         }
+        return isUpdated2;
     }
 
     private boolean showEditorDialog(String otid) {
