@@ -20,8 +20,8 @@ import java.util.concurrent.TimeUnit;
 
 import static alex.beta.portablecinema.FolderVisitorFactory.Action;
 import static alex.beta.portablecinema.FolderVisitorFactory.FolderVisitor;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.split;
+import static alex.beta.portablecinema.filesystem.FileSystemUtils.doSkip;
+import static alex.beta.portablecinema.filesystem.FileSystemUtils.isVideoFile;
 
 public abstract class AbstractFolderVisitor implements FolderVisitor {
 
@@ -33,39 +33,6 @@ public abstract class AbstractFolderVisitor implements FolderVisitor {
     protected Action actionType;
 
     private VisitorMessageCallback messageCallback;
-
-    public static boolean doSkip(@NonNull PortableCinemaConfig config, @NonNull File file) {
-        String[] tokens = isBlank(config.getSkipNameStartsWith()) ? new String[]{} : split(config.getSkipNameStartsWith(), "\\,");
-        for (String token : tokens) {
-            if (file.getName().toLowerCase().startsWith(token.trim())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Check file extension and file size, according to configuration
-     *
-     * @param config
-     * @param file
-     * @return
-     */
-    public static boolean isImageFile(@NonNull final PortableCinemaConfig config, @NonNull File file) {
-        if (isBlank(config.getImageFileExtensions()) || !file.isFile()) {
-            return false;
-        } else if (config.getImageFileExtensions().trim().equals("*")) {
-            return true;
-        }
-        String[] imageExts = split(config.getImageFileExtensions(), "\\,");
-        for (String imageExt : imageExts) {
-            if (file.getName().toLowerCase().endsWith(imageExt.toLowerCase().trim())
-                    && file.length() >= config.getImageFileSizeThreshold()) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     private static AbstractFolderVisitor newFolderVisitor(@NonNull Action action) {
         switch (action) {
@@ -227,29 +194,6 @@ public abstract class AbstractFolderVisitor implements FolderVisitor {
         }
 
         return folderInfo;
-    }
-
-    /**
-     * Check file extension and file size, according to configuration
-     *
-     * @param config
-     * @param file
-     * @return
-     */
-    protected boolean isVideoFile(@NonNull final PortableCinemaConfig config, @NonNull File file) {
-        if (isBlank(config.getVideoFileExtensions()) || !file.isFile()) {
-            return false;
-        } else if (config.getVideoFileExtensions().trim().equals("*")) {
-            return true;
-        }
-        String[] videoExts = split(config.getVideoFileExtensions(), "\\,");
-        for (String videoExt : videoExts) {
-            if (file.getName().toLowerCase().endsWith(videoExt.toLowerCase().trim())
-                    && file.length() >= config.getVideoFileSizeThreshold()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     protected abstract void beforeAllFiles(final PortableCinemaConfig config, FileDB db, File currentFolder, File[] files) throws IOException, DatabaseException;

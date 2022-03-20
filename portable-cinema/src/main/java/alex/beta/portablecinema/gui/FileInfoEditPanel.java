@@ -2,6 +2,7 @@ package alex.beta.portablecinema.gui;
 
 import alex.beta.portablecinema.ImageCache;
 import alex.beta.portablecinema.PortableCinemaConfig;
+import alex.beta.portablecinema.filesystem.FileSystemUtils;
 import alex.beta.portablecinema.pojo.FileInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -31,8 +32,8 @@ public class FileInfoEditPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(FileInfoEditPanel.class);
 
     private final PortableCinemaConfig config;
-    private ImageIcon imageSelectorBtnIcon;
-    private ImageIcon imageDeletionBtnIcon;
+    private final ImageIcon imageSelectorBtnIcon;
+    private final ImageIcon imageDeletionBtnIcon;
     private NumberComboBox widthField;
     private NumberComboBox heightField;
     private NumberComboBox hoursField;
@@ -395,20 +396,13 @@ public class FileInfoEditPanel extends JPanel {
 
                     if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION
                             && fileChooser.getSelectedFile() != null) {
-                        try {
-                            String path = fileChooser.getSelectedFile().getCanonicalPath();
-                            if (folder != null) {
-                                this.imageName = path.substring(folder.getCanonicalPath().length() + File.separator.length());
-                            } else {
-                                this.imageName = path;
-                                while (this.imageName.startsWith(File.separator))
-                                    this.imageName = this.imageName.substring(1);
-                            }
-                            imageLabel.setText(toDisplay(this.imageName));
-                            imageLabel.setToolTipText(this.imageName);
-                        } catch (Exception ex) {
-                            logger.error("Failed to set {}", text, ex);
+                        File imageFile = fileChooser.getSelectedFile();
+                        if (!FileSystemUtils.isImageFile(config, imageFile)) {
+                            return;
                         }
+                        this.imageName = imageFile.getName();
+                        imageLabel.setText(toDisplay(this.imageName));
+                        imageLabel.setToolTipText(this.imageName);
                     }
                 });
             }

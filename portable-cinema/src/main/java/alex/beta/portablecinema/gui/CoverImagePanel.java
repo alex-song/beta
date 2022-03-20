@@ -18,13 +18,10 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static alex.beta.portablecinema.filesystem.AbstractFolderVisitor.doSkip;
-import static alex.beta.portablecinema.filesystem.AbstractFolderVisitor.isImageFile;
-import static alex.beta.portablecinema.filesystem.FileScan.containsOnlyImages;
+import static alex.beta.portablecinema.filesystem.FileSystemUtils.*;
 import static java.awt.Image.SCALE_DEFAULT;
 import static java.awt.Image.SCALE_SMOOTH;
 import static javax.imageio.ImageIO.getImageReadersBySuffix;
@@ -80,6 +77,7 @@ public class CoverImagePanel extends JPanel {
     }
 
     void loadImages(FileInfo fileInfo) {
+        // Remove image icons, loaded before, if there is any
         this.close();
 
         /**
@@ -100,7 +98,7 @@ public class CoverImagePanel extends JPanel {
              */
             @Override
             protected Void doInBackground() {
-                if (fileInfo == null || !fileInfo.hasCover()) {
+                if (fileInfo == null) {
                     publish(new ThumbnailAction(placeholderIcon, placeholderIcon, placeholderIcon, ""));
                 } else {
                     // publish cover 1 and cover 2 first
@@ -113,7 +111,7 @@ public class CoverImagePanel extends JPanel {
 
                     // publish images in the same folder, other than cover 1 and cover 2
                     File currentFolder = new File(fileInfo.getPath() == null ? "." : fileInfo.getPath());
-                    List<String> images = getAllImages(currentFolder);
+                    List<String> images = getAllImages(config, currentFolder, fileInfo.getCover1(), fileInfo.getCover2());
                     for (String image : images) {
                         try {
                             publishImage(currentFolder.getCanonicalPath(), image);
@@ -125,34 +123,19 @@ public class CoverImagePanel extends JPanel {
                     // publish images in sub folder, that contains only images, if cover 1 or cover 2 is blank
                     if (images.isEmpty() && (isBlank(fileInfo.getCover1()) || isBlank(fileInfo.getCover2()))) {
                         File[] subFolders = currentFolder.listFiles(file -> file.isDirectory() && !doSkip(config, file));
-                        if (subFolders != null && subFolders.length == 1 && containsOnlyImages(config, subFolders[0])) {
-                            List<String> subImages = getAllImages(subFolders[0]);
-                            for (String image : subImages) {
+                        if (subFolders != null && subFolders.length == 1 && isImageFolder(config, subFolders[0])) {
+                            List<String> subImages = getAllImages(config, subFolders[0], fileInfo.getCover1(), fileInfo.getCover2());
+                            for (String imageName : subImages) {
                                 try {
-                                    publishImage(subFolders[0].getCanonicalPath(), image);
+                                    publishImage(subFolders[0].getCanonicalPath(), imageName);
                                 } catch (Exception ex) {
-                                    logger.warn("Failed to publish image [{}]", image, ex);
+                                    logger.warn("Failed to publish image [{}]", imageName, ex);
                                 }
                             }
                         }
                     }
                 }
                 return null;
-            }
-
-            private List<String> getAllImages(@NonNull File folder) {
-                List<String> images = new ArrayList<>();
-                File[] files = folder.listFiles(file -> isImageFile(config, file) && !doSkip(config, file));
-                if (files != null) {
-                    for (File f : files) {
-                        String fName = f.getName();
-                        if (!fName.equalsIgnoreCase(fileInfo.getCover1())
-                                && !fName.equalsIgnoreCase(fileInfo.getCover2())) {
-                            images.add(fName);
-                        }
-                    }
-                }
-                return images;
             }
 
             /**
@@ -193,6 +176,7 @@ public class CoverImagePanel extends JPanel {
                     buttonBar.add(thumbButton, buttonBar.getComponentCount() - 1);
                     if (!isFirstImageReady) {
                         photographLabel.setIcon(thumbAction.scaledImage);
+                        photographLabel.setToolTipText(String.valueOf(thumbAction.getValue(SHORT_DESCRIPTION)));
                         currentAction = thumbAction;
                         isFirstImageReady = true;
                     }
@@ -212,6 +196,9 @@ public class CoverImagePanel extends JPanel {
                     buttonBar.remove(i);
                 }
             }
+        currentAction = null;
+        photographLabel.setToolTipText(null);
+        photographLabel.setIcon(null);
     }
 
     private void createUIComponents() {
@@ -262,6 +249,15 @@ public class CoverImagePanel extends JPanel {
         splitPane.add(new JScrollPane(photographLabel));
         splitPane.add(jsp);
         add(splitPane, BorderLayout.CENTER);
+    }
+
+    void setTitle() {
+        for (Component c = getParent(); c != null; c = c.getParent()) {
+            if (c instanceof JDialog && currentAction != null) {
+                ((JDialog) c).setTitle(String.valueOf(currentAction.getValue(SHORT_DESCRIPTION)));
+                break;
+            }
+        }
     }
 
     /**
@@ -413,7 +409,9 @@ public class CoverImagePanel extends JPanel {
          */
         public void actionPerformed(ActionEvent e) {
             photographLabel.setIcon(scaledImage);
+            photographLabel.setToolTipText(String.valueOf(getValue(SHORT_DESCRIPTION)));
             currentAction = this;
+            setTitle();
         }
 
         /**

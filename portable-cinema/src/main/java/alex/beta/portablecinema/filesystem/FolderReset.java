@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
+import static alex.beta.portablecinema.filesystem.FileSystemUtils.doSkip;
+
 public class FolderReset extends AbstractFolderVisitor {
 
     public FolderReset() {
@@ -40,14 +42,16 @@ public class FolderReset extends AbstractFolderVisitor {
     public void afterAllSubFolders(final PortableCinemaConfig config, FileDB db, @NonNull File currentFolder, File[] subFolders) throws IOException, DatabaseException {
         long tmpD = 0;
         String currentFolderPath = currentFolder.getCanonicalPath();
-        for (File f : currentFolder.listFiles()) {
-            if (!f.getName().equalsIgnoreCase(config.getDbFileName())
-                    && !f.getName().equalsIgnoreCase(config.getGlossaryFileName())
-                    && !doSkip(config, f)
-                    && f.lastModified() > tmpD) {
-                tmpD = f.lastModified();
+        File[] files = currentFolder.listFiles();
+        if (files != null && files.length > 0)
+            for (File f : files) {
+                if (!f.getName().equalsIgnoreCase(config.getDbFileName())
+                        && !f.getName().equalsIgnoreCase(config.getGlossaryFileName())
+                        && !doSkip(config, f)
+                        && f.lastModified() > tmpD) {
+                    tmpD = f.lastModified();
+                }
             }
-        }
         if (!currentFolderPath.equalsIgnoreCase(config.getRootFolderPath())
                 && tmpD > 0
                 && currentFolder.lastModified() >= tmpD - 999

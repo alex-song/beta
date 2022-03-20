@@ -117,8 +117,14 @@ public class PreviewPanel extends JPanel {
             playerPanel = new PlayerPanel(config, fileInfo, this.getWidth() - 20, this.getHeight() - 30);
             tabbedPane.add("截图", playerPanel);
         }
-        tabbedPane.setForeground(Color.BLACK);
 
+        tabbedPane.addChangeListener(e -> {
+            if (isCoverImagePanelSelected()) {
+                coverImagePanel.setTitle();
+            } else if (isPlayPanelSelected()) {
+                playerPanel.setTitle();
+            }
+        });
         tabbedPane.setUI(new BasicTabbedPaneUI() {
             private final Insets borderInsets = new Insets(0, 0, 0, 0);
 

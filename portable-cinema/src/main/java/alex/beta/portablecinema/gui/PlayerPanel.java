@@ -270,6 +270,15 @@ public class PlayerPanel extends JPanel {
         return player;
     }
 
+    void setTitle() {
+        for (Component c = getParent(); c != null; c = c.getParent()) {
+            if (c instanceof JDialog && fileInfo != null) {
+                ((JDialog) c).setTitle(fileInfo.getName());
+                break;
+            }
+        }
+    }
+
     String getCurrentTimestamp() {
         return screenshot == null ? null : this.timeField.getText();
     }
