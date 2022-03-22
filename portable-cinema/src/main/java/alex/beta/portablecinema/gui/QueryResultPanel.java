@@ -4,6 +4,7 @@ import alex.beta.portablecinema.ImageCache;
 import alex.beta.portablecinema.PortableCinemaConfig;
 import alex.beta.portablecinema.command.*;
 import alex.beta.portablecinema.pojo.FileInfo;
+import alex.beta.simpleocr.baidu.BaiduOcr;
 import lombok.NonNull;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.text.StringEscapeUtils;
@@ -193,7 +194,8 @@ public class QueryResultPanel extends JPanel {
                     if (col == 1 && (fileInfo.hasCover() || !fileInfo.isDecodeError())) {
                         if (logger.isDebugEnabled())
                             logger.debug("Open preview dialog of {}", fileInfo);
-                        if (PreviewPanel.showDialog(config, frame, fileInfo)) {
+                        if (PreviewPanel.showDialog(config, frame, fileInfo,
+                                config.getBaiduOCR() == null ? null : new BaiduOcr(config.getBaiduOCR().toProperties()))) {
                             fileInfos[row] = new ViewCommand(fileInfo.getOtid()).execute(config);
                             fileInfoTableModel.fireTableRowsUpdated(row, row);
                         }
@@ -287,7 +289,8 @@ public class QueryResultPanel extends JPanel {
                     if (fileInfo.hasCover() || !fileInfo.isDecodeError()) {
                         if (logger.isDebugEnabled())
                             logger.debug("Open preview dialog of {}", fileInfo);
-                        if (PreviewPanel.showDialog(config, frame, fileInfo)) {
+                        if (PreviewPanel.showDialog(config, frame, fileInfo,
+                                config.getBaiduOCR() == null ? null : new BaiduOcr(config.getBaiduOCR().toProperties()))) {
                             fileInfos[row] = new ViewCommand(fileInfo.getOtid()).execute(config);
                             fileInfoTableModel.fireTableRowsUpdated(row, row);
                         }

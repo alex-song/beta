@@ -1,4 +1,4 @@
-package alex.beta.portablecinema.video;
+package alex.beta.portablecinema.filesystem;
 
 import alex.beta.portablecinema.PortableCinemaConfig;
 import alex.beta.portablecinema.pojo.FileInfo;
@@ -105,7 +105,7 @@ public class Player implements AutoCloseable {
      */
     public synchronized boolean isDecodable() {
         if (container == null) {
-            throw new RuntimeException("Container is not initialized, do read() first.");
+            throw new UnsupportedOperationException("Container is not initialized, do read() first.");
         }
         try {
             fileInfo.setDecodeError(videoCoder == null || videoCoder.open(null, null) < 0);
@@ -274,7 +274,7 @@ public class Player implements AutoCloseable {
         }
     }
 
-    public boolean saveImage(RenderedImage image, String append) throws IOException {
+    private boolean saveImage(RenderedImage image, String append) throws IOException {
         if (isBlank(append))
             append = DateFormatUtils.format(new Date(), "hhmmss");
         File folder = new File(fileInfo.getPath());

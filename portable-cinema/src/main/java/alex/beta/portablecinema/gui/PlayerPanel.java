@@ -1,8 +1,8 @@
 package alex.beta.portablecinema.gui;
 
 import alex.beta.portablecinema.PortableCinemaConfig;
+import alex.beta.portablecinema.filesystem.Player;
 import alex.beta.portablecinema.pojo.FileInfo;
-import alex.beta.portablecinema.video.Player;
 import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

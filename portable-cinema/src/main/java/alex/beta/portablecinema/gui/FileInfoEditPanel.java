@@ -4,6 +4,7 @@ import alex.beta.portablecinema.ImageCache;
 import alex.beta.portablecinema.PortableCinemaConfig;
 import alex.beta.portablecinema.filesystem.FileSystemUtils;
 import alex.beta.portablecinema.pojo.FileInfo;
+import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +52,7 @@ public class FileInfoEditPanel extends JPanel {
         this.config = config;
         this.fileInfo = fileInfo;
 
-        imageSelectorBtnIcon = new ImageIcon(ImageCache.getCache().getImage("images/Preview-icon_1.png", 20, 20, SCALE_SMOOTH));
+        imageSelectorBtnIcon = new ImageIcon(ImageCache.getCache().getImage("images/Preview-icon.png", 20, 20, SCALE_SMOOTH));
         imageDeletionBtnIcon = new ImageIcon(ImageCache.getCache().getImage("images/Delete-icon.png", 20, 20, SCALE_SMOOTH));
 
         createUIComponents();
@@ -232,7 +233,9 @@ public class FileInfoEditPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         add(durationPanel, gbc);
 
-        File folder = new File(isBlank(fileInfo.getPath()) ? "." : fileInfo.getPath());
+        File folder = isBlank(fileInfo.getPath())
+                ? new File(isBlank(config.getRootFolderPath()) ? "." : config.getRootFolderPath())
+                : new File(fileInfo.getPath());
         cover1Panel = new ImagePanel("封面图", fileInfo.getCover1(), folder);
         gbc.gridx = 0;
         gbc.gridy = 2;
@@ -341,7 +344,7 @@ public class FileInfoEditPanel extends JPanel {
     private class ImagePanel extends JPanel {
         private String imageName;
 
-        public ImagePanel(String text, String name, File folder) {
+        public ImagePanel(final String text, final String name, final File folder) {
             super(new GridBagLayout());
             this.imageName = name;
             JLabel label = new JLabel(text + " ：");
@@ -377,7 +380,7 @@ public class FileInfoEditPanel extends JPanel {
                 imageSelectorBtn.setEnabled(false);
             } else {
                 imageSelectorBtn.addActionListener(e -> {
-                    JFileChooser fileChooser = new JFileChooser();
+                    JFileChooser fileChooser = new ThumbnailFileChooser(config);
                     fileChooser.setDialogTitle("设置" + text);
                     fileChooser.setMultiSelectionEnabled(false);
 
@@ -400,7 +403,7 @@ public class FileInfoEditPanel extends JPanel {
                         if (!FileSystemUtils.isImageFile(config, imageFile)) {
                             return;
                         }
-                        this.imageName = imageFile.getName();
+                        this.imageName = getRelativePath(imageFile, folder);
                         imageLabel.setText(toDisplay(this.imageName));
                         imageLabel.setToolTipText(this.imageName);
                     }
@@ -412,8 +415,25 @@ public class FileInfoEditPanel extends JPanel {
             this.add(imageSelectorBtn, gbc);
         }
 
+        /**
+         * Including folder path, relative to the current folder
+         *
+         * @return
+         */
         public String getImageName() {
             return this.imageName;
+        }
+
+        private String getRelativePath(@NonNull File file, File folder) {
+            try {
+                if (folder == null)
+                    return file.getCanonicalPath();
+                else
+                    return file.getCanonicalPath().substring(folder.getCanonicalPath().length() + 1);
+            } catch (IOException ex) {
+                logger.error("Cannot get canonical path", ex);
+                return null;
+            }
         }
 
         private String toDisplay(String text) {

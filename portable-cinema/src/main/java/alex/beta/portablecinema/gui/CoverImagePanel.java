@@ -1,6 +1,7 @@
 package alex.beta.portablecinema.gui;
 
 import alex.beta.portablecinema.PortableCinemaConfig;
+import alex.beta.portablecinema.filesystem.FileSystemUtils;
 import alex.beta.portablecinema.pojo.FileInfo;
 import lombok.NonNull;
 import org.slf4j.Logger;
@@ -59,7 +60,7 @@ public class CoverImagePanel extends JPanel {
      * @throws IOException if the file is not a known image
      */
     static Dimension getImageDimension(File imgFile) throws IOException {
-        String suffix = imgFile.getName().substring(imgFile.getName().lastIndexOf('.') + 1);
+        String suffix = FileSystemUtils.getFileExtension(imgFile);
         Iterator<ImageReader> iter = getImageReadersBySuffix(suffix);
         while (iter.hasNext()) {
             ImageReader reader = iter.next();
@@ -171,6 +172,7 @@ public class CoverImagePanel extends JPanel {
             protected void process(List<ThumbnailAction> chunks) {
                 for (ThumbnailAction thumbAction : chunks) {
                     JButton thumbButton = new JButton(thumbAction);
+                    //thumbButton.setToolTipText(String.valueOf(thumbAction.getValue(SHORT_DESCRIPTION)));
                     // Add the new button BEFORE the last glue
                     // This centers the buttons in the toolbar
                     buttonBar.add(thumbButton, buttonBar.getComponentCount() - 1);
@@ -274,12 +276,11 @@ public class CoverImagePanel extends JPanel {
             int hints = SCALE_SMOOTH;
             File imgFile = new File(path);
             if (imgFile.exists() && imgFile.isFile()) {
-                int pos = imgFile.getName().lastIndexOf('.');
-                if (pos < 0) {
+                String suffix = FileSystemUtils.getFileExtension(imgFile);
+                if (isBlank(suffix)) {
                     logger.info("No extension for file [{}]", path);
                     return new ImageIcon[]{};
                 } else {
-                    String suffix = imgFile.getName().substring(pos + 1);
                     if ("bmp".equalsIgnoreCase(suffix)) {
                         //Has to use BufferedImage for BMP images
                         img = ImageIO.read(imgFile);

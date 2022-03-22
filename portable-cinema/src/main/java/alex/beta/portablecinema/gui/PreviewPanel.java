@@ -11,16 +11,13 @@ import org.slf4j.LoggerFactory;
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicTabbedPaneUI;
 import java.awt.*;
-import java.util.Properties;
 
 import static alex.beta.portablecinema.command.EditCommand.UPDATE_SUCCESS;
 import static alex.beta.portablecinema.command.EditCommand.resultText;
 import static alex.beta.portablecinema.gui.TagSuggestionPanel.*;
-import static alex.beta.simpleocr.OcrFactory.PROXY_HOST;
-import static alex.beta.simpleocr.OcrFactory.PROXY_PORT;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-@SuppressWarnings({"squid:S1948", "squid:S3776"})
+@SuppressWarnings({"squid:S1948", "squid:S3776", "JAVA_MODULE_DOES_NOT_EXPORT_PACKAGE"})
 public class PreviewPanel extends JPanel {
     private static final Logger logger = LoggerFactory.getLogger(PreviewPanel.class);
     private final PortableCinemaConfig config;
@@ -32,26 +29,19 @@ public class PreviewPanel extends JPanel {
     private CoverImagePanel coverImagePanel;
     private PlayerPanel playerPanel;
 
-    public PreviewPanel(PortableCinemaConfig config, FileInfo fileInfo, int width, int height) {
+    public PreviewPanel(PortableCinemaConfig config, FileInfo fileInfo, int width, int height, BaiduOcr ocrClient) {
         super(new BorderLayout());
         this.config = config;
         this.fileInfo = fileInfo;
+        this.ocrClient = ocrClient;
         this.setSize(width, height);
         this.setPreferredSize(new Dimension(width, height));
 
         createUIComponents();
 
-        if (playerPanel != null || coverImagePanel != null) {
-            PortableCinemaConfig.BaiduOCR ocrConfig = config.getBaiduOCR();
-            if (ocrConfig != null && isNotBlank(ocrConfig.getAppId())) {
-                initOcrClient();
-            } else {
-                ocrClient = null;
-            }
-
+        if ((playerPanel != null || coverImagePanel != null) && ocrClient != null) {
             // shortcut key to OCR, ctrl+R
-            if (ocrClient != null)
-                registerKeyboardAction(ae -> ocrActionPerformed(), KeyStroke.getKeyStroke("ctrl R"), JComponent.WHEN_IN_FOCUSED_WINDOW);
+            registerKeyboardAction(ae -> ocrActionPerformed(), KeyStroke.getKeyStroke("ctrl R"), JComponent.WHEN_IN_FOCUSED_WINDOW);
         }
     }
 
@@ -61,8 +51,8 @@ public class PreviewPanel extends JPanel {
      * @param fileInfo File information to display
      * @return true, if file info is updated
      */
-    public static boolean showDialog(PortableCinemaConfig config, Frame owner, FileInfo fileInfo) {
-        PreviewPanel pp = new PreviewPanel(config, fileInfo, 800, 700);
+    public static boolean showDialog(PortableCinemaConfig config, Frame owner, FileInfo fileInfo, BaiduOcr ocrClient) {
+        PreviewPanel pp = new PreviewPanel(config, fileInfo, 800, 700, ocrClient);
         Object[] options;
         if (pp.ocrClient != null) {
             options = new Object[]{"确定", "编辑", "文字识别(Ctrl + R)"};
@@ -125,6 +115,7 @@ public class PreviewPanel extends JPanel {
                 playerPanel.setTitle();
             }
         });
+
         tabbedPane.setUI(new BasicTabbedPaneUI() {
             private final Insets borderInsets = new Insets(0, 0, 0, 0);
 
@@ -150,10 +141,10 @@ public class PreviewPanel extends JPanel {
             option = TagSuggestionPanel.showDialog(this.config, this, ocrClient, playerPanel.getCurrentTimestamp(), playerPanel.toBytes());
         }
         if (option == SAVE_CHANGES_OPTION || option == SAVE_CHANGES_OPEN_EDITOR_OPTION) {
-            int result = new EditCommand(fileInfo).execute(config);
-            logger.debug("Update tags of file info [{}], result is [{}]", fileInfo, result);
+            int result = new EditCommand(this.fileInfo).execute(config);
+            logger.debug("Update tags of file info [{}], result is [{}]", this.fileInfo, result);
             if (option == SAVE_CHANGES_OPTION)
-                JOptionPane.showMessageDialog(this, resultText(result), fileInfo.getName(), JOptionPane.PLAIN_MESSAGE, null);
+                JOptionPane.showMessageDialog(this, resultText(result), this.fileInfo.getName(), JOptionPane.PLAIN_MESSAGE, null);
             else {
                 //open editor
                 showEditorDialog(fileInfo.getOtid());
@@ -161,7 +152,7 @@ public class PreviewPanel extends JPanel {
             isUpdated2 = true;
         } else if (option == DISCARD_CHANGES_OPEN_EDITOR_OPTION || option == NO_CHANGE_OPEN_EDITOR_OPTION) {
             //open editor
-            isUpdated2 = showEditorDialog(fileInfo.getOtid());
+            isUpdated2 = showEditorDialog(this.fileInfo.getOtid()) || isUpdated2;
         }
         return isUpdated2;
     }
@@ -183,23 +174,6 @@ public class PreviewPanel extends JPanel {
 
     public FileInfo getFileInfo() {
         return fileInfo;
-    }
-
-    private void initOcrClient() {
-        PortableCinemaConfig.BaiduOCR ocrConfig = config.getBaiduOCR();
-        Properties ocrProps = new Properties();
-        ocrProps.setProperty(BaiduOcr.BAIDU_API_KEY, ocrConfig.getApiKey());
-        ocrProps.setProperty(BaiduOcr.BAIDU_SECRET_KEY, ocrConfig.getSecretKey());
-        ocrProps.setProperty(BaiduOcr.BAIDU_APP_ID, ocrConfig.getAppId());
-        if (isNotBlank(ocrConfig.getProxyHost())) {
-            ocrProps.setProperty(PROXY_HOST, ocrConfig.getProxyHost());
-            if (ocrConfig.getProxyPort() == 0) {
-                ocrProps.setProperty(PROXY_PORT, "80");
-            } else {
-                ocrProps.setProperty(PROXY_PORT, String.valueOf(ocrConfig.getProxyPort()));
-            }
-        }
-        this.ocrClient = new BaiduOcr(ocrProps);
     }
 
     private boolean isCoverImagePanelSelected() {

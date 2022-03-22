@@ -5,7 +5,6 @@ import alex.beta.portablecinema.PortableCinemaConfig;
 import alex.beta.portablecinema.pojo.FileDB;
 import alex.beta.portablecinema.pojo.FileInfo;
 import alex.beta.portablecinema.tag.TagService;
-import alex.beta.portablecinema.video.Player;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.NonNull;

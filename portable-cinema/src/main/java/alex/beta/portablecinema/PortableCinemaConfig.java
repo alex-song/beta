@@ -1,9 +1,16 @@
 package alex.beta.portablecinema;
 
+import alex.beta.simpleocr.baidu.BaiduOcr;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
+
+import java.util.Properties;
+
+import static alex.beta.simpleocr.OcrFactory.PROXY_HOST;
+import static alex.beta.simpleocr.OcrFactory.PROXY_PORT;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Setter
 @Getter
@@ -109,5 +116,21 @@ public class PortableCinemaConfig {
         private String appId;
         private String apiKey;
         private String secretKey;
+
+        public Properties toProperties() {
+            Properties ocrProps = new Properties();
+            ocrProps.setProperty(BaiduOcr.BAIDU_API_KEY, this.getApiKey());
+            ocrProps.setProperty(BaiduOcr.BAIDU_SECRET_KEY, this.getSecretKey());
+            ocrProps.setProperty(BaiduOcr.BAIDU_APP_ID, this.getAppId());
+            if (isNotBlank(this.getProxyHost())) {
+                ocrProps.setProperty(PROXY_HOST, this.getProxyHost());
+                if (this.getProxyPort() == 0) {
+                    ocrProps.setProperty(PROXY_PORT, "80");
+                } else {
+                    ocrProps.setProperty(PROXY_PORT, String.valueOf(this.getProxyPort()));
+                }
+            }
+            return ocrProps;
+        }
     }
 }

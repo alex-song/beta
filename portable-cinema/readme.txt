@@ -33,6 +33,7 @@ A:
 29. [Done] Image inventory
 30. [Done] Refactor thumbnail toolbar to support more icons
 31. [Done] Change preview dialog title name, when showing preview images
+32. [Done] Thumbnail file chooser
 
 B:
 1. [Cancel] Add images array

@@ -1,7 +1,6 @@
 package alex.beta.portablecinema.filesystem;
 
 import alex.beta.portablecinema.PortableCinemaConfig;
-import alex.beta.portablecinema.video.Player;
 import com.google.common.io.Files;
 import lombok.NonNull;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
@@ -82,7 +81,7 @@ public final class FileSystemUtils {
         }
         String[] imageExts = split(config.getImageFileExtensions(), "\\,");
         for (String imageExt : imageExts) {
-            if (Files.getFileExtension(file.getPath()).equalsIgnoreCase(normalizeExt(imageExt))
+            if (getFileExtension(file).equalsIgnoreCase(normalizeExt(imageExt))
                     && file.length() >= config.getImageFileSizeThreshold()) {
                 return true;
             }
@@ -110,7 +109,7 @@ public final class FileSystemUtils {
         }
         String[] videoExts = split(config.getVideoFileExtensions(), "\\,");
         for (String videoExt : videoExts) {
-            if (Files.getFileExtension(file.getPath()).equalsIgnoreCase(normalizeExt(videoExt))
+            if (getFileExtension(file).equalsIgnoreCase(normalizeExt(videoExt))
                     && file.length() >= config.getVideoFileSizeThreshold()) {
                 return true;
             }
@@ -189,7 +188,7 @@ public final class FileSystemUtils {
      */
     public static boolean isScreenshot4Others(final PortableCinemaConfig config, @NonNull File videoFile, @NonNull File currentFolder, @NonNull File imageToTest) {
         if (!isImageFile(config, imageToTest) ||
-                !PortableCinemaConfig.ScreenshotResolution.isSupported(Files.getFileExtension(imageToTest.getName()))) {
+                !PortableCinemaConfig.ScreenshotResolution.isSupported(getFileExtension(imageToTest))) {
             return false;
         }
         String baseName = Files.getNameWithoutExtension(imageToTest.getName());
@@ -226,7 +225,9 @@ public final class FileSystemUtils {
                 } else {
                     boolean flag = true;
                     for (String exclude : excludes) {
-                        if (isNotBlank(exclude) && fName.equalsIgnoreCase(exclude)) {
+                        if (isNotBlank(exclude)
+                                && (fName.equalsIgnoreCase(exclude)
+                                || (folder.getName() + File.separator + fName).equalsIgnoreCase(exclude))) {
                             flag = false;
                             break;
                         }
@@ -236,6 +237,18 @@ public final class FileSystemUtils {
             }
         }
         return images;
+    }
+
+    /**
+     * Get file extension
+     *
+     * @param file
+     * @return extension after '.'. Return "", if there is no '.' found
+     */
+    public static String getFileExtension(@NonNull File file) {
+        String fileName = file.getName();
+        int dotIndex = fileName.lastIndexOf(46);
+        return dotIndex == -1 ? "" : fileName.substring(dotIndex + 1);
     }
 
     /**

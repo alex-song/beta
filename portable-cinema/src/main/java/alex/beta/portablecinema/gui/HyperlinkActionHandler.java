@@ -5,6 +5,7 @@ import alex.beta.portablecinema.command.EditCommand;
 import alex.beta.portablecinema.command.ViewCommand;
 import alex.beta.portablecinema.pojo.FileInfo;
 import alex.beta.portablecinema.tag.TagService;
+import alex.beta.simpleocr.baidu.BaiduOcr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,7 +124,8 @@ public class HyperlinkActionHandler extends MouseAdapter {
                             JOptionPane.showMessageDialog(frame, tag + (result ? "添加成功" : "已存在，或添加失败"), "更新关键字库", JOptionPane.INFORMATION_MESSAGE, frame.logo50Icon);
                         } else if (href.startsWith("preview://")) {
                             fileInfo = new ViewCommand(href.substring(10)).execute(config);
-                            PreviewPanel.showDialog(config, frame, fileInfo);
+                            PreviewPanel.showDialog(config, frame, fileInfo,
+                                    config.getBaiduOCR() == null ? null : new BaiduOcr(config.getBaiduOCR().toProperties()));
                         } else if (href.startsWith("edit://")) {
                             fileInfo = new ViewCommand(href.substring(7)).execute(config);
                             if (FileInfoEditPanel.showDialog(config, frame, fileInfo)) {
